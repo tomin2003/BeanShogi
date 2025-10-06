@@ -8,7 +8,7 @@ import com.beanshogi.util.*;
 
 // Promoted Lance (と)
 public class PromotedPawn extends Piece {
-    // Normal promoted pieces behave just like the Gold General, so they composite it
+    // Normal promoted pieces behave like the Gold General, so they composite it
     private GoldGeneral goldDelegate;
 
     public PromotedPawn(Colors color, Position position, Board board) {

@@ -8,7 +8,7 @@ import com.beanshogi.util.*;
 
 // Promoted Knight (圭)
 public class PromotedKnight extends Piece {
-    // Normal promoted pieces behave just like the Gold General, so they composite it
+    // Normal promoted pieces behave like the Gold General, so they composite it
     private GoldGeneral goldDelegate;
 
     public PromotedKnight(Colors color, Position position, Board board) {
