@@ -7,7 +7,7 @@ import com.beanshogi.util.*;
 
 // Promoted Rook/Dragon King (龍)
 public class PromotedRook extends Piece {
-    // The Promoted Rook behaves like a slider piece and a normal piece in one.
+    // The Promoted Rook behaves like a slider piece and a normal piece.
     private static final int[][] promotedRookDirs = {          {0,1},
                                                           {-1,0},/*PB*/{1,0},
                                                                 {0,-1}};

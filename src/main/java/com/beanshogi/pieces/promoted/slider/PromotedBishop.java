@@ -7,10 +7,10 @@ import com.beanshogi.util.*;
 
 // Promoted Bishop/Dragon Horse (馬)
 public class PromotedBishop extends Piece {
-    // The Promoted Rook behaves like a slider piece and a normal piece in one.
+    // The Promoted Rook behaves like a slider piece and a normal piece.
     private static final int[][] promotedBishopDirs = {{-1,1},/* */{1,1},
-                                                               /*PB*/
-                                                        {-1,-1},/**/{1,-1}};
+                                                              /*PB*/
+                                                       {-1,-1},/**/{1,-1}};
                                                         
     private static final int[][] promotedBishopOffsets = {       {0,1},
                                                           {-1,0},/*PB*/{1,0},
