@@ -20,4 +20,4 @@ public class GoldGeneral extends Piece {
     public List<Position> getLegalMoves() {
         return getLegalMovesNormal(goldOffsets);
     }
-};
+}
