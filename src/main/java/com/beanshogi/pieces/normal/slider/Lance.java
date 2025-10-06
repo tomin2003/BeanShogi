@@ -7,7 +7,7 @@ import com.beanshogi.util.*;
 
 // Lance (香)
 public class Lance extends Piece {
-    // The lance only moves up n times relative to position.
+    // The Lance only moves up n times relative to position.
     private static final int[][] lanceDirs = {{0,1}};
                                               /*LA*/
 
