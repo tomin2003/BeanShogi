@@ -4,7 +4,8 @@ import java.util.*;
 import com.beanshogi.util.*;
 
 public abstract class Piece {
-    // The color of a piece (mutable due to shogi rules)
+    // The color of a piece must be mutable due to the unique drop technique in Shogi 
+    // that allows for opponent pieces to be captured and used as own.
     protected Colors color;
     // The board index of a piece.
     protected Position position;
