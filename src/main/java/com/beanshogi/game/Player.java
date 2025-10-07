@@ -5,12 +5,28 @@ import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 
 public class Player {
-    Colors color;
-    // The collection of pieces on hand.
-    List<Piece> hand;
+    // The color of the player
+    private Colors color;
+    // The pieces in hand.
+    private List<Piece> hand;
 
-    // Capture a piece from the opponent and include it in own hand.
-    public void capturePiece(Piece piece) {
-        hand.add(piece);        
+    public Player(Colors color) {
+        this.color = color;
+        hand = new ArrayList<>();
+    }  
+
+    public Colors getColor() {
+        return color;
     }
+
+    public List<Piece> getHand() {
+        return Collections.unmodifiableList(hand);
+    }
+
+    // Add to hand (when captured)
+    public void addToHand(Piece piece) {
+        if (piece == null) return;
+        piece.changeColor();
+        hand.add(piece);
+    }    
 }

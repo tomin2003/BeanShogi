@@ -4,9 +4,8 @@ import java.util.*;
 import com.beanshogi.util.*;
 
 public abstract class Piece {
-    // The color of a piece is immutable, because despite shogi colors being mutable, a captured piece will lament
-    // as a new piece object. 
-    protected final Colors color;
+    // The color of a piece is mutable, so each player can capture pieces;
+    protected Colors color;
     // The board index of a piece.
     protected Position position;
     // The board the piece belongs to.
@@ -22,6 +21,14 @@ public abstract class Piece {
     // --Methods-- // 
     public Colors getColor() {
         return color;
+    }
+
+    public void changeColor() {
+        if (color == Colors.BLACK) {
+            color = Colors.WHITE;
+        } else {
+            color = Colors.BLACK;
+        }
     }
 
     public void setPosition(Position pos) {
