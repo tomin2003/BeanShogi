@@ -11,7 +11,6 @@ public class Player {
 
     // Capture a piece from the opponent and include it in own hand.
     public void capturePiece(Piece piece) {
-        piece.setColor(this.color);      
         hand.add(piece);        
     }
 }
