@@ -5,7 +5,7 @@ import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 
 public class Player {
-    // The color of the player
+    // The color of the player.
     private Colors color;
     // The pieces in hand.
     private List<Piece> hand;
@@ -27,6 +27,7 @@ public class Player {
     public void addToHand(Piece piece) {
         if (piece == null) return;
         piece.changeColor();
+        piece.demote();
         hand.add(piece);
     }    
 
