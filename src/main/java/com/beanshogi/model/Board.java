@@ -4,37 +4,42 @@ import com.beanshogi.util.Position;
 import java.util.*;
 
 public class Board {
-    // A Position-Piece pairing for convenient management of squares.
-    private Map<Position, Piece> squares;
-
-    // --Constructors-- //
-    public Board() {
-        this.squares = new HashMap<>();
-    }
+    // A 2D 9x9 array for board management.
+    private final Piece[][] board = new Piece[9][9];
 
     // --Methods-- //
     public Piece getPiece(Position pos) {
-        return squares.get(pos);
-    }
-    
-    public boolean isEmpty(Position pos) {
-        return !squares.containsKey(pos);
-    }
-
-    public Collection<Piece> getAllPieces() {
-        return squares.values();
+        return board[pos.getX()][pos.getY()];
     }
 
     public void setPiece(Position pos, Piece piece) {
-        if (piece != null) {
-            piece.setPosition(pos);
-            squares.put(pos, piece);
-        } else {
-            squares.remove(pos);
+        board[pos.getX()][pos.getY()] = piece;
+        if (piece != null) piece.setPosition(pos);
+    }
+
+    public void removePiece(Position pos) {
+        board[pos.getX()][pos.getY()] = null;
+    }
+    
+    public boolean isEmpty(Position pos) {
+        return board[pos.getX()][pos.getY()] == null;
+    }
+    
+    public Collection<Piece> getAllPieces() {
+        Collection<Piece> allPieces = new ArrayList<>();
+        for (Piece[] rowPieces : board) {
+            for (Piece columnPieces : rowPieces) {
+                if (columnPieces != null) {
+                    allPieces.add(columnPieces);
+                }
+            }
         }
+        return allPieces;
     }
 
     public void clear() {
-        squares.clear();
+        for (Piece[] row : board) {
+            Arrays.fill(row, null);
+        }
     }
 }

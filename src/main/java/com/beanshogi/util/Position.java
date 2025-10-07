@@ -1,7 +1,5 @@
 package com.beanshogi.util;
 
-import java.util.Objects;
-
 public class Position {
     private int x;
     private int y;
@@ -32,6 +30,7 @@ public class Position {
         this.y = y;
     }
 
+    // Check for alignment within 9x9 shogi board bounds
     public boolean inBounds() {
         return x >= 0 && x < 9 && y >= 0 && y < 9;
     }
@@ -49,10 +48,5 @@ public class Position {
         // Cast and compare by fields
         Position pos = (Position)o;
         return (this.x == pos.x) && (this.y == pos.y);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(x, y);
     }
 }

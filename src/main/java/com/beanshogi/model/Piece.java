@@ -4,9 +4,9 @@ import java.util.*;
 import com.beanshogi.util.*;
 
 public abstract class Piece {
-    // The color of a piece must be mutable due to the unique drop technique in Shogi 
-    // that allows for opponent pieces to be captured and used as own.
-    protected Colors color;
+    // The color of a piece is immutable, because despite shogi colors being mutable, a captured piece will lament
+    // as a new piece object. 
+    protected final Colors color;
     // The board index of a piece.
     protected Position position;
     // The board the piece belongs to.
@@ -20,10 +20,6 @@ public abstract class Piece {
     }                   
 
     // --Methods-- // 
-    public void setColor(Colors color) {
-    this.color = color;                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
-    }
-
     public Colors getColor() {
         return color;
     }
@@ -47,11 +43,6 @@ public abstract class Piece {
         return (this.color == piece.color) && (this.position.equals(piece.position));
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(color, position, board);
-    }
-
     private boolean selfCollide(Position pos) {
         // If the board isn't empty, check if the color of the piece at a given position matches -> collision
         return !board.isEmpty(pos) && board.getPiece(pos).getColor() == this.getColor();
@@ -64,11 +55,9 @@ public abstract class Piece {
 
     public List<Position> getLegalMovesSlider(int[][] dirs) {
         List<Position> legalMoves = new ArrayList<>();
-
         for (int[] dir : dirs) {
             int nx = position.getX();
             int ny = position.getY();
-
             while (true) {
                 nx += dir[0];
                 ny += dir[1] * color.getAlignFactor();
@@ -84,8 +73,6 @@ public abstract class Piece {
         }
         return legalMoves;
     }
-
-
 
     public List<Position> getLegalMovesNormal(int[][] offsets) {
         int x = position.getX();
