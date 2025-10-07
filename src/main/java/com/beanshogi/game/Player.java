@@ -29,4 +29,9 @@ public class Player {
         piece.changeColor();
         hand.add(piece);
     }    
+
+    // Remove from hand (when placing down a captured piece)
+    public void removeFromHand(Piece piece) {
+        hand.remove(piece);
+    }
 }

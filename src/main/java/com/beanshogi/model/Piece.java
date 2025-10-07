@@ -11,6 +11,11 @@ public abstract class Piece {
     // The board the piece belongs to.
     protected Board board;
 
+
+    // Non promotable pieces handle promotions like so
+    public Piece promote() { return this; }
+    public Piece demote() { return this; }
+
     // --Constructors-- //
     public Piece(Colors color, Position position, Board board) {
         this.color = color;
