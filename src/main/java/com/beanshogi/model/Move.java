@@ -15,21 +15,12 @@ public class Move {
     // If this move will promote the piece
     private final boolean isPromotion;
 
-    // A move that involves capture
+    // Constructor for moves
     public Move(Position from, Position to, Piece movedPiece, Piece capturedPiece, boolean isPromotion) {
         this.from = from;
         this.to = to;
         this.movedPiece = movedPiece;
         this.capturedPiece = capturedPiece;
-        this.isPromotion = isPromotion;
-    }
-
-    // A move that does not involve capture
-    public Move(Position from, Position to, Piece movedPiece, boolean isPromotion) {
-        this.from = from;
-        this.to = to;
-        this.movedPiece = movedPiece;
-        this.capturedPiece = null;
         this.isPromotion = isPromotion;
     }
 
