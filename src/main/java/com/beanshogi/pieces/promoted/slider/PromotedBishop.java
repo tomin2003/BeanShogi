@@ -3,13 +3,12 @@ package com.beanshogi.pieces.promoted.slider;
 import java.util.*;
 
 import com.beanshogi.model.*;
+import com.beanshogi.pieces.PromotedPiece;
 import com.beanshogi.pieces.normal.slider.*;
 import com.beanshogi.util.*;
 
 // Promoted Bishop/Dragon Horse (馬)
-public class PromotedBishop extends Piece implements Promotable {
-    // Link to the Bishop
-    private static final Class<? extends Piece> demotedClass = Bishop.class;
+public class PromotedBishop extends PromotedPiece {
 
     // The Promoted Rook behaves like a slider piece and a normal piece.
     private static final int[][] promotedBishopDirs = {{-1,1},/* */{1,1},
@@ -31,23 +30,8 @@ public class PromotedBishop extends Piece implements Promotable {
         return moves;
     }
 
-    @Override
-    public Piece promote() {
-        return this; // already promoted
-    }
-
-    @Override
-    public Piece demote() {
-        try {
-            return demotedClass.getConstructor(Colors.class, Position.class, Board.class)
-                                 .newInstance(color, position, board);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean isPromoted() {
-        return true; 
+    @Override 
+    protected Class<? extends Piece> getDemotedClass() {
+        return Bishop.class;
     }
 }

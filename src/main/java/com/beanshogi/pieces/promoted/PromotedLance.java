@@ -3,12 +3,13 @@ package com.beanshogi.pieces.promoted;
 import java.util.*;
 
 import com.beanshogi.model.*;
+import com.beanshogi.pieces.PromotedPiece;
 import com.beanshogi.pieces.normal.GoldGeneral;
 import com.beanshogi.pieces.normal.slider.*;
 import com.beanshogi.util.*;
 
 // Promoted Lance (杏)
-public class PromotedLance extends Piece implements Promotable {
+public class PromotedLance extends PromotedPiece {
     // Link to the Lance
     private static final Class<? extends Piece> demotedClass = Lance.class;
 
@@ -27,22 +28,7 @@ public class PromotedLance extends Piece implements Promotable {
     }
 
     @Override
-    public Piece promote() {
-        return this; // already promoted
-    }
-
-    @Override
-    public Piece demote() {
-        try {
-            return demotedClass.getConstructor(Colors.class, Position.class, Board.class)
-                                 .newInstance(color, position, board);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    @Override
-    public boolean isPromoted() {
-        return true; 
+    protected Class<? extends Piece> getDemotedClass() {
+        return Lance.class;
     }
 }
