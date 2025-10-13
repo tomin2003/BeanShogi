@@ -1,12 +1,15 @@
 package com.beanshogi.model;
 
+import com.beanshogi.game.*;
 import com.beanshogi.util.Position;
 
 // A class representing the act of movement for a given piece (immutable)
 public class Move {
-    // Initiate the move from (x,y)
+    // The player who moved the piece
+    private final Player player;
+    // Move from (x,y)
     private final Position from;
-    // Initiate the move to (x,y)
+    // Move to (x,y)
     private final Position to;
     // The moved piece
     private final Piece movedPiece;
@@ -16,12 +19,17 @@ public class Move {
     private final boolean isPromotion;
 
     // Constructor for moves
-    public Move(Position from, Position to, Piece movedPiece, Piece capturedPiece, boolean isPromotion) {
+    public Move(Player player, Position from, Position to, Piece movedPiece, Piece capturedPiece, boolean isPromotion) {
+        this.player = player;
         this.from = from;
         this.to = to;
         this.movedPiece = movedPiece;
         this.capturedPiece = capturedPiece;
         this.isPromotion = isPromotion;
+    }
+
+    public Player getPlayer() { 
+        return player;
     }
 
     public Position getFrom() { 

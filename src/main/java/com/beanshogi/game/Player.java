@@ -26,9 +26,10 @@ public class Player {
     // Add to hand (when captured)
     public void addToHand(Piece piece) {
         if (piece == null) return;
-        piece.changeColor();
-        piece.demote();
-        hand.add(piece);
+        Piece capturedPiece = piece;
+        capturedPiece.changeColor();
+        capturedPiece = capturedPiece.demote();
+        hand.add(capturedPiece);
     }    
 
     // Remove from hand (when placing down a captured piece)
