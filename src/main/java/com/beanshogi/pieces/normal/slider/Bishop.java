@@ -9,8 +9,6 @@ import com.beanshogi.util.*;
 
 // Bishop (角)
 public class Bishop extends UnPromotedPiece {
-    // Link the promoted version of Bishop
-    private static final Class<? extends Piece> promotedClass = PromotedBishop.class;
 
     private static final int[][] bishopDirs = {{-1,1},/* */{1,1},
                                                       /*BI*/
