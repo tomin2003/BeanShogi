@@ -10,9 +10,7 @@ import com.beanshogi.util.*;
 
 // Promoted Lance (杏)
 public class PromotedLance extends PromotedPiece {
-    // Link to the Lance
-    private static final Class<? extends Piece> demotedClass = Lance.class;
-
+    
     // Normal promoted pieces behave like the Gold General, so they composite it
     private GoldGeneral goldDelegate;
 
