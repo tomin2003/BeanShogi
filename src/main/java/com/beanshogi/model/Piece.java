@@ -28,6 +28,10 @@ public abstract class Piece {
         return color;
     }
 
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
     public void changeColor() {
         if (color == Colors.BLACK) {
             color = Colors.WHITE;
@@ -46,17 +50,19 @@ public abstract class Piece {
 
     @Override
     public boolean equals(Object o) {
-        // Check if it's the same object
         if (this == o) {
             return true;
         }
-        // Check it it's not of Piece type
         if (!(o instanceof Piece)) {
             return false;
         }
-        // Cast and compare by fields
-        Piece piece = (Piece)o;
-        return (this.color == piece.color) && (this.position.equals(piece.position));
+        Piece piece = (Piece) o;
+        return this.getClass() == piece.getClass() && this.color == piece.color;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClass(), color);
     }
 
     private boolean selfCollide(Position pos) {
@@ -104,7 +110,5 @@ public abstract class Piece {
         }
         return legalMoves;
     }
-        
     public abstract List<Position> getLegalMoves();
-
 }
