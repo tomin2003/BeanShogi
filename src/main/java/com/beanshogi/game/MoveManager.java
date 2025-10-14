@@ -34,16 +34,20 @@ public class MoveManager {
     }
 
     public void undoMove() {
-        // Get previous move
+        if (undoStack.empty()) {
+            return;
+        }
+
         Move lastMove = undoStack.pop();
-        
-        // Add the undid move to be able to redo
+
+        // Stash away the latest move to redo
         redoStack.push(lastMove);
 
         board.removePiece(lastMove.getTo());
 
         Piece capturedPiece = lastMove.getCapturedPiece();
         if (capturedPiece != null) {
+            capturedPiece.changeColor();
             board.setPiece(lastMove.getTo(), capturedPiece);
             lastMove.getPlayer().removeFromHand(capturedPiece);
         }
@@ -57,7 +61,28 @@ public class MoveManager {
     }
 
     public void redoMove() {
+        if (redoStack.empty()) {
+            return;
+        }
+        Move redoMove = redoStack.pop();
         
+        // Stash away the invoked move
+        undoStack.push(redoMove);
+
+        board.removePiece(redoMove.getFrom());
+
+        Piece capturedPiece = redoMove.getCapturedPiece();
+        if (capturedPiece != null) {
+            board.removePiece(redoMove.getTo());
+            redoMove.getPlayer().addToHand(capturedPiece);
+        }
+
+        Piece movedPiece = redoMove.getMovedPiece();
+        if (redoMove.isPromotion()) {
+            // Promote, if applicable
+            movedPiece = movedPiece.promote();
+        }
+        board.setPiece(redoMove.getTo(), movedPiece);
     }
 }
 
