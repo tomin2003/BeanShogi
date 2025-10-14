@@ -67,12 +67,12 @@ public abstract class Piece {
 
     private boolean selfCollide(Position pos) {
         // If the board isn't empty, check if the color of the piece at a given position matches -> collision
-        return !board.isEmpty(pos) && board.getPiece(pos).getColor() == this.getColor();
+        return !board.isEmptyAt(pos) && board.getPiece(pos).getColor() == this.getColor();
     }
 
     private boolean opponentCollide(Position pos) {
         // If the board isn't empty, check if the color of the piece at a given differs -> collision
-        return !board.isEmpty(pos) && board.getPiece(pos).getColor() != this.getColor();
+        return !board.isEmptyAt(pos) && board.getPiece(pos).getColor() != this.getColor();
     }
 
     public List<Position> getLegalMovesSlider(int[][] dirs) {

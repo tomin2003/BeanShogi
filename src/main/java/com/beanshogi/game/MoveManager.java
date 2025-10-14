@@ -6,15 +6,15 @@ import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 
 public class MoveManager {
-    Board board;
-    private Stack<Move> undoStack = new Stack<>();
-    private Stack<Move> redoStack = new Stack<>();
+    static private Board board;
+    static private Stack<Move> undoStack = new Stack<>();
+    static private Stack<Move> redoStack = new Stack<>();
 
     public MoveManager(Board board) {
-        this.board = board;
+        MoveManager.board = board;
     }
 
-    public void applyMove(Player currentPlayer, Position from, Position to, boolean isPromotion) {
+    public static void applyMove(Player currentPlayer, Position from, Position to, boolean isPromotion) {
         Piece movedPiece = board.getPiece(from);
         Piece capturedPiece = board.getPiece(to);
         board.removePiece(from);
@@ -33,7 +33,7 @@ public class MoveManager {
         redoStack.clear();
     }
 
-    public void undoMove() {
+    public static void undoMove() {
         if (undoStack.empty()) {
             return;
         }
@@ -60,7 +60,7 @@ public class MoveManager {
         board.setPiece(lastMove.getFrom(), movedPiece);
     }
 
-    public void redoMove() {
+    public static void redoMove() {
         if (redoStack.empty()) {
             return;
         }
