@@ -12,16 +12,6 @@ public class BotHelper {
     public BotHelper(Board board) {
         this.board = board;
     }
-    
-    public HashMap<Piece, Collection<Position>> getAllLegalMoves() {
-        // Hashmap for storing Piece-Position mappings
-        HashMap<Piece, Collection<Position>> legalMoves = new HashMap<>();
-        // Place the legal moves of all white pieces into the HashMap
-        for (Piece piece : board.getPiecesByColor(Colors.WHITE)) {
-            legalMoves.put(piece, piece.getLegalMoves());
-        }
-        return legalMoves;
-    }
 
     int minimax(Board board, int depth, int alpha, int beta, boolean maximizingPlayer) {
         // TODO: if (depth == 0 || isGameOver) return eval(board);
