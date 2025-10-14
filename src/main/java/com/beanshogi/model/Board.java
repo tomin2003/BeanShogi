@@ -1,7 +1,9 @@
 package com.beanshogi.model;
 
+import com.beanshogi.util.Colors;
 import com.beanshogi.util.Position;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Board {
     // A 2D 9x9 array for board management.
@@ -25,16 +27,21 @@ public class Board {
         return board[pos.getX()][pos.getY()] == null;
     }
     
+    // Get pieces via stream
     public Collection<Piece> getAllPieces() {
-        Collection<Piece> allPieces = new ArrayList<>();
-        for (Piece[] rowPieces : board) {
-            for (Piece columnPieces : rowPieces) {
-                if (columnPieces != null) {
-                    allPieces.add(columnPieces);
-                }
-            }
-        }
-        return allPieces;
+        return Arrays.stream(board)
+                .flatMap(Arrays::stream)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+    }
+
+    // Get pieces via stream and also filter for color
+    public Collection<Piece> getPiecesByColor(Colors color) {
+        return Arrays.stream(board)
+                .flatMap(Arrays::stream)
+                .filter(Objects::nonNull)  
+                .filter(p -> p.getColor() == color)
+                .collect(Collectors.toList());
     }
 
     public void clear() {

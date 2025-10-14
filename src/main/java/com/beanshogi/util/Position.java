@@ -1,5 +1,7 @@
 package com.beanshogi.util;
 
+import java.util.Objects;
+
 public class Position {
     private int x;
     private int y;
@@ -48,5 +50,10 @@ public class Position {
         // Cast and compare by fields
         Position pos = (Position)o;
         return (this.x == pos.x) && (this.y == pos.y);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x,y);
     }
 }

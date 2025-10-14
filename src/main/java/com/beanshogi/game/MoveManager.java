@@ -55,6 +55,10 @@ public class MoveManager {
         }
         board.setPiece(lastMove.getFrom(), movedPiece);
     }
+
+    public void redoMove() {
+        
+    }
 }
 
 
