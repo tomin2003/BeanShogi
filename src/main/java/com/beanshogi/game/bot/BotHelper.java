@@ -23,5 +23,19 @@ public class BotHelper {
         return legalMoves;
     }
 
+    int minimax(Board board, int depth, int alpha, int beta, boolean maximizingPlayer) {
+        // TODO: if (depth == 0 || isGameOver) return eval(board);
+
+        if (maximizingPlayer) {
+            int maxEval = Integer.MIN_VALUE;
+            // TODO: recursive logic /w unto/redo stacks
+            return maxEval;
+        } else {
+            int minEval = Integer.MAX_VALUE;
+            // TODO: recursive logic /w undo/redo stacks
+            return minEval;
+        }
+    }
+
 }
  
