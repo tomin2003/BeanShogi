@@ -7,8 +7,8 @@ import com.beanshogi.util.*;
 
 public class MoveManager {
     static private Board board;
-    static private Stack<Move> undoStack = new Stack<>();
-    static private Stack<Move> redoStack = new Stack<>();
+    static protected Stack<Move> undoStack = new Stack<>();
+    static protected Stack<Move> redoStack = new Stack<>();
 
     public MoveManager(Board board) {
         MoveManager.board = board;
