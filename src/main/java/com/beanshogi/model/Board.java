@@ -4,18 +4,21 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.beanshogi.pieces.normal.King;
+import com.beanshogi.pieces.normal.Knight;
+import com.beanshogi.pieces.normal.Pawn;
+import com.beanshogi.pieces.normal.slider.Lance;
 import com.beanshogi.util.*;
 
 public class Board {
-    // A map for handling pieces with their positions
-    private final Map<Position, Piece> board = new HashMap<>();
+    // A 9x9 2d array for handling pieces with their positions
+    private final Piece[][] board = new Piece[9][9];
 
     // A map for handling only kings for quick lookups
     private final Map<Colors, King> kings = new HashMap<>();
 
     // --Methods-- //
     public Piece getPiece(Position pos) {
-        return board.get(pos);
+        return board[pos.getX()][pos.getY()];
     }
 
     public King getKing(Colors color) {
@@ -23,7 +26,7 @@ public class Board {
     }
 
     public void setPiece(Position pos, Piece piece) {
-        board.put(pos, piece);
+        board[pos.getX()][pos.getY()] = piece;
         if (piece != null) {
             piece.setPosition(pos);
         }
@@ -33,35 +36,42 @@ public class Board {
     }
 
     public void removePiece(Position pos) {
-        board.remove(pos);
+        int x = pos.getX();
+        int y = pos.getY();
+        Piece removed = board[x][y];
+        board[x][y] = null;
+        if (removed instanceof King) {
+            kings.remove(removed.getColor());
+        }
     }
     
     public boolean isEmptyAt(Position pos) {
-        return !board.containsKey(pos);
+        return board[pos.getX()][pos.getY()] == null;
     }
     
     public void clear() {
-        board.clear();
+        for (int i = 0; i < 9; i++) {
+            Arrays.fill(board[i], null);
+        }
+        kings.clear();
     }
 
     // Get pieces via stream
-    public Collection<Piece> getAllPieces() {
-        return board.values();
+    public List<Piece> getAllPieces() {
+        List<Piece> pieces = new ArrayList<>();
+        for (Piece[] row : board) {
+            for (Piece piece : row) {
+                pieces.add(piece);
+            }
+        }
+        return pieces;
     }
 
     // Get pieces via stream and also filter for color
     public Collection<Piece> getPiecesByColor(Colors color) {
-        return board.values().stream()
+        return getAllPieces().stream()
                     .filter(p -> p.getColor() == color)
                     .collect(Collectors.toList());
-    }
-
-    @Override // Shallow copy!
-    public Board clone() {
-        Board clonedBoard = new Board();
-        clonedBoard.board.putAll(this.board);
-        clonedBoard.kings.putAll(this.kings);
-        return clonedBoard;
     }
 
     // Generic search for piece type with stream
@@ -71,5 +81,50 @@ public class Board {
                         .map(pieceClass::cast)
                         .findFirst()
                         .orElse(null);
+    }
+
+    // Get a hashset of drop points
+    public <T extends Piece> Set<Position> getPieceDropPoints(Class<T> pieceClass, Colors pieceColor) {
+        Set<Position> dropPoints = new HashSet<>();
+
+        for (int y = 0; y < 9; y++) {
+            for (int x = 0; x < 9; x++) {
+            Position pos = new Position(x,y);
+                if (!isEmptyAt(pos)) {
+                    continue;
+                }
+                // Pawn specific rule: no two pawns in the same column
+                if (pieceClass == Pawn.class) {
+                    boolean sameColumnPawns = false;
+                    for (int i = 0; i < 9; i++) {
+                        Piece p = board[x][i];
+                        if (p instanceof Pawn && p.getColor() == pieceColor) {
+                            sameColumnPawns = true;
+                            break;
+                        }
+                    }
+                    // Pawns are on the same column, cannot move here
+                    if (sameColumnPawns) {
+                        continue;
+                    }
+                    // Piece cannot be dropped past the drop zone
+                    if ((pieceColor == Colors.BLACK && y == 0) || (pieceColor == Colors.WHITE && y == 8)) {
+                        continue;
+                    }
+                }   
+                if (pieceClass == Lance.class) {
+                    if ((pieceColor == Colors.BLACK && y == 0) || (pieceColor == Colors.WHITE && y == 8)) {
+                        continue;
+                    }
+                }
+                if (pieceClass == Knight.class) {
+                    if ((pieceColor == Colors.BLACK && y <= 1) || (pieceColor == Colors.WHITE && y >= 7)) {
+                        continue;
+                    }
+                }
+                dropPoints.add(pos);
+            }
+        }
+        return dropPoints;
     }
 }
