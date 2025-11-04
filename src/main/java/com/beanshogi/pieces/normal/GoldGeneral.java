@@ -17,7 +17,7 @@ public class GoldGeneral extends Piece {
     }
 
     @Override
-    public List<Position> getLegalMoves() {
+    public Set<Position> getLegalMoves() {
         return getLegalMovesNormal(goldOffsets);
     }
 }

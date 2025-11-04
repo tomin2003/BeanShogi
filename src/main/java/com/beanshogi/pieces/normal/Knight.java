@@ -22,7 +22,7 @@ public class Knight extends UnPromotedPiece {
     }
 
     @Override
-    public List<Position> getLegalMoves() {
+    public Set<Position> getLegalMoves() {
         return getLegalMovesNormal(knightOffsets);
     }
 

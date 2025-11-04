@@ -9,11 +9,13 @@ import com.beanshogi.pieces.normal.Pawn;
 import com.beanshogi.pieces.normal.slider.Lance;
 import com.beanshogi.util.*;
 
+/**
+ * Class representing a game board.
+ * @param board 9x9 2D array for a shogi board.
+ * @param kings a HashMap for the 2 kings represented on the board, so that they don't have to be searched for on the board
+ */
 public class Board {
-    // A 9x9 2d array for handling pieces with their positions
     private final Piece[][] board = new Piece[9][9];
-
-    // A map for handling only kings for quick lookups
     private final Map<Colors, King> kings = new HashMap<>();
 
     // --Methods-- //

@@ -17,7 +17,7 @@ public class King extends Piece {
     }
 
     @Override
-    public List<Position> getLegalMoves() {
+    public Set<Position> getLegalMoves() {
         return getLegalMovesNormal(kingOffsets);
     }
 }

@@ -3,7 +3,15 @@ package com.beanshogi.model;
 import com.beanshogi.game.*;
 import com.beanshogi.util.Position;
 
-// A class representing the act of movement for a given piece (immutable)
+/**
+ * Represents an act of movement, immutable
+ * @param player the player who initiated the move
+ * @param from the square from which the move was made
+ * @param to the square to which the move is made
+ * @param movedPiece the piece that was moved
+ * @param capturedPiece the piece that was caputured as a result (null if didn't capture any)
+ * @param isPromotion flag, true when the move promoted the piece
+ */
 public class Move {
     // The player who moved the piece
     private final Player player;

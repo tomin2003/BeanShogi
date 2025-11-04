@@ -3,14 +3,16 @@ package com.beanshogi.model;
 import java.util.*;
 import com.beanshogi.util.*;
 
+/**
+ * Represents a Piece base class, holds the properties that are shared between every piece.
+ * @param color determines which player owns the piece and where the piece is aligned (mutable for captures)
+ * @param position the position of the piece on the board currently
+ * @param board the board the piece belongs to
+ */
 public abstract class Piece {
-    // The color of a piece is mutable, so each player can capture pieces;
     protected Colors color;
-    // The board index of a piece.
     protected Position position;
-    // The board the piece belongs to.
     protected Board board;
-
 
     // Non promotable pieces handle promotions like so
     public Piece promote() { return this; }
@@ -75,8 +77,8 @@ public abstract class Piece {
         return !board.isEmptyAt(pos) && board.getPiece(pos).getColor() != this.getColor();
     }
 
-    public List<Position> getLegalMovesSlider(int[][] dirs) {
-        List<Position> legalMoves = new ArrayList<>();
+    public Set<Position> getLegalMovesSlider(int[][] dirs) {
+        Set<Position> legalMoves = new HashSet<>();
         for (int[] dir : dirs) {
             int nx = position.getX();
             int ny = position.getY();
@@ -96,10 +98,10 @@ public abstract class Piece {
         return legalMoves;
     }
 
-    public List<Position> getLegalMovesNormal(int[][] offsets) {
+    public Set<Position> getLegalMovesNormal(int[][] offsets) {
         int x = position.getX();
         int y = position.getY();
-        List<Position> legalMoves = new ArrayList<>();
+        Set<Position> legalMoves = new HashSet<>();
         for (int[] offset : offsets) {
             Position nPos = new Position(x + offset[0], y + offset[1] * color.getAlignFactor());
             if (nPos.inBounds()) {
@@ -110,5 +112,5 @@ public abstract class Piece {
         }
         return legalMoves;
     }
-    public abstract List<Position> getLegalMoves();
+    public abstract Set<Position> getLegalMoves();
 }

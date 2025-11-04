@@ -24,8 +24,8 @@ public class PromotedBishop extends PromotedPiece {
     }
 
     @Override
-    public List<Position> getLegalMoves() {
-        List<Position> moves = getLegalMovesSlider(promotedBishopDirs);
+    public Set<Position> getLegalMoves() {
+        Set<Position> moves = getLegalMovesSlider(promotedBishopDirs);
         moves.addAll(getLegalMovesNormal(promotedBishopOffsets));
         return moves;
     }

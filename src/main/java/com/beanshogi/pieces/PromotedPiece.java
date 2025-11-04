@@ -3,9 +3,10 @@ package com.beanshogi.pieces;
 import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 
+/**
+ * Defines the promoted piece of a specific shogi piece.
+ */
 public abstract class PromotedPiece extends Piece implements Promotable {
-
-    // Each concrete promoted piece must define the class it demotes to
     protected abstract Class<? extends Piece> getDemotedClass();
 
     public PromotedPiece(Colors color, Position position, Board board) {
