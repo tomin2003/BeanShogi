@@ -13,20 +13,13 @@ import com.beanshogi.util.Position;
  * @param isPromotion flag, true when the move promoted the piece
  */
 public class Move {
-    // The player who moved the piece
     private final Player player;
-    // Move from (x,y)
     private final Position from;
-    // Move to (x,y)
     private final Position to;
-    // The moved piece
     private final Piece movedPiece;
-    // The captured piece (if any)
     private final Piece capturedPiece;
-    // If this move will promote the piece
     private final boolean isPromotion;
 
-    // Constructor for moves
     public Move(Player player, Position from, Position to, Piece movedPiece, Piece capturedPiece, boolean isPromotion) {
         this.player = player;
         this.from = from;

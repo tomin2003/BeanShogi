@@ -16,15 +16,15 @@ import com.beanshogi.util.*;
  */
 public class Board {
     private final Piece[][] board = new Piece[9][9];
-    private final Map<Colors, King> kings = new HashMap<>();
+    private final Map<Sides, King> kings = new HashMap<>();
 
     // --Methods-- //
     public Piece getPiece(Position pos) {
         return board[pos.getX()][pos.getY()];
     }
 
-    public King getKing(Colors color) {
-        return kings.get(color);
+    public King getKing(Sides side) {
+        return kings.get(side);
     }
 
     public void setPiece(Position pos, Piece piece) {
@@ -33,7 +33,7 @@ public class Board {
             piece.setPosition(pos);
         }
         if (piece instanceof King) {
-            kings.put(piece.getColor(), (King)piece);
+            kings.put(piece.getSide(), (King)piece);
         }
     }
 
@@ -43,7 +43,7 @@ public class Board {
         Piece removed = board[x][y];
         board[x][y] = null;
         if (removed instanceof King) {
-            kings.remove(removed.getColor());
+            kings.remove(removed.getSide());
         }
     }
     
@@ -58,6 +58,14 @@ public class Board {
         kings.clear();
     }
 
+    public boolean isPromotionZone(Position to, Sides sideToCheck) {
+        if (sideToCheck == Sides.SENTE) {
+            return to.getY() >= 6;
+        } else {
+            return to.getY() <= 2;
+        }
+    }
+
     // Get pieces via stream
     public List<Piece> getAllPieces() {
         List<Piece> pieces = new ArrayList<>();
@@ -69,16 +77,16 @@ public class Board {
         return pieces;
     }
 
-    // Get pieces via stream and also filter for color
-    public Collection<Piece> getPiecesByColor(Colors color) {
+    // Get pieces via stream and also filter for side
+    public Collection<Piece> getPiecesOfSide(Sides side) {
         return getAllPieces().stream()
-                    .filter(p -> p.getColor() == color)
+                    .filter(p -> p.getSide() == side)
                     .collect(Collectors.toList());
     }
 
     // Generic search for piece type with stream
-    public <T extends Piece> T findPiece(Class<T> pieceClass, Colors pieceColor) {
-        return getPiecesByColor(pieceColor).stream()
+    public <T extends Piece> T findPiece(Class<T> pieceClass, Sides pieceside) {
+        return getPiecesOfSide(pieceside).stream()
                         .filter(pieceClass::isInstance)
                         .map(pieceClass::cast)
                         .findFirst()
@@ -86,7 +94,7 @@ public class Board {
     }
 
     // Get a hashset of drop points
-    public <T extends Piece> Set<Position> getPieceDropPoints(Class<T> pieceClass, Colors pieceColor) {
+    public <T extends Piece> Set<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
         Set<Position> dropPoints = new HashSet<>();
 
         for (int y = 0; y < 9; y++) {
@@ -100,7 +108,7 @@ public class Board {
                     boolean sameColumnPawns = false;
                     for (int i = 0; i < 9; i++) {
                         Piece p = board[x][i];
-                        if (p instanceof Pawn && p.getColor() == pieceColor) {
+                        if (p instanceof Pawn && p.getSide() == pieceside) {
                             sameColumnPawns = true;
                             break;
                         }
@@ -110,17 +118,17 @@ public class Board {
                         continue;
                     }
                     // Piece cannot be dropped past the drop zone
-                    if ((pieceColor == Colors.BLACK && y == 0) || (pieceColor == Colors.WHITE && y == 8)) {
+                    if ((pieceside == Sides.SENTE && y == 0) || (pieceside == Sides.GOTE && y == 8)) {
                         continue;
                     }
                 }   
                 if (pieceClass == Lance.class) {
-                    if ((pieceColor == Colors.BLACK && y == 0) || (pieceColor == Colors.WHITE && y == 8)) {
+                    if ((pieceside == Sides.SENTE && y == 0) || (pieceside == Sides.GOTE && y == 8)) {
                         continue;
                     }
                 }
                 if (pieceClass == Knight.class) {
-                    if ((pieceColor == Colors.BLACK && y <= 1) || (pieceColor == Colors.WHITE && y >= 7)) {
+                    if ((pieceside == Sides.SENTE && y <= 1) || (pieceside == Sides.GOTE && y >= 7)) {
                         continue;
                     }
                 }
@@ -128,5 +136,24 @@ public class Board {
             }
         }
         return dropPoints;
+    }
+
+    /**
+     * Get a deep copy of a board
+     * @return copy of current board
+     */
+    public Board copy() {   
+        Board newBoard = new Board();
+        // Copy the pieces on the board as well, fill the board copy with said copied pieces
+        for (int y = 0; y < 9; y++) {
+            for (int x = 0; x < 9; x++) {
+                Piece p = board[x][y];
+                if (p != null) {
+                    Piece clone = p.cloneForBoard(newBoard);
+                    newBoard.setPiece(new Position(x, y), clone);
+                }
+            }
+        }
+        return newBoard;
     }
 }

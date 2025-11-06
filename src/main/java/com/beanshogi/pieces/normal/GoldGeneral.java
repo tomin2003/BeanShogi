@@ -12,12 +12,22 @@ public class GoldGeneral extends Piece {
                                                 {-1,0},/*GG*/{1,0},
                                                        {0,-1}};
 
-    public GoldGeneral(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public GoldGeneral(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
     public Set<Position> getLegalMoves() {
         return getLegalMovesNormal(goldOffsets);
+    }
+
+    @Override
+    public int value() {
+        return 600;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new GoldGeneral(this.side, this.position, this.board);
     }
 }

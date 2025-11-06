@@ -17,8 +17,8 @@ public class Knight extends UnPromotedPiece {
                                                          //
                                                        /*KN*/};
 
-    public Knight(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public Knight(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -29,5 +29,15 @@ public class Knight extends UnPromotedPiece {
     @Override
     protected Class<? extends Piece> getPromotedClass() {
         return PromotedKnight.class;
+    }
+
+    @Override
+    public int value() {
+        return 350;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new Knight(this.side, this.position, this.board);
     }
 }

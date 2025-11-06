@@ -14,8 +14,8 @@ public class Lance extends UnPromotedPiece {
     private static final int[][] lanceDirs = {{0,1}};
                                               /*LA*/
 
-    public Lance(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public Lance(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -26,5 +26,15 @@ public class Lance extends UnPromotedPiece {
     @Override
     protected Class<? extends Piece> getPromotedClass() {
         return PromotedLance.class;
+    }
+
+    @Override
+    public int value() {
+        return 300;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new Lance(this.side, this.position, this.board);
     }
 }

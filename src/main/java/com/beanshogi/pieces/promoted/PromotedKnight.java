@@ -13,9 +13,9 @@ public class PromotedKnight extends PromotedPiece {
     // Normal promoted pieces behave like the Gold General, so they composite it
     private GoldGeneral goldDelegate;
 
-    public PromotedKnight(Colors color, Position position, Board board) {
-        super(color, position, board);
-        goldDelegate = new GoldGeneral(color, position, board);
+    public PromotedKnight(Sides side, Position position, Board board) {
+        super(side, position, board);
+        goldDelegate = new GoldGeneral(side, position, board);
     }
 
     @Override
@@ -27,5 +27,15 @@ public class PromotedKnight extends PromotedPiece {
     @Override
     protected Class<? extends Piece> getDemotedClass() {
         return Knight.class;
+    }
+
+    @Override
+    public int value() {
+        return goldDelegate.value();
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new PromotedKnight(this.side, this.position, this.board);
     }
 }

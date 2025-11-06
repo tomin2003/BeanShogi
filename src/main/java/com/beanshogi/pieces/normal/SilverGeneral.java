@@ -17,8 +17,8 @@ public class SilverGeneral extends UnPromotedPiece {
                                                          /*SG*/
                                                   {-1,-1},     {1,-1}};
 
-    public SilverGeneral(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public SilverGeneral(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -29,5 +29,15 @@ public class SilverGeneral extends UnPromotedPiece {
     @Override
     protected Class<? extends Piece> getPromotedClass() {
         return PromotedSilverGeneral.class;
+    }
+
+    @Override
+    public int value() {
+        return 500;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new SilverGeneral(this.side, this.position, this.board);
     }
 }

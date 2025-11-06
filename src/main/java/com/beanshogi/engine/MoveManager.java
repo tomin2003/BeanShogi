@@ -1,20 +1,37 @@
-package com.beanshogi.game;
+package com.beanshogi.engine;
 
 import java.util.Stack;
 
-import com.beanshogi.model.*;
+import com.beanshogi.game.Player;
+import com.beanshogi.model.Board;
+import com.beanshogi.model.Move;
+import com.beanshogi.model.Piece;
 import com.beanshogi.util.*;
 
+/**
+ * Keep track of and manage moves
+ * @param board the board on which the move is made
+ * @param undoStack a stack using which a move can be undone
+ * @param redoStack a stack using which an undone move can be redone
+ */
 public class MoveManager {
-    static private Board board;
-    static protected Stack<Move> undoStack = new Stack<>();
-    static protected Stack<Move> redoStack = new Stack<>();
+    private Board board;
+    protected Stack<Move> undoStack = new Stack<>();
+    protected Stack<Move> redoStack = new Stack<>();
 
     public MoveManager(Board board) {
-        MoveManager.board = board;
+        this.board = board;
     }
 
-    public static void applyMove(Player currentPlayer, Position from, Position to, boolean isPromotion) {
+    public Player lastPlayer() {
+        return undoStack.peek().getPlayer();
+    }
+
+    public Piece lastPiece() {
+        return undoStack.peek().getMovedPiece();
+    }
+
+    public void applyMove(Player currentPlayer, Position from, Position to, boolean isPromotion) {
         Piece movedPiece = board.getPiece(from);
         Piece capturedPiece = board.getPiece(to);
         board.removePiece(from);
@@ -33,7 +50,26 @@ public class MoveManager {
         redoStack.clear();
     }
 
-    public static void undoMove() {
+    public void applyMove(Move move) {
+        Piece movedPiece = board.getPiece(move.getFrom());
+        Piece capturedPiece = board.getPiece(move.getTo());
+        board.removePiece(move.getFrom());
+        if (capturedPiece != null) {
+            board.removePiece(move.getTo());
+            move.getPlayer().addToHand(capturedPiece);
+        }
+        if (move.isPromotion()) {
+            // Promote, if applicable
+            movedPiece = movedPiece.promote();
+        }
+        board.setPiece(move.getTo(), movedPiece);
+        // Add the current move data to undoStack
+        undoStack.push(move);
+        // Clear the redoStack, as there are no new moves to be redone
+        redoStack.clear();
+    }
+
+    public void undoMove() {
         if (undoStack.empty()) {
             return;
         }
@@ -47,7 +83,7 @@ public class MoveManager {
 
         Piece capturedPiece = lastMove.getCapturedPiece();
         if (capturedPiece != null) {
-            capturedPiece.changeColor();
+            capturedPiece.changeSide();
             board.setPiece(lastMove.getTo(), capturedPiece);
             lastMove.getPlayer().removeFromHand(capturedPiece);
         }
@@ -60,12 +96,13 @@ public class MoveManager {
         board.setPiece(lastMove.getFrom(), movedPiece);
     }
 
-    public static void redoMove() {
+    public void redoMove() {
         if (redoStack.empty()) {
             return;
         }
+
         Move redoMove = redoStack.pop();
-        
+
         // Stash away the invoked move
         undoStack.push(redoMove);
 

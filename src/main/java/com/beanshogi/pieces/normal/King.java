@@ -12,12 +12,22 @@ public class King extends Piece {
                                                 {-1,0},/*KI*/{1,0},
                                                {-1,-1},{0,-1},{1,-1}};
                                             
-    public King(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public King(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
     public Set<Position> getLegalMoves() {
         return getLegalMovesNormal(kingOffsets);
+    }
+
+    @Override
+    public int value() {
+        return 20000;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new King(this.side, this.position, this.board);
     }
 }

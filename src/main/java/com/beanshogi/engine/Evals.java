@@ -1,4 +1,4 @@
-package com.beanshogi.game;
+package com.beanshogi.engine;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -7,17 +7,26 @@ import com.beanshogi.model.*;
 import com.beanshogi.pieces.normal.King;
 import com.beanshogi.util.Position;
 
+/**
+ * Class defining board evaluation methods
+ * @param board the board on which evaluation is done
+ */
 public class Evals {
     private Board board;
+    private MoveManager moveManager;
+
+    public Evals(Board board) {
+        this.board = board;
+        moveManager = new MoveManager(board);
+    }
 
     public boolean isKingInCheck() {
-        // Quick check to evaluate if king is in check
-        if (MoveManager.undoStack.empty()) {
+        if (moveManager.undoStack.empty()) {
             return false;
         }
         // The top of the undoStack currently must be the enemy's latest move
-        Piece lastEnemy = MoveManager.undoStack.peek().getMovedPiece();
-        King king = board.getKing(lastEnemy.getColor().getInverse());
+        Piece lastEnemy = moveManager.lastPiece();
+        King king = board.getKing(lastEnemy.getSide().getOpposite());
         // If the latest move's legal moves contain the king's position, it's in check by definition
         if (lastEnemy.getLegalMoves().contains(king.getPosition())) {
             return true;
@@ -70,11 +79,11 @@ public class Evals {
 
     public boolean isCheckMate() {
         // Get the last enemy move
-        Piece lastEnemy = MoveManager.undoStack.peek().getMovedPiece();
-        King king = board.getKing(lastEnemy.getColor().getInverse());
+        Piece lastEnemy = moveManager.lastPiece();
+        King king = board.getKing(lastEnemy.getSide().getOpposite());
         
         // Get all the enemy pieces on board
-        Collection<Piece> enemyPieces = board.getPiecesByColor(lastEnemy.getColor());
+        Collection<Piece> enemyPieces = board.getPiecesOfSide(lastEnemy.getSide());
             
         // Check if the king has an escape path
         if (kingCanEscape(king, enemyPieces)) {
@@ -87,7 +96,7 @@ public class Evals {
             .toList();
 
         // See if any friendly pieces can block the attack
-        Collection<Piece> friendlyPieces = board.getPiecesByColor(king.getColor());
+        Collection<Piece> friendlyPieces = board.getPiecesOfSide(king.getSide());
 
         // Return with the evaluation of a friendly piece can block the attacking piece
         return canBlockMove(king, friendlyPieces, attackingPieces);

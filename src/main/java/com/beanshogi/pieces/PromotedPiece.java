@@ -9,8 +9,8 @@ import com.beanshogi.util.*;
 public abstract class PromotedPiece extends Piece implements Promotable {
     protected abstract Class<? extends Piece> getDemotedClass();
 
-    public PromotedPiece(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public PromotedPiece(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -22,8 +22,8 @@ public abstract class PromotedPiece extends Piece implements Promotable {
     public Piece demote() {
         try {
             return getDemotedClass()
-                    .getConstructor(Colors.class, Position.class, Board.class)
-                    .newInstance(color, position, board);
+                    .getConstructor(Sides.class, Position.class, Board.class)
+                    .newInstance(side, position, board);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

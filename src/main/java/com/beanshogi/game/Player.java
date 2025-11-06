@@ -4,32 +4,48 @@ import java.util.*;
 import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 
+/**
+ * Class representing a player
+ */
 public class Player {
-    // The color of the player.
-    private Colors color;
-    // The pieces in hand.
+    private Sides side;
     private List<Piece> hand;
+    private PlayerType type;
 
-    public Player(Colors color) {
-        this.color = color;
+    public Player(Sides side, PlayerType type) {
+        this.side = side;
+        this.type = type;
         hand = new ArrayList<>();
     }  
 
-    public Colors getColor() {
-        return color;
+    public Sides getSide() {
+        return side;
     }
 
     public List<Piece> getHand() {
         return Collections.unmodifiableList(hand);
     }
 
+    public PlayerType getType() {
+        return type;
+    }
+
+    public boolean isAI() {
+        return type == PlayerType.AI;
+    }
+
+    public boolean isHuman() {
+        return type == PlayerType.HUMAN;
+    }
+
     // Add to hand (when captured)
     public void addToHand(Piece piece) {
-        if (piece == null) return;
-        Piece capturedPiece = piece;
-        capturedPiece.changeColor();
-        capturedPiece = capturedPiece.demote();
-        hand.add(capturedPiece);
+        if (piece == null) {
+            return;
+        }
+        piece.changeSide();
+        piece = piece.demote();
+        hand.add(piece);
     }    
 
     // Remove from hand (when placing down a captured piece)

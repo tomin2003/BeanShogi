@@ -19,8 +19,8 @@ public class PromotedBishop extends PromotedPiece {
                                                           {-1,0},/*PB*/{1,0},
                                                                 {0,-1}};
 
-    public PromotedBishop(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public PromotedBishop(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -33,5 +33,15 @@ public class PromotedBishop extends PromotedPiece {
     @Override 
     protected Class<? extends Piece> getDemotedClass() {
         return Bishop.class;
+    }
+
+    @Override
+    public int value() {
+        return 1200;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new PromotedBishop(this.side, this.position, this.board);
     }
 }

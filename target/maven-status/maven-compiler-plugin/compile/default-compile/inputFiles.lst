@@ -8,7 +8,7 @@
 /home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/pieces/PromotedPiece.java
 /home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/model/Promotable.java
 /home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/pieces/promoted/PromotedLance.java
-/home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/util/Colors.java
+/home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/util/Sides.java
 /home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/pieces/promoted/PromotedPawn.java
 /home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/game/bot/BotHelper.java
 /home/tomin/Documents/PROG3/NHF/BeanShogi/src/main/java/com/beanshogi/Main.java

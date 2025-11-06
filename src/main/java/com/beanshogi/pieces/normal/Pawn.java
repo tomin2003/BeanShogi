@@ -15,8 +15,8 @@ public class Pawn extends UnPromotedPiece {
     private static final int[][] pawnOffset = {{0,1}};
                                                /*PA*/
 
-    public Pawn(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public Pawn(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -27,5 +27,15 @@ public class Pawn extends UnPromotedPiece {
     @Override
     protected Class<? extends Piece> getPromotedClass() {
         return PromotedPawn.class;
+    }
+
+    @Override
+    public int value() {
+        return 100;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new Pawn(this.side, this.position, this.board);
     }
 }

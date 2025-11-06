@@ -19,8 +19,8 @@ public class PromotedRook extends PromotedPiece {
                                                                /*PB*/
                                                         {-1,-1},/**/{1,-1}};
 
-    public PromotedRook(Colors color, Position position, Board board) {
-        super(color, position, board);
+    public PromotedRook(Sides side, Position position, Board board) {
+        super(side, position, board);
     }
 
     @Override
@@ -33,5 +33,15 @@ public class PromotedRook extends PromotedPiece {
     @Override
     protected Class<? extends Piece> getDemotedClass() {
         return Rook.class;
+    }
+
+    @Override
+    public int value() {
+        return 1500;
+    }
+
+    @Override
+    public Piece cloneForBoard(Board board) {
+        return new PromotedRook(this.side, this.position, this.board);
     }
 }
