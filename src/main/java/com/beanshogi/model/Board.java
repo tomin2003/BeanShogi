@@ -58,14 +58,6 @@ public class Board {
         kings.clear();
     }
 
-    public boolean isPromotionZone(Position to, Sides sideToCheck) {
-        if (sideToCheck == Sides.SENTE) {
-            return to.getY() >= 6;
-        } else {
-            return to.getY() <= 2;
-        }
-    }
-
     // Get pieces via stream
     public List<Piece> getAllPieces() {
         List<Piece> pieces = new ArrayList<>();

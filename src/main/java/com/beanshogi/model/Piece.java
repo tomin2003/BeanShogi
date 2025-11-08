@@ -116,8 +116,13 @@ public abstract class Piece {
         return legalMoves;
     }
 
+    private boolean isInPromotionZone() {
+        // For sente, the upper three rows, for gote, the lower three rows
+        return side == Sides.SENTE ? getPosition().getY() <= 2 : getPosition().getY() >= 6;
+    }
+
     public boolean canPromote() {
-        return this.promote() != this;
+        return this.promote() != this && isInPromotionZone();
     }
 
     public abstract Set<Position> getLegalMoves();

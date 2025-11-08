@@ -33,7 +33,7 @@ public class ShogiAI {
                 Board simBoard = board.copy();
                 MoveManager simMoveManager = new MoveManager(simBoard);
 
-                boolean promotion = piece.canPromote() && simBoard.isPromotionZone(from, sideToMove);
+                boolean promotion = piece.canPromote();
                 Move move = new Move(player, from, to, piece, simBoard.getPiece(to), promotion);
                 simMoveManager.applyMove(move);
 
@@ -69,7 +69,7 @@ public class ShogiAI {
                 Board simBoard = currentBoard.copy();
                 MoveManager simMoveManager = new MoveManager(simBoard);
 
-                boolean promotion = piece.canPromote() && simBoard.isPromotionZone(from, sideToMove);
+                boolean promotion = piece.canPromote();
                 Move move = new Move(null, from, to, piece, simBoard.getPiece(to), promotion);
                 simMoveManager.applyMove(move);
 
