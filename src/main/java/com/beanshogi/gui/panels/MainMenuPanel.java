@@ -10,11 +10,15 @@ import javax.swing.JButton;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.utils.*;
 
-public class MainMenuPanel extends JPanelWithBackground {
-
-     public MainMenuPanel(ShogiWindow window) {
-        super("/sprites/bg_w_logo.png");
-
+public class MainMenuPanel extends BackgroundPanel {
+    
+    public MainMenuPanel(ShogiWindow window) {
+        super("/sprites/shogi_bg.png");
+        
+        CustomLabel logoLabel = new CustomLabel("/sprites/logo.png");
+        logoLabel.setAlignmentX(CENTER_ALIGNMENT);
+        add(logoLabel);
+        
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         // Create new buttons into a list
@@ -26,13 +30,17 @@ public class MainMenuPanel extends JPanelWithBackground {
         menuButtons.add(SwingUtils.makeButton("Beállítások", e -> window.showCard("SETTINGS")));
         menuButtons.add(SwingUtils.makeButton("Kilépés", e -> System.exit(0)));
 
-        // 400 px offset downwards for the buttons
-        add(Box.createVerticalStrut(400));
+        // Top glue: pushes buttons down proportionally
+        add(Box.createVerticalGlue());
 
-        // Add 25 px offset between each button
         for (JButton button : menuButtons) {
+            button.setAlignmentX(CENTER_ALIGNMENT);
             add(button);
-            add(Box.createVerticalStrut(25));
+            add(Box.createVerticalStrut(35));
         }
+
+        // Bottom glue: pushes buttons up proportionally
+        add(Box.createVerticalGlue());
+
     }
 }

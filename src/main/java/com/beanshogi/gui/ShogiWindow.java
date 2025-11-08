@@ -3,6 +3,7 @@ package com.beanshogi.gui;
 import javax.swing.*;
 
 import com.beanshogi.gui.panels.*;
+import com.beanshogi.gui.utils.SwingUtils;
 
 import java.awt.*;
 
@@ -13,12 +14,14 @@ public class ShogiWindow extends JFrame {
 
     public ShogiWindow() {
         setTitle("BeanShogi");
+        setIconImage(SwingUtils.loadImage("/sprites/icon.png"));
+        setPreferredSize(new Dimension(1280, 960));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         
         cardLayout = new CardLayout();
 
         mainPanel = new JPanel(cardLayout);
-        mainPanel.setPreferredSize(new Dimension(1024, 768));
+        mainPanel.setPreferredSize(new Dimension(1280, 960));
 
         // Create screens
         MainMenuPanel mainMenu = new MainMenuPanel(this);

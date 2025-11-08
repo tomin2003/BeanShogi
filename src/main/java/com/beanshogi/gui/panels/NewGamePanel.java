@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.utils.*;
 
-public class NewGamePanel extends JPanelWithBackground {
+public class NewGamePanel extends BackgroundPanel {
 
     public NewGamePanel(ShogiWindow window) {
         super("/sprites/bg.png");

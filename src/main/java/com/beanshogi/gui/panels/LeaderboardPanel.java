@@ -7,7 +7,7 @@ import javax.swing.JButton;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.utils.*;
 
-public class LeaderboardPanel extends JPanelWithBackground {
+public class LeaderboardPanel extends BackgroundPanel {
 
     public LeaderboardPanel(ShogiWindow window) {
         super("/sprites/bg.png");
