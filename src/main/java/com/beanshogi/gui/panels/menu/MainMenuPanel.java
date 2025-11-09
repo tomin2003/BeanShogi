@@ -1,4 +1,4 @@
-package com.beanshogi.gui.panels;
+package com.beanshogi.gui.panels.menu;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ public class MainMenuPanel extends BackgroundPanel {
     public MainMenuPanel(ShogiWindow window) {
         super("/sprites/shogi_bg.png");
         
+        add(Box.createVerticalStrut(40));
         CustomLabel logoLabel = new CustomLabel("/sprites/logo.png");
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
         add(logoLabel);
@@ -24,11 +25,11 @@ public class MainMenuPanel extends BackgroundPanel {
         // Create new buttons into a list
         List<JButton> menuButtons = new ArrayList<>();
 
-        menuButtons.add(SwingUtils.makeButton("Új játék", e -> window.showCard("NEW")));
-        menuButtons.add(SwingUtils.makeButton("Játék betöltése", e -> window.showCard("LOAD")));
-        menuButtons.add(SwingUtils.makeButton("Ranglista", e -> window.showCard("LEADERBOARD")));
-        menuButtons.add(SwingUtils.makeButton("Beállítások", e -> window.showCard("SETTINGS")));
-        menuButtons.add(SwingUtils.makeButton("Kilépés", e -> System.exit(0)));
+        menuButtons.add(SwingUtils.makeButton("New Game", e -> window.showCard("NEW")));
+        menuButtons.add(SwingUtils.makeButton("Load Game", e -> window.showCard("LOAD")));
+        menuButtons.add(SwingUtils.makeButton("Leaderboard", e -> window.showCard("LEADERBOARD")));
+        menuButtons.add(SwingUtils.makeButton("Settings", e -> window.showCard("SETTINGS")));
+        menuButtons.add(SwingUtils.makeButton("Exit", e -> System.exit(0)));
 
         // Top glue: pushes buttons down proportionally
         add(Box.createVerticalGlue());

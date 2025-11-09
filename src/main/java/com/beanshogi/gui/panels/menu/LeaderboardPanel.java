@@ -1,20 +1,19 @@
-package com.beanshogi.gui.panels;
+package com.beanshogi.gui.panels.menu;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JPanel;
 
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.utils.*;
 
-public class SettingsPanel extends BackgroundPanel {
+public class LeaderboardPanel extends JPanel {
 
-    public SettingsPanel(ShogiWindow window) {
-        super("/sprites/bg.png");
-
+    public LeaderboardPanel(ShogiWindow window) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JButton backButton = SwingUtils.makeButton("Vissza", e -> window.showCard("MAIN"));
+        JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
 
         // 400 px offset downwards for the buttons
         add(Box.createVerticalStrut(700));

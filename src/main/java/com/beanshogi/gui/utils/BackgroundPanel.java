@@ -41,13 +41,21 @@ public class BackgroundPanel extends JPanel {
             int newWidth = (int) (imgWidth * scale);
             int newHeight = (int) (imgHeight * scale);
 
+            System.out.println(panelWidth + ", " + panelHeight);
+
             // Center the image
             int x = (panelWidth - newWidth) / 2;
             int y = (panelHeight - newHeight) / 2;
-            System.out.println(panelWidth + " " + panelHeight);
             g2d.drawImage(backgroundImage, x, y, newWidth, newHeight, this);
 
             g2d.dispose();
         }
+    }
+    @Override
+    public Dimension getPreferredSize() {
+        if (backgroundImage != null) {
+            return new Dimension(backgroundImage.getWidth(), backgroundImage.getHeight());
+        }
+        return super.getPreferredSize();
     }
 }

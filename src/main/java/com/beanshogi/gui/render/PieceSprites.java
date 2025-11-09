@@ -1,0 +1,48 @@
+package com.beanshogi.gui.render;
+
+import com.beanshogi.gui.utils.SwingUtils;
+import com.beanshogi.model.Piece;
+import com.beanshogi.pieces.normal.*;
+import com.beanshogi.pieces.normal.slider.*;
+import com.beanshogi.pieces.promoted.*;
+import com.beanshogi.pieces.promoted.slider.*;
+
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+import java.util.Map;
+
+public class PieceSprites {
+    private final Map<Class<? extends Piece>, BufferedImage> sprites = new HashMap<>();
+
+    public PieceSprites() {
+        // Unpromoted slider
+        load(Bishop.class, "/sprites/pieces/KA.png");
+        load(Lance.class, "/sprites/pieces/HI.png");
+        load(Rook.class, "/sprites/pieces/KY.png");
+
+        // Unpromoted normal
+        load(GoldGeneral.class, "/sprites/pieces/KI.png");
+        load(King.class, "/sprites/pieces/OU.png");
+        load(Knight.class, "/sprites/pieces/KE.png");
+        load(Pawn.class, "/sprites/pieces/FU.png");
+        load(SilverGeneral.class, "/sprites/pieces/GI.png");
+
+        // Promoted Slider
+        load(PromotedBishop.class, "/sprites/pieces/RY.png");
+        load(PromotedRook.class, "/sprites/pieces/UM.png");
+
+        // Promoted normal
+        load(PromotedKnight.class, "/sprites/pieces/NK.png");
+        load(PromotedLance.class, "/sprites/pieces/NY.png");
+        load(PromotedPawn.class, "/sprites/pieces/NY.png");
+        load(PromotedSilverGeneral.class, "/sprites/pieces/NY.png");
+    }
+
+    private <T extends Piece> void load(Class<T> pieceClass, String resourcePath) {
+        sprites.put(pieceClass, SwingUtils.loadImage(resourcePath));
+    }
+
+    public <T extends Piece> BufferedImage get(Class<T> pieceClass) {
+        return sprites.get(pieceClass);
+    }
+}
