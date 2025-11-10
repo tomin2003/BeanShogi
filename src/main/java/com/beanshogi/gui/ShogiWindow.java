@@ -61,29 +61,40 @@ public class ShogiWindow extends JFrame {
     }
 
     public void setSmallWindow() {
+        // Dispose current frame and restore decoration
+        dispose();
+        setUndecorated(false);
+
+        // Get the graphics device and release from full-screen
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-        // Release full-screen mode
         gd.setFullScreenWindow(null);
 
-        // Set preferred windowed size and center
+        // Set preferred frame size, and then wrap around content
+        setPreferredSize(new Dimension(1280,960));
         setContentPane(mainPanel);
         pack();
         setLocationRelativeTo(null);
-        
-        // Make sure visible again
+
+        // Make frame visible again
         setVisible(true);
         fullScreen = false;
     }
 
     public void setFullscreenWindow() {
-        // Get the default screen
+        // Dispose current frame and remove decoration
+        dispose();
+        setUndecorated(true);
+        
+        // Get the device and enter into full screen mode
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
-
-        // Enter full-screen exclusive mode
+   
         gd.setFullScreenWindow(this);
+
+        // Make frame visible again
+        setVisible(true);
         fullScreen = true;
     }
 
