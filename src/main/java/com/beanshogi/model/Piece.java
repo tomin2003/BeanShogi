@@ -64,36 +64,38 @@ public abstract class Piece {
         return Objects.hash(getClass(), side);
     }
 
-    private boolean selfCollide(Position pos) {
+    private boolean selfCollide(Piece piece) {
         // If the board isn't empty, check if the side of the piece at a given position matches -> collision
-        return !board.isEmptyAt(pos) && board.getPiece(pos).getSide() == this.getSide();
+        return piece != null && (piece.getSide() == this.getSide());
     }
 
-    private boolean opponentCollide(Position pos) {
-        // If the board isn't empty, check if the side of the piece at a given differs -> collision
-        return !board.isEmptyAt(pos) && board.getPiece(pos).getSide() != this.getSide();
+    private boolean opponentCollide(Piece piece) {
+        // If the board isn't empty, check if the side of the piece at a given position differs -> collision
+        return piece != null && (piece.getSide() != this.getSide());
     }
 
-    public Set<Position> getLegalMovesSlider(int[][] dirs) {
-        Set<Position> legalMoves = new HashSet<>();
+    protected List<Position> getLegalMovesSlider(int[][] dirs) {
+        List<Position> legalMoves = new ArrayList<>();
         for (int[] dir : dirs) {
-            int nx = position.getX();
-            int ny = position.getY();
+            int nx = position.x;
+            int ny = position.y;
             while (true) {
                 nx += dir[0];
                 ny += dir[1] * side.getAlignFactor();
                 Position nPos = new Position(nx, ny);
-
                 if (!nPos.inBounds()) {
                     break;     // Stop if out of board bounds
                 }
-                if (selfCollide(nPos)) {
+                // Get the piece at target for comparing
+                Piece target = board.getPiece(nPos);
+
+                if (selfCollide(target)) {
                     break;    // Stop if own piece
                 }
-
                 legalMoves.add(nPos);
 
-                if (opponentCollide(nPos)) {
+                // The first opponent piece in line can be added as a legal move, qualifies as a capture
+                if (opponentCollide(target)) {
                     break; // Stop if opponent piece
                 }
             }
@@ -101,31 +103,31 @@ public abstract class Piece {
         return legalMoves;
     }
 
-    public Set<Position> getLegalMovesNormal(int[][] offsets) {
-        int x = position.getX();
-        int y = position.getY();
-        Set<Position> legalMoves = new HashSet<>();
+    protected List<Position> getLegalMovesNormal(int[][] offsets) {
+        int x = position.x;
+        int y = position.y;
+        List<Position> legalMoves = new ArrayList<>();
         for (int[] offset : offsets) {
             Position nPos = new Position(x + offset[0], y + offset[1] * side.getAlignFactor());
-            if (nPos.inBounds()) {
-                if (!selfCollide(nPos)) {
-                    legalMoves.add(nPos);
-                }
+            if (!nPos.inBounds() || selfCollide(board.getPiece(nPos))) {
+                continue;
             }
+            legalMoves.add(nPos);
+            // opponentCollide check not needed, every normal piece can move into opponent's square to capture
         }
         return legalMoves;
     }
 
     private boolean isInPromotionZone() {
         // For sente, the upper three rows, for gote, the lower three rows
-        return side == Sides.SENTE ? getPosition().getY() <= 2 : getPosition().getY() >= 6;
+        return side == Sides.SENTE ? getPosition().y <= 2 : getPosition().y >= 6;
     }
 
     public boolean canPromote() {
         return this.promote() != this && isInPromotionZone();
     }
 
-    public abstract Set<Position> getLegalMoves();
+    public abstract List<Position> getLegalMoves();
 
     public abstract int value();
 

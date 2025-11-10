@@ -19,7 +19,7 @@ public class PromotedPawn extends PromotedPiece {
     }
 
     @Override
-    public Set<Position> getLegalMoves() {
+    public List<Position> getLegalMoves() {
         goldDelegate.setPosition(this.position);
         return goldDelegate.getLegalMoves();
     }
@@ -36,6 +36,6 @@ public class PromotedPawn extends PromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new PromotedPawn(this.side, this.position, this.board);
+        return new PromotedPawn(this.side, this.position, board);
     }
 }

@@ -3,8 +3,8 @@ package com.beanshogi.util;
 import java.util.Objects;
 
 public class Position {
-    private int x;
-    private int y;
+    public int x;
+    public int y;
 
     public Position() {
         x = 0;
@@ -13,22 +13,6 @@ public class Position {
 
     public Position(int x, int y) {
         this.x = x;
-        this.y = y;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-
-    public void setX(int x) {
-        this.x = x;
-    }
-
-    public void setY(int y) {
         this.y = y;
     }
 

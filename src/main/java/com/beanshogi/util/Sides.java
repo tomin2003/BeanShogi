@@ -6,8 +6,8 @@ package com.beanshogi.util;
  * Gote - lit. "Second hand" - the side that moves second. Perspective: the pieces facing downward.
  */
 public enum Sides {
-    SENTE(1),
-    GOTE(-1);
+    SENTE(-1),
+    GOTE(1);
 
     private final int alignFactor;
     

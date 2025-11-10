@@ -48,7 +48,6 @@ public class Game {
             board.setPiece(new Position(i, 2), new Pawn(Sides.GOTE, null, board));
             board.setPiece(new Position(i, 6), new Pawn(Sides.SENTE, null, board));
         }
-        System.out.println(board.getAllPieces());
     }
 
     public Board getBoard() {

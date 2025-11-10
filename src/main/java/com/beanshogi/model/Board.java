@@ -20,7 +20,7 @@ public class Board {
 
     // --Methods-- //
     public Piece getPiece(Position pos) {
-        return board[pos.getX()][pos.getY()];
+        return board[pos.x][pos.y];
     }
 
     public King getKing(Sides side) {
@@ -28,7 +28,7 @@ public class Board {
     }
 
     public void setPiece(Position pos, Piece piece) {
-        board[pos.getX()][pos.getY()] = piece;
+        board[pos.x][pos.y] = piece;
         if (piece != null) {
             piece.setPosition(pos);
         }
@@ -38,8 +38,8 @@ public class Board {
     }
 
     public void removePiece(Position pos) {
-        int x = pos.getX();
-        int y = pos.getY();
+        int x = pos.x;
+        int y = pos.y;
         Piece removed = board[x][y];
         board[x][y] = null;
         if (removed instanceof King) {
@@ -48,7 +48,7 @@ public class Board {
     }
     
     public boolean isEmptyAt(Position pos) {
-        return board[pos.getX()][pos.getY()] == null;
+        return board[pos.x][pos.y] == null;
     }
     
     public void clear() {
@@ -63,6 +63,9 @@ public class Board {
         List<Piece> pieces = new ArrayList<>();
         for (Piece[] row : board) {
             for (Piece piece : row) {
+                if (piece == null) {
+                    continue;
+                }
                 pieces.add(piece);
             }
         }
@@ -86,7 +89,7 @@ public class Board {
     }
 
     // Get a hashset of drop points
-    public <T extends Piece> Set<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
+    public <T extends Piece> List<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
         Set<Position> dropPoints = new HashSet<>();
 
         for (int y = 0; y < 9; y++) {
@@ -127,7 +130,7 @@ public class Board {
                 dropPoints.add(pos);
             }
         }
-        return dropPoints;
+        return new ArrayList<>(dropPoints);
     }
 
     /**

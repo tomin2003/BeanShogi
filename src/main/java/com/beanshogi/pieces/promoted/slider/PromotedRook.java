@@ -24,8 +24,8 @@ public class PromotedRook extends PromotedPiece {
     }
 
     @Override
-    public Set<Position> getLegalMoves() {
-        Set<Position> moves = getLegalMovesSlider(promotedRookDirs);
+    public List<Position> getLegalMoves() {
+        List<Position> moves = getLegalMovesSlider(promotedRookDirs);
         moves.addAll(getLegalMovesNormal(promotedRookOffsets));
         return moves;
     }
@@ -42,6 +42,6 @@ public class PromotedRook extends PromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new PromotedRook(this.side, this.position, this.board);
+        return new PromotedRook(this.side, this.position, board);
     }
 }

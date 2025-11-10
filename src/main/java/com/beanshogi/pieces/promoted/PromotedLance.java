@@ -20,7 +20,7 @@ public class PromotedLance extends PromotedPiece {
     }
 
     @Override
-    public Set<Position> getLegalMoves() {
+    public List<Position> getLegalMoves() {
         goldDelegate.setPosition(this.position);
         return goldDelegate.getLegalMoves();
     }
@@ -37,6 +37,6 @@ public class PromotedLance extends PromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new PromotedLance(this.side, this.position, this.board);
+        return new PromotedLance(this.side, this.position, board);
     }
 }

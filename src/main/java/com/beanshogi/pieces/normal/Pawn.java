@@ -20,7 +20,7 @@ public class Pawn extends UnPromotedPiece {
     }
 
     @Override
-    public Set<Position> getLegalMoves() {
+    public List<Position> getLegalMoves() {
         return getLegalMovesNormal(pawnOffset);
     }
 
@@ -36,6 +36,6 @@ public class Pawn extends UnPromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new Pawn(this.side, this.position, this.board);
+        return new Pawn(this.side, this.position, board);
     }
 }

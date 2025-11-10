@@ -22,7 +22,7 @@ public class SilverGeneral extends UnPromotedPiece {
     }
 
     @Override
-    public Set<Position> getLegalMoves() {
+    public List<Position> getLegalMoves() {
         return getLegalMovesNormal(silverOffsets);
     }
 
@@ -38,6 +38,6 @@ public class SilverGeneral extends UnPromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new SilverGeneral(this.side, this.position, this.board);
+        return new SilverGeneral(this.side, this.position, board);
     }
 }
