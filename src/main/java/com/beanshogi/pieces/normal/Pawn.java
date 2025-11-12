@@ -21,8 +21,14 @@ public class Pawn extends UnPromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        return getLegalMovesNormal(pawnOffset);
+        return getLegalMovesNormal(pawnOffset, false);
     }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        return getLegalMovesNormal(pawnOffset, true);
+    }
+
 
     @Override
     protected Class<? extends Piece> getPromotedClass() {

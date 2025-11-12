@@ -2,6 +2,7 @@ package com.beanshogi.model;
 
 import java.util.*;
 
+import com.beanshogi.pieces.normal.King;
 import com.beanshogi.util.*;
 
 /**
@@ -74,7 +75,7 @@ public abstract class Piece {
         return piece != null && (piece.getSide() != this.getSide());
     }
 
-    protected List<Position> getLegalMovesSlider(int[][] dirs) {
+    protected List<Position> getLegalMovesSlider(int[][] dirs, boolean isKingInclude) {
         List<Position> legalMoves = new ArrayList<>();
         for (int[] dir : dirs) {
             int nx = position.x;
@@ -88,6 +89,15 @@ public abstract class Piece {
                 }
                 // Get the piece at target for comparing
                 Piece target = board.getPiece(nPos);
+
+                if (isKingInclude && target != null && target instanceof King) {
+                    legalMoves.add(nPos);
+                    return legalMoves; // early exit, king found
+                }
+
+                if (!isKingInclude && target != null && target instanceof King) {
+                    break; // stop path for normal moves
+                }
 
                 if (selfCollide(target)) {
                     break;    // Stop if own piece
@@ -103,31 +113,42 @@ public abstract class Piece {
         return legalMoves;
     }
 
-    protected List<Position> getLegalMovesNormal(int[][] offsets) {
+    protected List<Position> getLegalMovesNormal(int[][] offsets, boolean isKingInclude) {
         int x = position.x;
         int y = position.y;
         List<Position> legalMoves = new ArrayList<>();
         for (int[] offset : offsets) {
             Position nPos = new Position(x + offset[0], y + offset[1] * side.getAlignFactor());
-            if (!nPos.inBounds() || selfCollide(board.getPiece(nPos))) {
+            if (!nPos.inBounds()) {
                 continue;
             }
+            // Get target piece for comparison
+            Piece target = board.getPiece(nPos);
+            if (selfCollide(target)) {
+                continue;
+            }
+            if (isKingInclude && target != null && target instanceof King) {
+                legalMoves.add(nPos);
+                return legalMoves; // early exit, king found
+            }
+
+            if (!isKingInclude && target != null && target instanceof King) {
+                continue; // Continue on the other offsets
+            }
+
             legalMoves.add(nPos);
             // opponentCollide check not needed, every normal piece can move into opponent's square to capture
         }
         return legalMoves;
     }
 
-    private boolean isInPromotionZone() {
-        // For sente, the upper three rows, for gote, the lower three rows
-        return side == Sides.SENTE ? getPosition().y <= 2 : getPosition().y >= 6;
-    }
-
     public boolean canPromote() {
-        return this.promote() != this && isInPromotionZone();
+        return this.promote() != this;
     }
 
     public abstract List<Position> getLegalMoves();
+
+    public abstract List<Position> getAttackMoves();
 
     public abstract int value();
 

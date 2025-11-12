@@ -20,7 +20,12 @@ public class Lance extends UnPromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        return getLegalMovesSlider(lanceDirs);
+        return getLegalMovesSlider(lanceDirs, false);
+    }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        return getLegalMovesSlider(lanceDirs, true);
     }
 
     @Override

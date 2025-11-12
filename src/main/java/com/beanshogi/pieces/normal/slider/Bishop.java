@@ -20,7 +20,12 @@ public class Bishop extends UnPromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        return getLegalMovesSlider(bishopDirs);
+        return getLegalMovesSlider(bishopDirs, false);
+    }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        return getLegalMovesSlider(bishopDirs, true);
     }
 
     @Override

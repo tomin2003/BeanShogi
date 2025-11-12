@@ -6,6 +6,7 @@ import java.util.stream.Collectors;
 import com.beanshogi.model.*;
 import com.beanshogi.pieces.normal.King;
 import com.beanshogi.util.Position;
+import com.beanshogi.util.Sides;
 
 /**
  * Class defining board evaluation methods
@@ -20,17 +21,18 @@ public class Evals {
         moveManager = new MoveManager(board);
     }
 
-    public boolean isKingInCheck() {
-        if (moveManager.undoStack.empty()) {
-            return false;
-        }
-        // The top of the undoStack currently must be the enemy's latest move
-        Piece lastEnemy = moveManager.lastPiece();
-        King king = board.getKing(lastEnemy.getSide().getOpposite());
-        // If the latest move's legal moves contain the king's position, it's in check by definition
-        if (lastEnemy.getLegalMoves().contains(king.getPosition())) {
-            return true;
-        }
+    /**
+     * Checks whether the king is in the attack line of opponent
+     * @param attackingSide the side which made the move
+     * @return the king is in check or not
+     */
+    public boolean isKingInCheck(Sides attackingSide) {
+        Piece king = board.getKing(attackingSide.getOpposite());
+        for (Piece attacker : board.getPiecesOfSide(attackingSide)) {
+            if (attacker.getAttackMoves().contains(king.getPosition())) {
+                return true;
+            }
+        } 
         return false;
     }
 

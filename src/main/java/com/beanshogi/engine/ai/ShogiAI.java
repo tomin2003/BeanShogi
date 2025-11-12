@@ -100,7 +100,7 @@ public class ShogiAI {
             return sideToMove == Sides.SENTE ? Integer.MIN_VALUE + 1 : Integer.MAX_VALUE - 1;
         }
 
-        if (evals.isKingInCheck()) {
+        if (evals.isKingInCheck(sideToMove)) {
             return sideToMove == Sides.SENTE ? -3000 : 3000;
         }
 

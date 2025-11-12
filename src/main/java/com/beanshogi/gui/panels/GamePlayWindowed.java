@@ -1,69 +1,65 @@
 package com.beanshogi.gui.panels;
 
-import java.awt.image.BufferedImage;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.*;
 
-import com.beanshogi.game.Game;
+import com.beanshogi.game.Controller;
 import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.render.PieceComponent;
-import com.beanshogi.gui.render.PieceLayerPanel;
-import com.beanshogi.gui.render.PieceSprites;
+import com.beanshogi.gui.listeners.GameStatsListener;
+import com.beanshogi.gui.piece.PieceLayerPanel;
 import com.beanshogi.gui.utils.BackgroundPanel;
+import com.beanshogi.gui.utils.FilledRectanglePanel;
 import com.beanshogi.gui.utils.SwingUtils;
-import com.beanshogi.model.Piece;
-import com.beanshogi.util.Position;
+import com.beanshogi.util.Sides;
 
-public class GamePlayWindowed extends JPanel {
+public class GamePlayWindowed extends BackgroundPanel {
 
     private static final int CELL_SIZE = 90;
 
     public GamePlayWindowed(ShogiWindow window) {
-        //super("/sprites/gamebg4_3.png");
+        super("/sprites/gamebg4_3.png");
+        setLayout(null);
 
-        setLayout(null); // to position board & buttons freely
-
-        // Back button
         JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
         backButton.setBounds(30, 700, 120, 40);
         add(backButton);
+        
+        // Create a new game statistics panel - current turn, number of moves
+        StatsPanel statsPanel = new StatsPanel(1000, 445);
+        add(statsPanel);
 
+        // Create UI layers
         PieceLayerPanel pieceLayer = new PieceLayerPanel();
-        pieceLayer.setBounds(54, 55, 904, 1225);
+        pieceLayer.setBounds(50, 50, 900, 1200);
         add(pieceLayer);
 
-        
-        // Load sprites + game state
-        PieceSprites sprites = new PieceSprites();
-        Game game = new Game();
-        
-        for (Piece piece : game.getBoard().getAllPieces()) {
-            BufferedImage pieceImage = sprites.get(piece.getClass());
-            if (pieceImage == null) {
-                continue;
-            }
-            PieceComponent comp = new PieceComponent(pieceImage, piece.getSide(), CELL_SIZE);
-            pieceLayer.addPiece(comp, piece.getPosition().y, piece.getPosition().x, CELL_SIZE);
-        }
+        HighlightLayerPanel highlightLayer = new HighlightLayerPanel(CELL_SIZE);
+        highlightLayer.setBounds(pieceLayer.getBounds());
+        add(highlightLayer);
 
-        // TEST: highlight features of pieces
+        // Undo redo move button panel
+        UndoRedoPanel urp = new UndoRedoPanel(1000, 600);
+        urp.setBounds(1000, 600, 200, 100);
+        add(urp, BorderLayout.EAST);
+
+        AttackLinePanel alp = new AttackLinePanel(CELL_SIZE);
+        alp.setBounds(50, 50, 900, 1200);
+        add(alp);
         
-        // Highlight layer on top
-        HighlightLayerPanel highlightLayer = new HighlightLayerPanel();
-        highlightLayer.setBounds(pieceLayer.getBounds()); // same as piece layer
-        add(highlightLayer); // added after -> paints on top
-        
-        /*
-        for (Position pos : game.getBoard().getPiece(new Position(2,8)).getLegalMoves()) {
-            System.out.println(pos.x + "," + pos.y);
-            highlightLayer.highlightSquare(pos);
-        }
-            */
-        for (int i = 0; i < 9; i++) {
-            for (int j = 0; j < 9; j++) {
-                highlightLayer.highlightSquare(new Position(i,j));
-            }
-        }
-            
+        // Create controller (which creates the Game internally)
+        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, CELL_SIZE);
+
+        urp.setController(controller);
+
+
+        // Ask controller to draw the initial pieces
+        controller.renderBoard();
     }
 }

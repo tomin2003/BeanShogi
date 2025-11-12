@@ -1,4 +1,4 @@
-package com.beanshogi.gui.render;
+package com.beanshogi.gui.piece;
 
 import javax.swing.JPanel;
 

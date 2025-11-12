@@ -18,7 +18,13 @@ public class King extends Piece {
 
     @Override
     public List<Position> getLegalMoves() {
-        return getLegalMovesNormal(kingOffsets);
+        return getLegalMovesNormal(kingOffsets, false);
+    }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        // Not relevant for king as it can't give check - returns regular legal moves
+        return getLegalMovesNormal(kingOffsets, false);
     }
 
     @Override

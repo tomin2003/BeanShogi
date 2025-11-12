@@ -1,4 +1,4 @@
-package com.beanshogi.gui.render;
+package com.beanshogi.gui.piece;
 
 import com.beanshogi.gui.utils.SwingUtils;
 import com.beanshogi.model.Piece;
@@ -17,8 +17,8 @@ public class PieceSprites {
     public PieceSprites() {
         // Unpromoted slider
         load(Bishop.class, "/sprites/pieces/KA.png");
-        load(Lance.class, "/sprites/pieces/HI.png");
-        load(Rook.class, "/sprites/pieces/KY.png");
+        load(Lance.class, "/sprites/pieces/KY.png");
+        load(Rook.class, "/sprites/pieces/HI.png");
 
         // Unpromoted normal
         load(GoldGeneral.class, "/sprites/pieces/KI.png");
@@ -34,7 +34,7 @@ public class PieceSprites {
         // Promoted normal
         load(PromotedKnight.class, "/sprites/pieces/NK.png");
         load(PromotedLance.class, "/sprites/pieces/NY.png");
-        load(PromotedPawn.class, "/sprites/pieces/NY.png");
+        load(PromotedPawn.class, "/sprites/pieces/TO.png");
         load(PromotedSilverGeneral.class, "/sprites/pieces/NY.png");
     }
 

@@ -25,8 +25,15 @@ public class PromotedRook extends PromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        List<Position> moves = getLegalMovesSlider(promotedRookDirs);
-        moves.addAll(getLegalMovesNormal(promotedRookOffsets));
+        List<Position> moves = getLegalMovesSlider(promotedRookDirs, false);
+        moves.addAll(getLegalMovesNormal(promotedRookOffsets, false));
+        return moves;
+    }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        List<Position> moves = getLegalMovesSlider(promotedRookDirs, true);
+        moves.addAll(getLegalMovesNormal(promotedRookOffsets, true));
         return moves;
     }
 

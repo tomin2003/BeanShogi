@@ -12,7 +12,7 @@ public class Rook extends UnPromotedPiece {
 
     private static final int[][] rookDirs = {         {0,1},
                                                {-1,0},/*RO*/{1,0},
-                                                     {-1,-1}};
+                                                     {0,-1}};
 
     public Rook(Sides side, Position position, Board board) {
         super(side, position, board);
@@ -20,7 +20,12 @@ public class Rook extends UnPromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        return getLegalMovesSlider(rookDirs);
+        return getLegalMovesSlider(rookDirs, false);
+    }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        return getLegalMovesSlider(rookDirs, true);
     }
 
     @Override

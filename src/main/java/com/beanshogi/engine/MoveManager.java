@@ -31,6 +31,18 @@ public class MoveManager {
         return undoStack.peek().getMovedPiece();
     }
 
+    public boolean isUndoStackEmpty() {
+        return undoStack.isEmpty();
+    }
+
+    public boolean isRedoStackEmpty() {
+        return redoStack.isEmpty();
+    }
+
+    public int getNoOfMoves() {
+        return undoStack.size();
+    }
+
     public void applyMove(Player currentPlayer, Position from, Position to, boolean isPromotion) {
         Piece movedPiece = board.getPiece(from);
         Piece capturedPiece = board.getPiece(to);

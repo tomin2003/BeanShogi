@@ -23,8 +23,14 @@ public class SilverGeneral extends UnPromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        return getLegalMovesNormal(silverOffsets);
+        return getLegalMovesNormal(silverOffsets, false);
     }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        return getLegalMovesNormal(silverOffsets, true);
+    }
+
 
     @Override
     protected Class<? extends Piece> getPromotedClass() {

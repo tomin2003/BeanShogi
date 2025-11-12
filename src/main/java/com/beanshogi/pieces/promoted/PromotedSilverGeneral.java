@@ -25,6 +25,12 @@ public class PromotedSilverGeneral extends PromotedPiece {
     }
 
     @Override
+    public List<Position> getAttackMoves() {
+        goldDelegate.setPosition(this.position);
+        return goldDelegate.getLegalMoves();
+    }
+
+    @Override
     protected Class<? extends Piece> getDemotedClass() {
         return SilverGeneral.class;
     }

@@ -15,6 +15,11 @@ public enum Sides {
         this.alignFactor = alignFactor; 
     }
 
+    @Override
+    public String toString() {
+        return this == Sides.SENTE ? "Sente" : "Gote";
+    }
+ 
     public int getAlignFactor() { 
         return alignFactor; 
     }

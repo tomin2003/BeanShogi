@@ -13,9 +13,12 @@ import com.beanshogi.pieces.normal.slider.Rook;
 
 public class Game {
     private Board board;
+    private Player player1;
+    private Player player2;
 
     public Game() {
         this.board = new Board();
+        // Initialize board by entire rows
         for (int i = 0; i < 9; i++) {
             if (i == 0 || i == 8) {
                 board.setPiece(new Position(i, 0), new Lance(Sides.GOTE, null, board));
@@ -48,6 +51,12 @@ public class Game {
             board.setPiece(new Position(i, 2), new Pawn(Sides.GOTE, null, board));
             board.setPiece(new Position(i, 6), new Pawn(Sides.SENTE, null, board));
         }
+        player1 = new Player(Sides.GOTE, PlayerType.HUMAN);
+        player2 = new Player(Sides.SENTE, PlayerType.HUMAN);
+    }
+
+    public Player getPlayer(Sides side) {
+        return player1.getSide() == side ? player1 : player2;
     }
 
     public Board getBoard() {

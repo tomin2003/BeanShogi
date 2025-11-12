@@ -1,22 +1,56 @@
 package com.beanshogi.gui.panels;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
+import java.awt.BorderLayout;
+
+import javax.swing.*;
+
+import com.beanshogi.game.Controller;
 import com.beanshogi.gui.ShogiWindow;
+import com.beanshogi.gui.piece.PieceLayerPanel;
 import com.beanshogi.gui.utils.BackgroundPanel;
 import com.beanshogi.gui.utils.SwingUtils;
 
 public class GamePlayFullscreen extends BackgroundPanel {
+
+    private static final int CELL_SIZE = 100;
+
     public GamePlayFullscreen(ShogiWindow window) {
         super("/sprites/gamebg16_9.png");
-        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setLayout(null);
 
-        // Back button at bottom
         JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
-
-        add(Box.createVerticalStrut(900)); // taller offset for fullscreen
+        backButton.setBounds(30, 700, 120, 40);
         add(backButton);
-        add(Box.createVerticalStrut(25));
+
+        // Create a new game statistics panel - current turn, number of moves
+        StatsPanel statsPanel = new StatsPanel(100, 800);
+        add(statsPanel);
+
+        // Create UI layers
+        PieceLayerPanel pieceLayer = new PieceLayerPanel();
+        pieceLayer.setBounds(460, 80, 1460, 1000);
+        add(pieceLayer);
+
+        HighlightLayerPanel highlightLayer = new HighlightLayerPanel(CELL_SIZE);
+        highlightLayer.setBounds(pieceLayer.getBounds());
+        add(highlightLayer);
+
+        // Undo redo move button panel
+        UndoRedoPanel urp = new UndoRedoPanel(1000, 600);
+        urp.setBounds(1000, 600, 200, 100);
+        add(urp, BorderLayout.EAST);
+
+        AttackLinePanel alp = new AttackLinePanel(CELL_SIZE);
+        alp.setBounds(0,0,1920,1080);
+        add(alp);
+        
+        // Create controller (which creates the Game internally)
+        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, CELL_SIZE);
+
+        urp.setController(controller);
+
+
+        // Ask controller to draw the initial pieces
+        controller.renderBoard();
     }
 }

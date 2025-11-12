@@ -21,6 +21,10 @@ public class Position {
         return x >= 0 && x < 9 && y >= 0 && y < 9;
     }
 
+    public boolean inPromotionZone(Sides side) {
+        return side == Sides.SENTE ? y <= 2 : y >= 6;
+    }
+
     @Override
     public boolean equals(Object o) {
         // Check if it's the same object

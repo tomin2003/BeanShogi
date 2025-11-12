@@ -25,10 +25,18 @@ public class PromotedBishop extends PromotedPiece {
 
     @Override
     public List<Position> getLegalMoves() {
-        List<Position> moves = getLegalMovesSlider(promotedBishopDirs);
-        moves.addAll(getLegalMovesNormal(promotedBishopOffsets));
+        List<Position> moves = getLegalMovesSlider(promotedBishopDirs, false);
+        moves.addAll(getLegalMovesNormal(promotedBishopOffsets, false));
         return moves;
     }
+
+    @Override
+    public List<Position> getAttackMoves() {
+        List<Position> moves = getLegalMovesSlider(promotedBishopDirs, true);
+        moves.addAll(getLegalMovesNormal(promotedBishopOffsets, true));
+        return moves;
+    }
+
 
     @Override 
     protected Class<? extends Piece> getDemotedClass() {

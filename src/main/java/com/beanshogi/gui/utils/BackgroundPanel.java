@@ -40,9 +40,7 @@ public class BackgroundPanel extends JPanel {
             double scale = Math.max((double) panelWidth / imgWidth, (double) panelHeight / imgHeight);
             int newWidth = (int) (imgWidth * scale);
             int newHeight = (int) (imgHeight * scale);
-
-            System.out.println(panelWidth + ", " + panelHeight);
-
+            
             // Center the image
             int x = (panelWidth - newWidth) / 2;
             int y = (panelHeight - newHeight) / 2;
