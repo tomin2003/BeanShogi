@@ -1,24 +1,14 @@
 package com.beanshogi.gui.panels;
 
-import java.awt.Color;
 import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.beanshogi.engine.MoveManager;
 import com.beanshogi.game.Controller;
-import com.beanshogi.gui.listeners.GameStatsListener;
 import com.beanshogi.gui.listeners.UndoRedoListener;
-import com.beanshogi.gui.utils.FilledRectanglePanel;
 import com.beanshogi.gui.utils.SwingUtils;
-import com.beanshogi.util.Sides;
 
 public class UndoRedoPanel extends JPanel implements UndoRedoListener {
 
@@ -45,7 +35,8 @@ public class UndoRedoPanel extends JPanel implements UndoRedoListener {
         add(redoButton);
     }
 
-    public void setController(Controller controller) {
+    @Override
+    public void gainController(Controller controller) {
         this.controller = controller;
     }
 

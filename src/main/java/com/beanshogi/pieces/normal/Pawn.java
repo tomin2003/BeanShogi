@@ -29,7 +29,6 @@ public class Pawn extends UnPromotedPiece {
         return getLegalMovesNormal(pawnOffset, true);
     }
 
-
     @Override
     protected Class<? extends Piece> getPromotedClass() {
         return PromotedPawn.class;

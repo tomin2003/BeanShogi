@@ -1,6 +1,5 @@
 package com.beanshogi.engine.ai;
 
-import com.beanshogi.engine.Evals;
 import com.beanshogi.engine.MoveManager;
 import com.beanshogi.game.Player;
 import com.beanshogi.model.*;
@@ -94,13 +93,11 @@ public class ShogiAI {
      * Evaluate board state for the given side
      */
     private int evaluate(Board board, Sides sideToMove) {
-        Evals evals = new Evals(board);
-
-        if (evals.isCheckMate()) {
+        if (board.evals.isCheckMate(sideToMove)) {
             return sideToMove == Sides.SENTE ? Integer.MIN_VALUE + 1 : Integer.MAX_VALUE - 1;
         }
 
-        if (evals.isKingInCheck(sideToMove)) {
+        if (board.evals.kingChecks().isEmpty()) {
             return sideToMove == Sides.SENTE ? -3000 : 3000;
         }
 

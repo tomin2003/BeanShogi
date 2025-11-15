@@ -1,10 +1,12 @@
-package com.beanshogi.gui.piece;
+package com.beanshogi.gui.panels;
 
 import javax.swing.JPanel;
 
+import com.beanshogi.gui.piece.PieceComponent;
+
 public class PieceLayerPanel extends JPanel {
 
-    private static final int GAP = 3;
+    private static final int GAP = 2;
 
     public PieceLayerPanel() {
         setLayout(null); // free positioning

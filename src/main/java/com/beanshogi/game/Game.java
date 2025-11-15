@@ -1,6 +1,10 @@
 package com.beanshogi.game;
 
 import com.beanshogi.util.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import com.beanshogi.model.*;
 import com.beanshogi.pieces.normal.GoldGeneral;
 import com.beanshogi.pieces.normal.King;
@@ -13,11 +17,13 @@ import com.beanshogi.pieces.normal.slider.Rook;
 
 public class Game {
     private Board board;
-    private Player player1;
-    private Player player2;
-
+    
     public Game() {
-        this.board = new Board();
+        List<Player> players = new ArrayList<>();
+        players.add(new Player(Sides.GOTE, "P1", PlayerType.HUMAN));
+        players.add(new Player(Sides.SENTE, "P2", PlayerType.HUMAN));
+
+        this.board = new Board(players);
         // Initialize board by entire rows
         for (int i = 0; i < 9; i++) {
             if (i == 0 || i == 8) {
@@ -51,14 +57,7 @@ public class Game {
             board.setPiece(new Position(i, 2), new Pawn(Sides.GOTE, null, board));
             board.setPiece(new Position(i, 6), new Pawn(Sides.SENTE, null, board));
         }
-        player1 = new Player(Sides.GOTE, PlayerType.HUMAN);
-        player2 = new Player(Sides.SENTE, PlayerType.HUMAN);
     }
-
-    public Player getPlayer(Sides side) {
-        return player1.getSide() == side ? player1 : player2;
-    }
-
     public Board getBoard() {
         return board;
     }

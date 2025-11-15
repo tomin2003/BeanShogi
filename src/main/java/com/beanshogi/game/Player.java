@@ -9,17 +9,23 @@ import com.beanshogi.util.*;
  */
 public class Player {
     private Sides side;
+    private String name;
     private List<Piece> hand;
     private PlayerType type;
 
-    public Player(Sides side, PlayerType type) {
+    public Player(Sides side, String name, PlayerType type) {
         this.side = side;
         this.type = type;
+        this.name = name;
         hand = new ArrayList<>();
     }  
 
     public Sides getSide() {
         return side;
+    }
+
+    public String getName() {
+        return name;
     }
 
     public List<Piece> getHand() {

@@ -11,17 +11,18 @@ import javax.swing.JPanel;
 
 import com.beanshogi.util.Position;
 
+// TODO: Delegate a listener to controller instead of giving the panel to it
 public class HighlightLayerPanel extends JPanel {
 
-    private static final int GAP = 3;
-    private int cellSize = 100;
+    private static final int GAP = 2;
+    private int cellSize = 90;
 
     private final Set<Position> highlightedSquares = new HashSet<>();
 
     public HighlightLayerPanel(int cellSize) {
         setOpaque(false);
         this.cellSize = cellSize;
-        setBounds(50, 50, 900, 1200);
+        setBounds(42, 67, 870, 895);
     }
 
     public void highlightSquare(Position position) {

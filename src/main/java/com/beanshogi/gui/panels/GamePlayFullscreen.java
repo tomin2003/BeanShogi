@@ -6,7 +6,6 @@ import javax.swing.*;
 
 import com.beanshogi.game.Controller;
 import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.piece.PieceLayerPanel;
 import com.beanshogi.gui.utils.BackgroundPanel;
 import com.beanshogi.gui.utils.SwingUtils;
 
@@ -21,19 +20,20 @@ public class GamePlayFullscreen extends BackgroundPanel {
         JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
         backButton.setBounds(30, 700, 120, 40);
         add(backButton);
-
-        // Create a new game statistics panel - current turn, number of moves
-        StatsPanel statsPanel = new StatsPanel(100, 800);
-        add(statsPanel);
-
+        
         // Create UI layers
         PieceLayerPanel pieceLayer = new PieceLayerPanel();
         pieceLayer.setBounds(460, 80, 1460, 1000);
         add(pieceLayer);
+        
+        // Create highlight layer
+        HighlightLayerPanel hl = new HighlightLayerPanel(CELL_SIZE);
+        hl.setBounds(pieceLayer.getBounds());
+        add(hl);
 
-        HighlightLayerPanel highlightLayer = new HighlightLayerPanel(CELL_SIZE);
-        highlightLayer.setBounds(pieceLayer.getBounds());
-        add(highlightLayer);
+        // Create a new game statistics panel - current turn, number of moves
+        StatsPanel sp = new StatsPanel(100, 800);
+        add(sp);
 
         // Undo redo move button panel
         UndoRedoPanel urp = new UndoRedoPanel(1000, 600);
@@ -45,10 +45,7 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(alp);
         
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, CELL_SIZE);
-
-        urp.setController(controller);
-
+        Controller controller = new Controller(sp, urp, alp, hl, pieceLayer, CELL_SIZE);
 
         // Ask controller to draw the initial pieces
         controller.renderBoard();

@@ -1,7 +1,9 @@
 package com.beanshogi.gui.listeners;
 
-import com.beanshogi.model.Piece;
+import java.util.List;
+
+import com.beanshogi.model.CheckEvent;
 
 public interface KingCheckListener {
-    void onKingInCheck(boolean inCheck, Piece attackedKing, Piece attackingPiece);
+    void onKingInCheck(List<CheckEvent> checkEvents);
 }

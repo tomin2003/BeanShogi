@@ -1,7 +1,6 @@
 package com.beanshogi.model;
 
 import java.util.*;
-
 import com.beanshogi.pieces.normal.King;
 import com.beanshogi.util.*;
 
@@ -146,11 +145,42 @@ public abstract class Piece {
         return this.promote() != this;
     }
 
+    /**
+     * Simulate a piece's state after desired movement and determine if it must promote (when it's out of moves)
+     * @param from Starting position
+     * @param to Desired position for evaluation
+     * @return Force promote or not
+     */
+    public boolean shouldPromote(Position from, Position to) {
+        boolean shouldPromote = false;
+        setPosition(to);
+        shouldPromote = getLegalMoves().isEmpty();
+        setPosition(from);
+        return shouldPromote;
+    }   
+
+    /**
+     * Public legal move interface, does not include king in evaluation
+     * @return
+     */
     public abstract List<Position> getLegalMoves();
 
+    /**
+     * Public attack move interface, may only contain moves that attack the king
+     * @return 
+     */
     public abstract List<Position> getAttackMoves();
 
+    /**
+     * Individual values for pieces - used for AI
+     * @return
+     */
     public abstract int value();
-
+ 
+    /**
+     * Clones individual pieces so that the copy of board is a deep copy
+     * @param board
+     * @return
+     */
     public abstract Piece cloneForBoard(Board board);
 }

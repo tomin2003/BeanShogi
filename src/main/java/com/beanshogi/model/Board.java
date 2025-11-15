@@ -3,6 +3,9 @@ package com.beanshogi.model;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.beanshogi.engine.Evals;
+import com.beanshogi.engine.MoveManager;
+import com.beanshogi.game.Player;
 import com.beanshogi.pieces.normal.King;
 import com.beanshogi.pieces.normal.Knight;
 import com.beanshogi.pieces.normal.Pawn;
@@ -17,8 +20,25 @@ import com.beanshogi.util.*;
 public class Board {
     private final Piece[][] board = new Piece[9][9];
     private final Map<Sides, King> kings = new HashMap<>();
+    private final List<Player> players;
+    public final MoveManager moveManager;
+    public final Evals evals;
 
-    // --Methods-- //
+    public Board(List<Player> players) {
+        this.moveManager = new MoveManager(this);
+        this.evals = new Evals(this);
+        this.players = players;
+    }
+
+    public Player getPlayer(Sides side) {
+        for (Player player : players) {
+            if (player.getSide() == side) {
+                return player;
+            }
+        }
+        throw new IllegalArgumentException("No player with side: " + side);
+    }
+
     public Piece getPiece(Position pos) {
         return board[pos.x][pos.y];
     }
@@ -58,7 +78,7 @@ public class Board {
         kings.clear();
     }
 
-    // Get pieces via stream
+    // Get all pieces
     public List<Piece> getAllPieces() {
         List<Piece> pieces = new ArrayList<>();
         for (Piece[] row : board) {
@@ -138,7 +158,7 @@ public class Board {
      * @return copy of current board
      */
     public Board copy() {   
-        Board newBoard = new Board();
+        Board newBoard = new Board(this.players);
         // Copy the pieces on the board as well, fill the board copy with said copied pieces
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {

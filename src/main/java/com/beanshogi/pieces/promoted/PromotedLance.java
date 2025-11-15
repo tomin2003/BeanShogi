@@ -28,7 +28,7 @@ public class PromotedLance extends PromotedPiece {
     @Override
     public List<Position> getAttackMoves() {
         goldDelegate.setPosition(this.position);
-        return goldDelegate.getLegalMoves();
+        return goldDelegate.getAttackMoves();
     }
 
     @Override
