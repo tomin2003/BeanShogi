@@ -99,15 +99,6 @@ public class Board {
                     .collect(Collectors.toList());
     }
 
-    // Generic search for piece type with stream
-    public <T extends Piece> T findPiece(Class<T> pieceClass, Sides pieceside) {
-        return getPiecesOfSide(pieceside).stream()
-                        .filter(pieceClass::isInstance)
-                        .map(pieceClass::cast)
-                        .findFirst()
-                        .orElse(null);
-    }
-
     // Get a hashset of drop points
     public <T extends Piece> List<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
         Set<Position> dropPoints = new HashSet<>();
@@ -157,18 +148,46 @@ public class Board {
      * Get a deep copy of a board
      * @return copy of current board
      */
-    public Board copy() {   
-        Board newBoard = new Board(this.players);
-        // Copy the pieces on the board as well, fill the board copy with said copied pieces
+    public Board copy() {
+        // Create new player list and board so players/hands are not shared between copies
+        List<Player> newPlayers = new ArrayList<>();
+        Board newBoard = new Board(newPlayers);
+
+        // Create empty player instances corresponding to original players
+        for (Player p : this.players) {
+            Player np = new Player(p.getSide(), p.getName(), p.getType());
+            newPlayers.add(np);
+        }
+
+        // Copy board pieces into newBoard
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
-                Piece p = board[x][y];
+                Piece p = this.board[x][y];
                 if (p != null) {
                     Piece clone = p.cloneForBoard(newBoard);
-                    newBoard.setPiece(new Position(x, y), clone);
+                    clone.setPosition(new Position(x, y)); // make sure position is correct
+                    newBoard.setPiece(clone.getPosition(), clone);
+                    if (clone instanceof King) {
+                        newBoard.kings.put(clone.getSide(), (King) clone);
+                    }
                 }
             }
         }
+
+        // Copy captured pieces (player hands) into their corresponding new players
+        for (Player orig : this.players) {
+            Player target = newBoard.getPlayer(orig.getSide());
+            HandGrid origGrid = orig.getHandGrid();
+            HandGrid targetGrid = target.getHandGrid();
+            
+            // Deep copy the hand grid
+            HandGrid copiedGrid = origGrid.copy(newBoard);
+            // Replace the target's hand grid
+            for (Piece piece : copiedGrid.getAllPieces()) {
+                targetGrid.addPiece(piece);
+            }
+        }
+
         return newBoard;
     }
 }

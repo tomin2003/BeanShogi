@@ -25,6 +25,16 @@ public class GamePlayFullscreen extends BackgroundPanel {
         PieceLayerPanel pieceLayer = new PieceLayerPanel();
         pieceLayer.setBounds(460, 80, 1460, 1000);
         add(pieceLayer);
+
+        // Hand pieces panels (captured pieces display)
+        // Place to the left of the board in fullscreen layout
+        PieceLayerPanel handTop = new PieceLayerPanel();
+        handTop.setBounds(20, 80, 400, 200);
+        add(handTop);
+
+        PieceLayerPanel handBottom = new PieceLayerPanel();
+        handBottom.setBounds(20, 300, 400, 200);
+        add(handBottom);
         
         // Create highlight layer
         HighlightLayerPanel hl = new HighlightLayerPanel(CELL_SIZE);
@@ -45,7 +55,7 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(alp);
         
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(sp, urp, alp, hl, pieceLayer, CELL_SIZE);
+        Controller controller = new Controller(sp, urp, alp, hl, pieceLayer, handTop, handBottom, CELL_SIZE);
 
         // Ask controller to draw the initial pieces
         controller.renderBoard();

@@ -1,7 +1,6 @@
 package com.beanshogi.engine;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import com.beanshogi.game.Player;
 import com.beanshogi.model.*;

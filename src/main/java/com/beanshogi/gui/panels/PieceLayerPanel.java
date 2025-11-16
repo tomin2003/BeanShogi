@@ -11,6 +11,7 @@ public class PieceLayerPanel extends JPanel {
     public PieceLayerPanel() {
         setLayout(null); // free positioning
         setOpaque(false); // board visible behind
+        setFocusable(true); // Allow mouse events
     }
 
     public void addPiece(PieceComponent piece, int row, int col, int cellSize) {

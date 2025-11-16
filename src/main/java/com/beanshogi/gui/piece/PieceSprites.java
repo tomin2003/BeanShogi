@@ -38,10 +38,20 @@ public class PieceSprites {
         load(PromotedSilverGeneral.class, "/sprites/pieces/NY.png");
     }
 
+    /**
+     * Generic class for loading piece <-> sprite maps
+     * @param pieceClass piece derived class
+     * @param resourcePath path of sprite image
+     */
     private <T extends Piece> void load(Class<T> pieceClass, String resourcePath) {
         sprites.put(pieceClass, SwingUtils.loadImage(resourcePath));
     }
 
+    /**
+     * Get the image based on piece
+     * @param pieceClass which piece is queried
+     * @return BufferedImage of piece
+     */
     public <T extends Piece> BufferedImage get(Class<T> pieceClass) {
         return sprites.get(pieceClass);
     }

@@ -141,6 +141,10 @@ public abstract class Piece {
         return legalMoves;
     }
 
+    /**
+     * Determine if a piece will change when promoted
+     * @return can or cannot promote
+     */
     public boolean canPromote() {
         return this.promote() != this;
     }
@@ -161,26 +165,26 @@ public abstract class Piece {
 
     /**
      * Public legal move interface, does not include king in evaluation
-     * @return
+     * @return list of legal moves
      */
     public abstract List<Position> getLegalMoves();
 
     /**
      * Public attack move interface, may only contain moves that attack the king
-     * @return 
+     * @return list of attack moves
      */
     public abstract List<Position> getAttackMoves();
 
     /**
      * Individual values for pieces - used for AI
-     * @return
+     * @return value of piece
      */
     public abstract int value();
  
     /**
      * Clones individual pieces so that the copy of board is a deep copy
-     * @param board
-     * @return
+     * @param board board for the piece is cloned
+     * @return cloned piece
      */
     public abstract Piece cloneForBoard(Board board);
 }

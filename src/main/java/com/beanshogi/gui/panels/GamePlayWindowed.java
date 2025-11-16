@@ -35,19 +35,26 @@ public class GamePlayWindowed extends BackgroundPanel {
         pieceLayer.setBounds(42, 67, 870, 895);
         add(pieceLayer);
 
+        // Hand pieces panels (captured pieces display) - placed to the right of the board
+        PieceLayerPanel handTop = new PieceLayerPanel();
+        handTop.setBounds(950, 50, 1225, 445);
+        add(handTop);
+
+        PieceLayerPanel handBottom = new PieceLayerPanel();
+        handBottom.setBounds(950, 570, 1225, 915);
+        add(handBottom);
+
         // Create new highlight layer
         HighlightLayerPanel highlightLayer = new HighlightLayerPanel(CELL_SIZE);
         highlightLayer.setBounds(pieceLayer.getBounds());
         add(highlightLayer);
 
-
         // Create a new game statistics panel - current turn, number of moves
         StatsPanel statsPanel = new StatsPanel(1000, 445);
         add(statsPanel);
 
-        
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, CELL_SIZE);
+        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, handTop, handBottom, CELL_SIZE);
 
         // Ask controller to draw the initial pieces
         controller.renderBoard();

@@ -52,4 +52,13 @@
         public boolean isPromotion() { 
             return isPromotion; 
         }
+
+        /**
+         * Check if this move is a hand drop (piece from captured pieces to board).
+         * Hand drops are identified by from == to.
+         * @return true if this is a hand drop move
+         */
+        public boolean isHandDrop() {
+            return from != null && to != null && from.equals(to);
+        }
     }

@@ -43,6 +43,14 @@ public class MoveManager {
         return undoStack.size();
     }
 
+    public Stack<Move> getUndoStack() {
+        return undoStack;
+    }
+
+    public Stack<Move> getRedoStack() {
+        return redoStack;
+    }
+
     public void applyMove(Player currentPlayer, Position from, Position to, boolean isPromotion) {
         Piece movedPiece = board.getPiece(from);
         Piece capturedPiece = board.getPiece(to);
@@ -81,6 +89,25 @@ public class MoveManager {
         redoStack.clear();
     }
 
+    /**
+     * Apply a hand drop move (piece from captured pieces to board)
+     * @param player the player dropping the piece
+     * @param piece the piece being dropped
+     * @param position the target position on the board
+     */
+    public void applyDrop(Player player, Piece piece, Position position) {
+        // Remove piece from hand
+        player.getHandGrid().removePiece(piece);
+
+        // Place piece on board
+        board.setPiece(position, piece);
+
+        // Record move with from == to to mark it as a drop
+        Move dropMove = new Move(player, position, position, piece, null, false);
+        undoStack.push(dropMove);
+        redoStack.clear();
+    }
+
     public void undoMove() {
         if (undoStack.empty()) {
             return;
@@ -105,7 +132,15 @@ public class MoveManager {
             // Demote, if applicable
             movedPiece = movedPiece.demote();
         }
-        board.setPiece(lastMove.getFrom(), movedPiece);
+        
+        // Check if this is a hand drop
+        if (lastMove.isHandDrop()) {
+            // This was a hand drop, return the piece to hand
+            lastMove.getPlayer().getHandGrid().addPiece(movedPiece);
+        } else {
+            // Normal board move
+            board.setPiece(lastMove.getFrom(), movedPiece);
+        }
     }
 
     public void redoMove() {
@@ -118,7 +153,14 @@ public class MoveManager {
         // Stash away the invoked move
         undoStack.push(redoMove);
 
-        board.removePiece(redoMove.getFrom());
+        // Check if this is a hand drop
+        if (redoMove.isHandDrop()) {
+            // This is a hand drop, remove from hand
+            redoMove.getPlayer().getHandGrid().removePiece(redoMove.getMovedPiece());
+        } else {
+            // Normal board move
+            board.removePiece(redoMove.getFrom());
+        }
 
         Piece capturedPiece = redoMove.getCapturedPiece();
         if (capturedPiece != null) {

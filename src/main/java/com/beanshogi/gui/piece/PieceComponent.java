@@ -22,7 +22,8 @@ public class PieceComponent extends JPanel {
         setOpaque(false);
         setPreferredSize(new Dimension(size, size));
         setSize(size, size); // because we'll position with setLocation
-        // Later: addMouseListener for selecting/dragging
+        // Make sure mouse events pass through to parent
+        setFocusable(false);
     }
 
     @Override

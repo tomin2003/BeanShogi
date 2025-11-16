@@ -10,14 +10,14 @@ import com.beanshogi.util.*;
 public class Player {
     private Sides side;
     private String name;
-    private List<Piece> hand;
+    private HandGrid hand;
     private PlayerType type;
 
     public Player(Sides side, String name, PlayerType type) {
         this.side = side;
         this.type = type;
         this.name = name;
-        hand = new ArrayList<>();
+        hand = new HandGrid();
     }  
 
     public Sides getSide() {
@@ -29,11 +29,11 @@ public class Player {
     }
 
     public List<Piece> getHand() {
-        return Collections.unmodifiableList(hand);
+        return hand.getAllPieces();
     }
 
-    public PlayerType getType() {
-        return type;
+    public HandGrid getHandGrid() {
+        return hand;
     }
 
     public boolean isAI() {
@@ -44,6 +44,10 @@ public class Player {
         return type == PlayerType.HUMAN;
     }
 
+    public PlayerType getType() {
+        return type;
+    }
+
     // Add to hand (when captured)
     public void addToHand(Piece piece) {
         if (piece == null) {
@@ -51,11 +55,11 @@ public class Player {
         }
         piece.changeSide();
         piece = piece.demote();
-        hand.add(piece);
+        hand.addPiece(piece);
     }    
 
     // Remove from hand (when placing down a captured piece)
     public void removeFromHand(Piece piece) {
-        hand.remove(piece);
+        hand.removePiece(piece);
     }
 }
