@@ -14,8 +14,8 @@ public class Lance extends UnPromotedPiece {
     private static final int[][] lanceDirs = {{0,1}};
                                               /*LA*/
 
-    public Lance(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public Lance(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -40,6 +40,6 @@ public class Lance extends UnPromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new Lance(this.side, this.position, board);
+        return new Lance(this.side, this.boardPosition, this.handPosition, board);
     }
 }

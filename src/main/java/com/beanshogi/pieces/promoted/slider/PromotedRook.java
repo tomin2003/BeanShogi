@@ -19,8 +19,8 @@ public class PromotedRook extends PromotedPiece {
                                                                /*PB*/
                                                         {-1,-1},/**/{1,-1}};
 
-    public PromotedRook(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public PromotedRook(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -49,6 +49,6 @@ public class PromotedRook extends PromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new PromotedRook(this.side, this.position, board);
+        return new PromotedRook(this.side, this.boardPosition, this.handPosition, board);
     }
 }

@@ -19,8 +19,8 @@ public class PromotedBishop extends PromotedPiece {
                                                           {-1,0},/*PB*/{1,0},
                                                                 {0,-1}};
 
-    public PromotedBishop(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public PromotedBishop(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -50,6 +50,6 @@ public class PromotedBishop extends PromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new PromotedBishop(this.side, this.position, board);
+        return new PromotedBishop(this.side, this.boardPosition, this.handPosition, board);
     }
 }

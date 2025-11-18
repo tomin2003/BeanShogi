@@ -33,10 +33,10 @@ public class AttackLinePanel extends JPanel implements KingCheckListener {
             Piece attacker = ce.getAttacker();
             if (king == null || attacker == null) continue;
 
-            int kingX = king.getPosition().x * (GAP + cellSize) + cellSize / 2;
-            int kingY = king.getPosition().y * (GAP + cellSize) + cellSize / 2;
-            int atX = attacker.getPosition().x * (GAP + cellSize) + cellSize / 2;
-            int atY = attacker.getPosition().y * (GAP + cellSize) + cellSize / 2;
+            int kingX = king.getBoardPosition().x * (GAP + cellSize) + cellSize / 2;
+            int kingY = king.getBoardPosition().y * (GAP + cellSize) + cellSize / 2;
+            int atX = attacker.getBoardPosition().x * (GAP + cellSize) + cellSize / 2;
+            int atY = attacker.getBoardPosition().y * (GAP + cellSize) + cellSize / 2;
 
             g2.drawLine(atX, atY, kingX, kingY);
         }

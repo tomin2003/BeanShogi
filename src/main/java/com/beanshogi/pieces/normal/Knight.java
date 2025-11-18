@@ -17,8 +17,8 @@ public class Knight extends UnPromotedPiece {
                                                          //
                                                        /*KN*/};
 
-    public Knight(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public Knight(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -43,6 +43,6 @@ public class Knight extends UnPromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new Knight(this.side, this.position, board);
+        return new Knight(this.side, this.boardPosition, this.handPosition, board);
     }
 }

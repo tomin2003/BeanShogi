@@ -1,6 +1,10 @@
 package com.beanshogi.model;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
+import com.beanshogi.util.Position;
+import com.beanshogi.util.Sides;
 
 /**
  * Represents a 4x5 grid for storing captured pieces (hand pieces).
@@ -17,16 +21,17 @@ public class HandGrid {
      * @param piece the piece to add
      * @return true if piece was added, false if grid is full
      */
-    public boolean addPiece(Piece piece) {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] == null) {
-                    grid[row][col] = piece;
-                    return true;
+    public void addPiece(Piece piece) {
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                if (grid[x][y] == null) {
+                    grid[x][y] = piece;
+                    piece.setHandPosition(new Position(x, y));
+                    piece.setBoardPosition(null);
+                    return;
                 }
             }
         }
-        return false; // Grid is full
     }
 
     /**
@@ -35,10 +40,11 @@ public class HandGrid {
      * @return true if piece was found and removed, false otherwise
      */
     public boolean removePiece(Piece piece) {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] == piece) {
-                    grid[row][col] = null;
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                if (grid[x][y] == piece) {
+                    grid[x][y] = null;
+                    piece.setHandPosition(null);
                     return true;
                 }
             }
@@ -48,14 +54,14 @@ public class HandGrid {
 
     /**
      * Remove a piece from a specific grid position (for rendering/UI purposes)
-     * @param row the row index
-     * @param col the column index
+     * @param x the x index
+     * @param y the yumn index
      * @return the removed piece, or null if position was empty
      */
-    public Piece removePieceAt(int row, int col) {
-        if (isValidPosition(row, col)) {
-            Piece piece = grid[row][col];
-            grid[row][col] = null;
+    public Piece removePieceAt(Position pos) {
+        if (isValidPosition(pos)) {
+            Piece piece = grid[pos.x][pos.y];
+            grid[pos.x][pos.y] = null;
             return piece;
         }
         return null;
@@ -63,51 +69,63 @@ public class HandGrid {
 
     /**
      * Get a piece at a specific grid position (for rendering/UI purposes)
-     * @param row the row index
-     * @param col the column index
+     * @param x the x index
+     * @param y the y index
      * @return the piece at that position, or null if empty
      */
-    public Piece getPieceAt(int row, int col) {
-        if (isValidPosition(row, col)) {
-            return grid[row][col];
+    public Piece getPieceAt(Position pos) {
+        if (isValidPosition(pos)) {
+            return grid[pos.x][pos.y];
         }
         return null;
     }
 
     /**
-     * Check if a grid position is valid and contains a piece
-     * @param row the row index
-     * @param col the column index
-     * @return true if position is valid and contains a piece
-     */
-    public boolean hasPiece(int row, int col) {
-        return isValidPosition(row, col) && grid[row][col] != null;
-    }
-
-    /**
      * Validate grid coordinates
-     * @param row the row index
-     * @param col the column index
+     * @param x the x index
+     * @param y the y index
      * @return true if coordinates are within bounds
      */
-    private boolean isValidPosition(int row, int col) {
-        return row >= 0 && row < ROWS && col >= 0 && col < COLS;
+    private boolean isValidPosition(Position position) {
+        return position.x >= 0 && position.x < ROWS && position.y >= 0 && position.y < COLS;
     }
 
     /**
-     * Get all pieces in the hand as a flat list (external interface)
+     * Check if a grid position is valid and contains a piece
+     * @param x the x index
+     * @param y the y index
+     * @return true if position is valid and contains a piece
+     */
+    public boolean hasPiece(Position pos) {
+        return isValidPosition(pos) && grid[pos.x][pos.y] != null;
+    }
+
+    /**
+     * Get all pieces in the hand as a list
      * @return unmodifiable list of all non-null pieces
      */
     public List<Piece> getAllPieces() {
         List<Piece> pieces = new ArrayList<>();
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] != null) {
-                    pieces.add(grid[row][col]);
+        for (Piece[] row : grid) {
+            for (Piece piece : row) {  
+                if (piece == null) {
+                    continue;
                 }
+                pieces.add(piece);
             }
         }
         return Collections.unmodifiableList(pieces);
+    }
+
+    /**
+     * Get pieces in hand via stream and also filter for side
+     * @param side 
+     * @return
+     */
+    public Collection<Piece> getPiecesOfSide(Sides side) {
+        return getAllPieces().stream()
+                    .filter(p -> p.getSide() == side)
+                    .collect(Collectors.toUnmodifiableList());
     }
 
     /**
@@ -116,9 +134,9 @@ public class HandGrid {
      * @return true if piece is in hand
      */
     public boolean contains(Piece piece) {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] == piece) {
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                if (grid[x][y] == piece) {
                     return true;
                 }
             }
@@ -130,9 +148,9 @@ public class HandGrid {
      * Clear all pieces from the grid
      */
     public void clear() {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                grid[row][col] = null;
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                grid[x][y] = null;
             }
         }
     }
@@ -142,9 +160,9 @@ public class HandGrid {
      * @return true if no pieces in grid
      */
     public boolean isEmpty() {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] != null) {
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                if (grid[x][y] != null) {
                     return false;
                 }
             }
@@ -153,23 +171,15 @@ public class HandGrid {
     }
 
     /**
-     * Get grid dimensions (for rendering purposes)
-     * @return array [rows, cols]
-     */
-    public int[] getDimensions() {
-        return new int[]{ROWS, COLS};
-    }
-
-    /**
      * Create a deep copy of this hand grid
      * @return a new HandGrid with cloned pieces
      */
     public HandGrid copy(Board board) {
         HandGrid copy = new HandGrid();
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                if (grid[row][col] != null) {
-                    copy.grid[row][col] = grid[row][col].cloneForBoard(board);
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                if (grid[x][y] != null) {
+                    copy.grid[x][y] = grid[x][y].cloneForBoard(board);
                 }
             }
         }
@@ -183,13 +193,13 @@ public class HandGrid {
      * @return the first matching piece found, or null if none found
      */
     public Piece findAndRemoveMatching(Piece templatePiece) {
-        for (int row = 0; row < ROWS; row++) {
-            for (int col = 0; col < COLS; col++) {
-                Piece candidate = grid[row][col];
+        for (int x = 0; x < ROWS; x++) {
+            for (int y = 0; y < COLS; y++) {
+                Piece candidate = grid[x][y];
                 if (candidate != null && 
                     candidate.getClass() == templatePiece.getClass() && 
                     candidate.getSide() == templatePiece.getSide()) {
-                    grid[row][col] = null;
+                    grid[x][y] = null;
                     return candidate;
                 }
             }

@@ -14,8 +14,8 @@ public class Rook extends UnPromotedPiece {
                                                {-1,0},/*RO*/{1,0},
                                                      {0,-1}};
 
-    public Rook(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public Rook(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -40,6 +40,6 @@ public class Rook extends UnPromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new Rook(this.side, this.position, board);
+        return new Rook(this.side, this.boardPosition, this.handPosition, board);
     }
 }

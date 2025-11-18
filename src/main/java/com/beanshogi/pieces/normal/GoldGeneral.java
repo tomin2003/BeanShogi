@@ -12,8 +12,8 @@ public class GoldGeneral extends Piece {
                                                 {-1,0},/*GG*/{1,0},
                                                        {0,-1}};
 
-    public GoldGeneral(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public GoldGeneral(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -33,6 +33,6 @@ public class GoldGeneral extends Piece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new GoldGeneral(this.side, this.position, board);
+        return new GoldGeneral(this.side, this.boardPosition, this.handPosition, board);
     }
 }

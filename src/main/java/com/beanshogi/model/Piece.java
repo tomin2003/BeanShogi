@@ -12,7 +12,8 @@ import com.beanshogi.util.*;
  */
 public abstract class Piece {
     protected Sides side;
-    protected Position position;
+    protected Position boardPosition;
+    protected Position handPosition;
     protected Board board;
 
     // Non promotable pieces handle promotions like so
@@ -20,9 +21,10 @@ public abstract class Piece {
     public Piece demote() { return this; }
 
     // --Constructors-- //
-    public Piece(Sides side, Position position, Board board) {
+    public Piece(Sides side, Position boardPosition, Position handPosition, Board board) {
         this.side = side;
-        this.position = position;                                               
+        this.boardPosition = boardPosition;         
+        this.handPosition = handPosition;                                           
         this.board = board;
     }                   
 
@@ -39,12 +41,26 @@ public abstract class Piece {
         side = side.getOpposite();
     }
 
-    public Position getPosition() {
-        return position;
+    public Piece oppositePiece() {
+        Piece o = clone();
+        o.changeSide();
+        return o;
     }
 
-    public void setPosition(Position pos) {
-        this.position = pos;
+    public Position getBoardPosition() {
+        return boardPosition;
+    }
+
+    public void setBoardPosition(Position pos) {
+        this.boardPosition = pos;
+    }
+
+    public Position getHandPosition() {
+        return handPosition;
+    }
+
+    public void setHandPosition(Position pos) {
+        this.handPosition = pos;
     }
 
     @Override
@@ -77,8 +93,8 @@ public abstract class Piece {
     protected List<Position> getLegalMovesSlider(int[][] dirs, boolean isKingInclude) {
         List<Position> legalMoves = new ArrayList<>();
         for (int[] dir : dirs) {
-            int nx = position.x;
-            int ny = position.y;
+            int nx = boardPosition.x;
+            int ny = boardPosition.y;
             while (true) {
                 nx += dir[0];
                 ny += dir[1] * side.getAlignFactor();
@@ -113,8 +129,8 @@ public abstract class Piece {
     }
 
     protected List<Position> getLegalMovesNormal(int[][] offsets, boolean isKingInclude) {
-        int x = position.x;
-        int y = position.y;
+        int x = boardPosition.x;
+        int y = boardPosition.y;
         List<Position> legalMoves = new ArrayList<>();
         for (int[] offset : offsets) {
             Position nPos = new Position(x + offset[0], y + offset[1] * side.getAlignFactor());
@@ -146,7 +162,7 @@ public abstract class Piece {
      * @return can or cannot promote
      */
     public boolean canPromote() {
-        return this.promote() != this;
+        return !this.promote().equals(this);
     }
 
     /**
@@ -157,11 +173,16 @@ public abstract class Piece {
      */
     public boolean shouldPromote(Position from, Position to) {
         boolean shouldPromote = false;
-        setPosition(to);
+        setBoardPosition(to);
         shouldPromote = getLegalMoves().isEmpty();
-        setPosition(from);
+        setBoardPosition(from);
         return shouldPromote;
     }   
+
+    public Piece clone() {
+        return cloneForBoard(board);
+    }
+
 
     /**
      * Public legal move interface, does not include king in evaluation

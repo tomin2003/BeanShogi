@@ -13,20 +13,22 @@ public class PromotedSilverGeneral extends PromotedPiece {
     // Normal promoted pieces behave like the Gold General, so they composite it
     private GoldGeneral goldDelegate;
 
-    public PromotedSilverGeneral(Sides side, Position position, Board board) {
-        super(side, position, board);
-        goldDelegate = new GoldGeneral(side, position, board);
+    public PromotedSilverGeneral(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
+        goldDelegate = new GoldGeneral(side, boardPosition, handPosition, board);
     }
 
     @Override
     public List<Position> getLegalMoves() {
-        goldDelegate.setPosition(this.position);
+        goldDelegate.setBoardPosition(this.boardPosition);
+        goldDelegate.setHandPosition(this.handPosition);
         return goldDelegate.getLegalMoves();
     }
 
     @Override
     public List<Position> getAttackMoves() {
-        goldDelegate.setPosition(this.position);
+        goldDelegate.setBoardPosition(this.boardPosition);
+        goldDelegate.setHandPosition(this.handPosition);
         return goldDelegate.getAttackMoves();
     }
 
@@ -42,6 +44,6 @@ public class PromotedSilverGeneral extends PromotedPiece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new PromotedSilverGeneral(this.side, this.position, board);
+        return new PromotedSilverGeneral(this.side, this.boardPosition, this.handPosition, board);
     }
 }

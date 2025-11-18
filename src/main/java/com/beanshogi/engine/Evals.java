@@ -29,7 +29,7 @@ public class Evals {
         List<CheckEvent> checks = new ArrayList<>();
         Piece king = board.getKing(side.getOpposite());
         for (Piece piece : board.getPiecesOfSide(side)) {
-            if (piece.getAttackMoves().contains(king.getPosition())) {
+            if (piece.getAttackMoves().contains(king.getBoardPosition())) {
                 checks.add(new CheckEvent(piece, king));
             }
         }
@@ -75,7 +75,15 @@ public class Evals {
      */
     private boolean simulateMoveCheck(Board simBoard, Piece piece, Position to, boolean promote) {
         Player player = simBoard.getPlayer(piece.getSide());
-        simBoard.moveManager.applyMove(player, piece.getPosition(), to, promote);
+        simBoard.moveManager.applyMove(new Move(
+            player, 
+            piece.getBoardPosition(),
+            to,
+            piece,
+            simBoard.getPiece(to),
+            promote,
+            false
+        ));
         boolean kingSafe = !simBoard.evals.isKingInCheck(piece.getSide());
         simBoard.moveManager.undoMove(); // Step back to previous position
         return kingSafe;

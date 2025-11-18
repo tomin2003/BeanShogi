@@ -29,7 +29,7 @@ public class ShogiAI {
 
         // Normal moves without drop
         for (Piece piece : board.getPiecesOfSide(sideToMove)) {
-            Position from = piece.getPosition();
+            Position from = piece.getBoardPosition();
             for (Position to : piece.getLegalMoves()) {
                 final Position fFrom = from;
                 final Position fTo = to;
@@ -43,8 +43,16 @@ public class ShogiAI {
                         promotion = true; // can be improved later with conditional promotion
                     }
 
-                    Piece captured = simBoard.getPiece(fTo);
-                    Move move = new Move(simBoard.getPlayer(sideToMove), fFrom, fTo, simPiece, captured, promotion);
+                    Piece captured = board.getPiece(fTo);
+                    Move move = new Move(
+                        simBoard.getPlayer(sideToMove), 
+                        fFrom, 
+                        fTo, 
+                        simPiece, 
+                        captured, 
+                        promotion,
+                        false
+                    );
                     simBoard.moveManager.applyMove(move);
 
                     int score = minimax(simBoard, MAX_DEPTH - 1, sideToMove.getOpposite(),
@@ -72,9 +80,15 @@ public class ShogiAI {
 
                     simBoard.setPiece(fDropPos, simPiece);
 
-                    Move dropMove = new Move(simBoard.getPlayer(sideToMove),
-                                             fDropPos, fDropPos,
-                                             simPiece, null, false);
+                    Move dropMove = new Move(
+                        simBoard.getPlayer(sideToMove),
+                        fDropPos, 
+                        fDropPos,
+                        simPiece, 
+                        null, 
+                        false,
+                        true
+                    );
                     simBoard.moveManager.getUndoStack().push(dropMove);
                     simBoard.moveManager.getRedoStack().clear();
 
@@ -107,7 +121,6 @@ public class ShogiAI {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         return bestMove;
     }
 
@@ -134,7 +147,7 @@ public class ShogiAI {
 
         // 1. Normal moves
         for (Piece piece : currentBoard.getPiecesOfSide(sideToMove)) {
-            Position from = piece.getPosition();
+            Position from = piece.getBoardPosition();
             for (Position to : piece.getLegalMoves()) {
                 Board simBoard = currentBoard.copy();
                 Piece simPiece = simBoard.getPiece(from);
@@ -142,8 +155,8 @@ public class ShogiAI {
                 boolean promotion = false;
                 if (simPiece.canPromote() && to.inPromotionZone(sideToMove)) promotion = true;
 
-                Piece captured = simBoard.getPiece(to);
-                Move move = new Move(simBoard.getPlayer(sideToMove), from, to, simPiece, captured, promotion);
+                Piece captured = board.getPiece(to);
+                Move move = new Move(simBoard.getPlayer(sideToMove), from, to, simPiece, captured, promotion, false);
                 simBoard.moveManager.applyMove(move);
 
                 int score = minimax(simBoard, depth - 1, sideToMove.getOpposite(), alpha, beta);
@@ -177,7 +190,8 @@ public class ShogiAI {
                                          dropPos, 
                                          simPiece, 
                                          null, 
-                                         false);
+                                         false,
+                                         true);
                 simBoard.moveManager.getUndoStack().push(dropMove);
                 simBoard.moveManager.getRedoStack().clear();
 
@@ -229,10 +243,10 @@ public class ShogiAI {
 
         // Promotion bonuses
         for (Piece piece : board.getPiecesOfSide(maximizingSide)) {
-            if (piece.canPromote() && piece.getPosition().inPromotionZone(maximizingSide)) score += 100;
+            if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide)) score += 100;
         }
         for (Piece piece : board.getPiecesOfSide(maximizingSide.getOpposite())) {
-            if (piece.canPromote() && piece.getPosition().inPromotionZone(maximizingSide.getOpposite())) score -= 100;
+            if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide.getOpposite())) score -= 100;
         }
 
         return score;
@@ -240,13 +254,13 @@ public class ShogiAI {
 
     private int evaluatePiecePosition(Piece piece, Sides maximizingSide) {
         int score = 0;
-        int x = piece.getPosition().x;
-        int y = piece.getPosition().y;
+        int x = piece.getBoardPosition().x;
+        int y = piece.getBoardPosition().y;
 
         if (x >= 3 && x <= 5 && y >= 3 && y <= 5) {
             score += 20;
         }
-        if (piece.canPromote() && piece.getPosition().inPromotionZone(maximizingSide)) {
+        if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide)) {
             score += 30;
         }
 

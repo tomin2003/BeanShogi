@@ -63,8 +63,8 @@ public class Controller {
         hl.addMouseListener(new BoardMouseListener(this::handleBoardClick, cellSize, gap));
 
         // Hand click listeners
-        handTop.addMouseListener(new HandPanelMouseListener(this::handleHandClickWrapper, cellSize, gap, Sides.GOTE));
-        handBottom.addMouseListener(new HandPanelMouseListener(this::handleHandClickWrapper, cellSize, gap, Sides.SENTE));
+        handTop.addMouseListener(new HandPanelMouseListener(this::handleHandClick, cellSize, gap, Sides.GOTE));
+        handBottom.addMouseListener(new HandPanelMouseListener(this::handleHandClick, cellSize, gap, Sides.SENTE));
     }
 
     // ==================== TURN MANAGEMENT ====================
@@ -89,7 +89,7 @@ public class Controller {
         for (Piece piece : board.getAllPieces()) {
             BufferedImage image = sprites.get(piece.getClass());
             PieceComponent comp = new PieceComponent(image, piece.getSide(), cellSize);
-            pieceLayer.addPiece(comp, piece.getPosition().y, piece.getPosition().x, cellSize);
+            pieceLayer.addPiece(comp, piece.getBoardPosition().y, piece.getBoardPosition().x, cellSize);
         }
         pieceLayer.repaint();
         renderHands();
@@ -105,16 +105,17 @@ public class Controller {
         handBottomPanel.repaint();
     }
 
+    /**
+     * Render the current contents of a hand panel.
+     * @param panel
+     * @param handGrid
+     */
     private void renderHandToPanel(PieceLayerPanel panel, HandGrid handGrid) {
-        int[] dims = handGrid.getDimensions();
-        for (int row = 0; row < dims[0]; row++) {
-            for (int col = 0; col < dims[1]; col++) {
-                Piece piece = handGrid.getPieceAt(row, col);
-                if (piece != null) {
-                    BufferedImage image = sprites.get(piece.getClass());
-                    PieceComponent comp = new PieceComponent(image, piece.getSide(), cellSize);
-                    panel.addPiece(comp, row, col, cellSize);
-                }
+        for (Piece piece : handGrid.getAllPieces()) {
+            if (piece != null) {
+                BufferedImage image = sprites.get(piece.getClass());
+                PieceComponent comp = new PieceComponent(image, piece.getSide(), cellSize);
+                panel.addPiece(comp, piece.getHandPosition().x, piece.getHandPosition().y, cellSize);
             }
         }
     }
@@ -148,10 +149,42 @@ public class Controller {
     private void tryAIMove() {
         if (!board.getPlayer(sideOnTurn).isAI()) return;
 
-        Timer aiTimer = new Timer(500, e -> {
+        Timer aiTimer = new Timer(100, e -> {
             Move aiMove = ai.getBestMove(sideOnTurn);
             if (aiMove != null) {
-                board.moveManager.applyMove(aiMove);
+                // Reconstruct the move with the real board's player and pieces
+                // The AI returns a move with references to simulated board objects
+                Piece realMovedPiece = null;
+                if (aiMove.isDrop()) {
+                    // For drops, find matching piece in real player's hand (don't remove yet, applyMove will do it)
+                    for (Piece p : board.getPlayer(sideOnTurn).getHand()) {
+                        if (p.getClass() == aiMove.getMovedPiece().getClass() && 
+                            p.getSide() == sideOnTurn) {
+                            realMovedPiece = p;
+                            break;
+                        }
+                    }
+                } else {
+                    // For normal moves, get piece from real board
+                    realMovedPiece = board.getPiece(aiMove.getFrom());
+                }
+                
+                if (realMovedPiece == null) {
+                    System.err.println("ERROR: Could not find real piece for AI move!");
+                    return;
+                }
+                
+                Move realMove = new Move(
+                    board.getPlayer(sideOnTurn),  // Real player
+                    aiMove.getFrom(),
+                    aiMove.getTo(),
+                    realMovedPiece,  // Real piece
+                    null,  // Will be determined by applyMove
+                    aiMove.isPromotion(),
+                    aiMove.isDrop()
+                );
+                
+                board.moveManager.applyMove(realMove);
                 advanceTurn();
                 afterMove();
                 tryAIMove(); // support AI vs AI
@@ -191,46 +224,46 @@ public class Controller {
     }
 
     private void handleBoardMove(Position to) {
-        boolean promote = false;
+        boolean promotion = false;
         if (selectedBoardPiece.canPromote() && to.inPromotionZone(sideOnTurn)) {
-            promote = PromotePopup.ask(); // GUI-driven callback
+            promotion = PromotePopup.ask(); // GUI-driven callback
         }
 
-        board.moveManager.applyMove(
-                board.getPlayer(sideOnTurn),
-                selectedBoardPiece.getPosition(),
-                to,
-                promote
-        );
-
+        board.moveManager.applyMove(new Move(
+            board.getPlayer(sideOnTurn), 
+            selectedBoardPiece.getBoardPosition(), 
+            to, 
+            selectedBoardPiece, 
+            null, 
+            promotion, 
+            false
+        ));
         advanceTurn();
         afterMove();
         tryAIMove();
     }
 
-    // ==================== HAND CLICK HANDLING ====================
-    public void handleHandClickWrapper(Position clickPosition, Sides handSide) {
-        handleHandClick(clickPosition, handSide);
-    }
-
+     /**
+     * Handle the mouse click events on specified hand table.
+     * @param clickPosition Clicked piece index within table
+     * @param handSide The side of click handled hand table.
+     */
     public Piece handleHandClick(Position clickPosition, Sides handSide) {
-        HandGrid hand = board.getPlayer(handSide).getHandGrid();
-        int[] dims = hand.getDimensions();
+        HandGrid handGrid = board.getPlayer(handSide).getHandGrid();
 
-        int row = clickPosition.x;
-        int col = clickPosition.y;
-        if (row < 0 || row >= dims[0] || col < 0 || col >= dims[1]) return null;
+        for (Piece piece : handGrid.getAllPieces()) {
+            if (piece != null && piece.getHandPosition() != null && piece.getHandPosition().equals(clickPosition)) {
+                if (piece.getSide() == sideOnTurn) {
+                    selectedHandPiece = piece;
+                    selectedHandSide = handSide;
 
-        Piece piece = hand.getPieceAt(row, col);
-        if (piece != null && piece.getSide() == sideOnTurn) {
-            selectedHandPiece = piece;
-            selectedHandSide = handSide;
+                    highlightLayer.clearAllHighlights();
+                    selectedLegalMoves = board.getPieceDropPoints(piece.getClass(), sideOnTurn);
+                    highlightLayer.highlightSquares(selectedLegalMoves);
 
-            highlightLayer.clearAllHighlights();
-            selectedLegalMoves = board.getPieceDropPoints(piece.getClass(), sideOnTurn);
-            highlightLayer.highlightSquares(selectedLegalMoves);
-
-            return piece;
+                    return piece;
+                }
+            }
         }
         return null;
     }
@@ -244,11 +277,15 @@ public class Controller {
         }
 
         // Use the proper API for applying drops
-        board.moveManager.applyDrop(
-                board.getPlayer(selectedHandSide),
-                selectedHandPiece,
-                boardPos
-        );
+        board.moveManager.applyMove(new Move(
+            board.getPlayer(selectedHandSide), 
+            selectedHandPiece.getHandPosition(), 
+            boardPos, 
+            selectedHandPiece, 
+            null, 
+            false, 
+            true
+        ));
 
         advanceTurn();
         afterMove();
@@ -263,11 +300,13 @@ public class Controller {
 
         board.moveManager.undoMove();
         sideOnTurn = sideOnTurn.getOpposite();
+        statsListener.onSideOnTurnChanged(sideOnTurn);
         afterMove();
 
         if (board.getPlayer(sideOnTurn).isAI() && !board.moveManager.isUndoStackEmpty()) {
             board.moveManager.undoMove();
             sideOnTurn = sideOnTurn.getOpposite();
+            statsListener.onSideOnTurnChanged(sideOnTurn);
             afterMove();
         }
     }
@@ -277,11 +316,13 @@ public class Controller {
 
         board.moveManager.redoMove();
         sideOnTurn = sideOnTurn.getOpposite();
+        statsListener.onSideOnTurnChanged(sideOnTurn);
         afterMove();
 
         if (board.getPlayer(sideOnTurn).isAI() && !board.moveManager.isRedoStackEmpty()) {
             board.moveManager.redoMove();
             sideOnTurn = sideOnTurn.getOpposite();
+            statsListener.onSideOnTurnChanged(sideOnTurn);
             afterMove();
         }
     }

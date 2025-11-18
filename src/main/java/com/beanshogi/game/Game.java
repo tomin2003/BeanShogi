@@ -27,35 +27,35 @@ public class Game {
         // Initialize board by entire rows
         for (int i = 0; i < 9; i++) {
             if (i == 0 || i == 8) {
-                board.setPiece(new Position(i, 0), new Lance(Sides.GOTE, null, board));
-                board.setPiece(new Position(i, 8), new Lance(Sides.SENTE, null, board));
+                board.setPiece(new Position(i, 0), new Lance(Sides.GOTE, null, null, board));
+                board.setPiece(new Position(i, 8), new Lance(Sides.SENTE, null, null, board));
             }
             if (i == 1 || i == 7) {
-                board.setPiece(new Position(i, 0), new Knight(Sides.GOTE, null, board));
-                board.setPiece(new Position(i, 8), new Knight(Sides.SENTE, null, board));
+                board.setPiece(new Position(i, 0), new Knight(Sides.GOTE, null, null, board));
+                board.setPiece(new Position(i, 8), new Knight(Sides.SENTE, null, null, board));
                 if (i == 1) { 
-                    board.setPiece(new Position(i, 1), new Rook(Sides.GOTE, null, board));
-                    board.setPiece(new Position(i, 7), new Bishop(Sides.SENTE, null, board));
+                    board.setPiece(new Position(i, 1), new Rook(Sides.GOTE, null, null, board));
+                    board.setPiece(new Position(i, 7), new Bishop(Sides.SENTE, null, null, board));
                 }
                 if (i == 7) { 
-                    board.setPiece(new Position(i, 1), new Bishop(Sides.GOTE, null, board));
-                    board.setPiece(new Position(i, 7), new Rook(Sides.SENTE, null, board));
+                    board.setPiece(new Position(i, 1), new Bishop(Sides.GOTE, null, null, board));
+                    board.setPiece(new Position(i, 7), new Rook(Sides.SENTE, null, null, board));
                 }
             }
             if (i == 2 || i == 6) {
-                board.setPiece(new Position(i, 0), new GoldGeneral(Sides.GOTE, null, board));
-                board.setPiece(new Position(i, 8), new GoldGeneral(Sides.SENTE, null, board));
+                board.setPiece(new Position(i, 0), new GoldGeneral(Sides.GOTE, null, null, board));
+                board.setPiece(new Position(i, 8), new GoldGeneral(Sides.SENTE, null, null, board));
             }
             if (i == 3 || i == 5) {
-                board.setPiece(new Position(i, 0), new SilverGeneral(Sides.GOTE, null, board));
-                board.setPiece(new Position(i, 8), new SilverGeneral(Sides.SENTE, null, board));
+                board.setPiece(new Position(i, 0), new SilverGeneral(Sides.GOTE, null, null, board));
+                board.setPiece(new Position(i, 8), new SilverGeneral(Sides.SENTE, null, null, board));
             }
             if (i == 4) {
-                board.setPiece(new Position(i, 0), new King(Sides.GOTE, null, board));
-                board.setPiece(new Position(i, 8), new King(Sides.SENTE, null, board));
+                board.setPiece(new Position(i, 0), new King(Sides.GOTE, null, null, board));
+                board.setPiece(new Position(i, 8), new King(Sides.SENTE, null, null, board));
             }
-            board.setPiece(new Position(i, 2), new Pawn(Sides.GOTE, null, board));
-            board.setPiece(new Position(i, 6), new Pawn(Sides.SENTE, null, board));
+            board.setPiece(new Position(i, 2), new Pawn(Sides.GOTE, null, null, board));
+            board.setPiece(new Position(i, 6), new Pawn(Sides.SENTE, null, null, board));
         }
     }
     public Board getBoard() {

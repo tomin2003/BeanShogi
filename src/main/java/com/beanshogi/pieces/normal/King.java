@@ -12,8 +12,8 @@ public class King extends Piece {
                                                 {-1,0},/*KI*/{1,0},
                                                {-1,-1},{0,-1},{1,-1}};
                                             
-    public King(Sides side, Position position, Board board) {
-        super(side, position, board);
+    public King(Sides side, Position boardPosition, Position handPosition, Board board) {
+        super(side, boardPosition, handPosition, board);
     }
 
     @Override
@@ -34,6 +34,6 @@ public class King extends Piece {
 
     @Override
     public Piece cloneForBoard(Board board) {
-        return new King(this.side, this.position, board);
+        return new King(this.side, this.boardPosition, this.handPosition, board);
     }
 }

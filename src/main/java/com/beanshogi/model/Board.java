@@ -50,7 +50,7 @@ public class Board {
     public void setPiece(Position pos, Piece piece) {
         board[pos.x][pos.y] = piece;
         if (piece != null) {
-            piece.setPosition(pos);
+            piece.setBoardPosition(pos);
         }
         if (piece instanceof King) {
             kings.put(piece.getSide(), (King)piece);
@@ -165,8 +165,8 @@ public class Board {
                 Piece p = this.board[x][y];
                 if (p != null) {
                     Piece clone = p.cloneForBoard(newBoard);
-                    clone.setPosition(new Position(x, y)); // make sure position is correct
-                    newBoard.setPiece(clone.getPosition(), clone);
+                    clone.setBoardPosition(new Position(x, y)); // make sure position is correct
+                    newBoard.setPiece(clone.getBoardPosition(), clone);
                     if (clone instanceof King) {
                         newBoard.kings.put(clone.getSide(), (King) clone);
                     }
