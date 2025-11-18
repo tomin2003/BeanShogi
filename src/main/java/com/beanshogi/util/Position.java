@@ -16,6 +16,11 @@ public class Position {
         this.y = y;
     }
 
+    public Position(int n) {
+        this.x = n;
+        this.y = n;
+    }
+
     // Check for alignment within 9x9 shogi board bounds
     public boolean inBounds() {
         return x >= 0 && x < 9 && y >= 0 && y < 9;

@@ -11,8 +11,8 @@ import com.beanshogi.util.Sides;
  * Provides both a flat list interface (for external use) and grid-based access (for rendering).
  */
 public class HandGrid {
-    private static final int ROWS = 5;
-    private static final int COLS = 4;
+    private static final int ROWS = 4;
+    private static final int COLS = 5;
     
     private final Piece[][] grid = new Piece[ROWS][COLS];
 
@@ -26,7 +26,7 @@ public class HandGrid {
             for (int y = 0; y < COLS; y++) {
                 if (grid[x][y] == null) {
                     grid[x][y] = piece;
-                    piece.setHandPosition(new Position(x, y));
+                    piece.setHandPosition(new Position(y, x));
                     piece.setBoardPosition(null);
                     return;
                 }

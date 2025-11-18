@@ -65,6 +65,8 @@ public class Evals {
         return !kingChecks(side).isEmpty();
     }
 
+    // TODO: Review checkmate logic for correctness
+
     /**
      * Simulate if a move on a board might result in check
      * @param simBoard board cloned for simulation

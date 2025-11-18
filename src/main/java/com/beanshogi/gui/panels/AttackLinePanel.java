@@ -11,11 +11,12 @@ import com.beanshogi.model.Piece;
 
 public class AttackLinePanel extends JPanel implements KingCheckListener {
     private final List<CheckEvent> checkEvents = new ArrayList<>();
-    private static final int GAP = 2;
     private int cellSize;
+    private int gap;
 
-    public AttackLinePanel(int cellSize) {
+    public AttackLinePanel(int cellSize, int gap) {
         this.cellSize = cellSize;
+        this.gap = gap;
         setOpaque(false);
     }
 
@@ -33,10 +34,10 @@ public class AttackLinePanel extends JPanel implements KingCheckListener {
             Piece attacker = ce.getAttacker();
             if (king == null || attacker == null) continue;
 
-            int kingX = king.getBoardPosition().x * (GAP + cellSize) + cellSize / 2;
-            int kingY = king.getBoardPosition().y * (GAP + cellSize) + cellSize / 2;
-            int atX = attacker.getBoardPosition().x * (GAP + cellSize) + cellSize / 2;
-            int atY = attacker.getBoardPosition().y * (GAP + cellSize) + cellSize / 2;
+            int kingX = king.getBoardPosition().x * (gap + cellSize) + cellSize / 2;
+            int kingY = king.getBoardPosition().y * (gap + cellSize) + cellSize / 2;
+            int atX = attacker.getBoardPosition().x * (gap + cellSize) + cellSize / 2;
+            int atY = attacker.getBoardPosition().y * (gap + cellSize) + cellSize / 2;
 
             g2.drawLine(atX, atY, kingX, kingY);
         }

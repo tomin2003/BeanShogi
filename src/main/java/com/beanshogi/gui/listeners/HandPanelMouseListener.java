@@ -16,10 +16,10 @@ public class HandPanelMouseListener extends MouseAdapter {
 
     private final BiConsumer<Position, Sides> clickHandler;
     private final int cellSize;
-    private final int gap;
+    private final Position gap;
     private final Sides handSide;
 
-    public HandPanelMouseListener(BiConsumer<Position, Sides> clickHandler, int cellSize, int gap, Sides handSide) {
+    public HandPanelMouseListener(BiConsumer<Position, Sides> clickHandler, int cellSize, Position gap, Sides handSide) {
         this.clickHandler = clickHandler;
         this.cellSize = cellSize;
         this.gap = gap;
@@ -32,12 +32,10 @@ public class HandPanelMouseListener extends MouseAdapter {
         int mouseY = e.getY();
 
         // Convert pixel coordinates to grid coordinates
-        int gridX = mouseX / (cellSize + gap);
-        int gridY = mouseY / (cellSize + gap);
+        int gridX = mouseX / (cellSize + gap.x);
+        int gridY = mouseY / (cellSize + gap.y);
 
-        // Controller expects Position.x = row and Position.y = col,
-        // so swap axes: row = gridY (vertical), col = gridX (horizontal).
-        Position clickedPos = new Position(gridY, gridX);
+        Position clickedPos = new Position(gridX, gridY);
 
         // Ensure EDT-safe call
         SwingUtilities.invokeLater(() -> clickHandler.accept(clickedPos, handSide));

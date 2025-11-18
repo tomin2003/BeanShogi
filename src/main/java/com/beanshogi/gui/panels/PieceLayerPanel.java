@@ -3,20 +3,32 @@ package com.beanshogi.gui.panels;
 import javax.swing.JPanel;
 
 import com.beanshogi.gui.piece.PieceComponent;
+import com.beanshogi.util.Position;
 
 public class PieceLayerPanel extends JPanel {
 
-    private static final int GAP = 2;
+    private int cellSize;
+    private Position gap;
 
-    public PieceLayerPanel() {
+    public PieceLayerPanel(int cellSize, Position gap) {
         setLayout(null); // free positioning
         setOpaque(false); // board visible behind
         setFocusable(true); // Allow mouse events
+        this.cellSize = cellSize;
+        this.gap = gap;
     }
 
-    public void addPiece(PieceComponent piece, int row, int col, int cellSize) {
-        int x = col * (cellSize + GAP);
-        int y = row * (cellSize + GAP);
+    public int getCellSize() {
+        return cellSize;
+    }
+
+    public Position getGap() {
+        return gap;
+    }
+
+    public void addPiece(PieceComponent piece, Position pos) {
+        int x = pos.x * (cellSize + gap.x);
+        int y = pos.y * (cellSize + gap.y);
 
         piece.setLocation(x, y);
         add(piece);

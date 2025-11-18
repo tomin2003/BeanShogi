@@ -1,4 +1,4 @@
-package com.beanshogi.engine.ai;
+package com.beanshogi.engine;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +153,9 @@ public class ShogiAI {
                 Piece simPiece = simBoard.getPiece(from);
 
                 boolean promotion = false;
-                if (simPiece.canPromote() && to.inPromotionZone(sideToMove)) promotion = true;
+                if (simPiece.canPromote() && to.inPromotionZone(sideToMove)) {
+                    promotion = true;
+                }
 
                 Piece captured = board.getPiece(to);
                 Move move = new Move(simBoard.getPlayer(sideToMove), from, to, simPiece, captured, promotion, false);

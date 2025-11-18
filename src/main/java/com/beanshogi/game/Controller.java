@@ -6,7 +6,7 @@ import com.beanshogi.gui.piece.*;
 import com.beanshogi.gui.util.Popups;
 import com.beanshogi.model.*;
 import com.beanshogi.util.*;
-import com.beanshogi.engine.ai.*;
+import com.beanshogi.engine.ShogiAI;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -19,14 +19,12 @@ public class Controller {
     private final ShogiAI ai;
 
     private final HighlightLayerPanel highlightLayer;
-    private final PieceLayerPanel pieceLayer;
+    private final HighlightLayerPanel handTopHighlight;
+    private final HighlightLayerPanel handBottomHighlight;
+    private final PieceLayerPanel boardPanel;
     private final PieceLayerPanel handTopPanel;
     private final PieceLayerPanel handBottomPanel;
     private final PieceSprites sprites = new PieceSprites();
-
-    private final int cellSize;
-    private final int handCellSize = 69; // Smaller size for hand panel pieces
-    private final int gap = 2;
 
     private GameStatsListener statsListener;
     private UndoRedoListener undoRedoListener;
@@ -43,18 +41,19 @@ public class Controller {
     private List<Position> selectedLegalMoves = null;
 
     public Controller(GameStatsListener gsl, UndoRedoListener url, KingCheckListener kcl,
-                      HighlightLayerPanel hl, PieceLayerPanel pl, PieceLayerPanel handTop,
-                      PieceLayerPanel handBottom, int cellSize, Runnable onGameEndCallback) {
+                      HighlightLayerPanel hl, HighlightLayerPanel handTopHL, HighlightLayerPanel handBottomHL,
+                      PieceLayerPanel bp, PieceLayerPanel ht, PieceLayerPanel hb, Runnable onGameEndCallback) {
 
         this.game = new Game();
         this.board = game.getBoard();
         this.ai = new ShogiAI(board);
 
         this.highlightLayer = hl;
-        this.pieceLayer = pl;
-        this.handTopPanel = handTop;
-        this.handBottomPanel = handBottom;
-        this.cellSize = cellSize;
+        this.handTopHighlight = handTopHL;
+        this.handBottomHighlight = handBottomHL;
+        this.boardPanel = bp;
+        this.handTopPanel = ht;
+        this.handBottomPanel = hb;
 
         this.statsListener = gsl;
         this.undoRedoListener = url;
@@ -63,12 +62,12 @@ public class Controller {
 
         statsListener.onSideOnTurnChanged(sideOnTurn);
 
-        // Board click listener
-        hl.addMouseListener(new BoardMouseListener(this::handleBoardClick, cellSize, gap));
+        // Board click listener - now uses BiConsumer for consistency with HandPanelMouseListener
+        hl.addMouseListener(new BoardMouseListener((pos, unused) -> handleBoardClick(pos), bp.getCellSize(), bp.getGap()));
 
         // Hand click listeners
-        handTop.addMouseListener(new HandPanelMouseListener(this::handleHandClick, handCellSize, gap, Sides.GOTE));
-        handBottom.addMouseListener(new HandPanelMouseListener(this::handleHandClick, handCellSize, gap, Sides.SENTE));
+        ht.addMouseListener(new HandPanelMouseListener(this::handleHandClick, ht.getCellSize(), ht.getGap(), Sides.GOTE));
+        hb.addMouseListener(new HandPanelMouseListener(this::handleHandClick, hb.getCellSize(), hb.getGap(), Sides.SENTE));
     }
 
     /**
@@ -105,13 +104,13 @@ public class Controller {
 
     // ==================== BOARD RENDERING ====================
     public void renderBoard() {
-        pieceLayer.removeAll();
+        boardPanel.removeAll();
         for (Piece piece : board.getAllPieces()) {
             BufferedImage image = sprites.get(piece.getClass());
-            PieceComponent comp = new PieceComponent(image, piece.getSide(), cellSize);
-            pieceLayer.addPiece(comp, piece.getBoardPosition().y, piece.getBoardPosition().x, cellSize);
+            PieceComponent comp = new PieceComponent(image, piece.getSide(), boardPanel.getCellSize());
+            boardPanel.addPiece(comp, piece.getBoardPosition());
         }
-        pieceLayer.repaint();
+        boardPanel.repaint();
         renderHands();
     }
 
@@ -130,12 +129,12 @@ public class Controller {
      * @param panel
      * @param handGrid
      */
-    private void renderHandToPanel(PieceLayerPanel panel, HandGrid handGrid) {
+    private void renderHandToPanel(PieceLayerPanel handPanel, HandGrid handGrid) {
         for (Piece piece : handGrid.getAllPieces()) {
             if (piece != null) {
                 BufferedImage image = sprites.get(piece.getClass());
-                PieceComponent comp = new PieceComponent(image, piece.getSide(), handCellSize);
-                panel.addPiece(comp, piece.getHandPosition().x, piece.getHandPosition().y, handCellSize);
+                PieceComponent comp = new PieceComponent(image, piece.getSide(), handPanel.getCellSize());
+                handPanel.addPiece(comp, piece.getHandPosition());
             }
         }
     }
@@ -145,6 +144,8 @@ public class Controller {
      */
     private void afterMove() {
         highlightLayer.clearAllHighlights();
+        handTopHighlight.clearAllHighlights();
+        handBottomHighlight.clearAllHighlights();
         selectedBoardPiece = null;
         selectedHandPiece = null;
         selectedHandSide = null;
@@ -238,6 +239,8 @@ public class Controller {
             selectedBoardPiece = piece;
             selectedLegalMoves = piece.getLegalMoves();
             highlightLayer.clearAllHighlights();
+            handTopHighlight.clearAllHighlights();
+            handBottomHighlight.clearAllHighlights();
             highlightLayer.highlightSquares(selectedLegalMoves);
             return;
         }
@@ -249,14 +252,21 @@ public class Controller {
     }
 
     private void handleBoardMove(Position to) {
+        Position from = selectedBoardPiece.getBoardPosition();
+
+        // Check if forcing promotion is necessary, otherwise, ask
         boolean promotion = false;
         if (selectedBoardPiece.canPromote() && to.inPromotionZone(sideOnTurn)) {
-            promotion = Popups.askPromotion();
+            if (selectedBoardPiece.shouldPromote(from, to)) {
+                promotion = true;
+            } else {
+                promotion = Popups.askPromotion();
+            }
         }
 
         board.moveManager.applyMove(new Move(
             board.getPlayer(sideOnTurn), 
-            selectedBoardPiece.getBoardPosition(), 
+            from, 
             to, 
             selectedBoardPiece, 
             null, 
@@ -283,8 +293,15 @@ public class Controller {
                     selectedHandSide = handSide;
 
                     highlightLayer.clearAllHighlights();
+                    handTopHighlight.clearAllHighlights();
+                    handBottomHighlight.clearAllHighlights();
+                    
                     selectedLegalMoves = board.getPieceDropPoints(piece.getClass(), sideOnTurn);
                     highlightLayer.highlightSquares(selectedLegalMoves);
+                    
+                    // Highlight the selected hand piece
+                    HighlightLayerPanel handHighlight = (handSide == Sides.GOTE) ? handTopHighlight : handBottomHighlight;
+                    handHighlight.highlightSquare(clickPosition);
 
                     return piece;
                 }
@@ -293,6 +310,7 @@ public class Controller {
         return null;
     }
 
+    // TODO: review drop legality logic
     private boolean handleHandDrop(Position boardPos) {
         if (selectedHandPiece == null || selectedHandSide == null) {
             return false;

@@ -34,15 +34,15 @@ public class SettingsPanel extends JPanel {
         aButtonGroup.add(windowedButton);
         aButtonGroup.add(fullscreenButton);
 
-        JLabel arLabel = new JLabel("Display mode");
-        arLabel.setPreferredSize(new Dimension(120, 20));
+        JLabel dpLabel = new JLabel("Display mode");
+        dpLabel.setPreferredSize(new Dimension(120, 20));
 
-        JPanel arPanel = new JPanel();
-        arPanel.setLayout(new BoxLayout(arPanel, BoxLayout.X_AXIS));
-        arPanel.add(arLabel);
-        arPanel.add(Box.createHorizontalStrut(30));
-        arPanel.add(windowedButton);
-        arPanel.add(fullscreenButton);
+        JPanel dpPanel = new JPanel();
+        dpPanel.setLayout(new BoxLayout(dpPanel, BoxLayout.X_AXIS));
+        dpPanel.add(dpLabel);
+        dpPanel.add(Box.createHorizontalStrut(30));
+        dpPanel.add(windowedButton);
+        dpPanel.add(fullscreenButton);
 
         // Volume sliders
         JSlider bgVolume = new JSlider(0, 100);
@@ -78,7 +78,7 @@ public class SettingsPanel extends JPanel {
 
         // UI panels alignment
         add(Box.createVerticalStrut(50));
-        add(arPanel);
+        add(dpPanel);
         add(Box.createVerticalStrut(20));
         add(bgPanel);
         add(sePanel);
