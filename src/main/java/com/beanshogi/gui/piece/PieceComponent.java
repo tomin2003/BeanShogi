@@ -40,19 +40,28 @@ public class PieceComponent extends JPanel {
         int boxW = getWidth();
         int boxH = getHeight();
 
-        // Centering offsets (no scaling)
-        int x = (boxW - imgW) / 2;
-        int y = (boxH - imgH) / 2;
+        // Calculate scaled dimensions to fit within bounds while maintaining aspect ratio
+        double scaleW = (double) boxW / imgW;
+        double scaleH = (double) boxH / imgH;
+        double scale = Math.min(scaleW, scaleH);
+        
+        int scaledW = (int) (imgW * scale);
+        int scaledH = (int) (imgH * scale);
+
+        // Centering offsets
+        int x = (boxW - scaledW) / 2;
+        int y = (boxH - scaledH) / 2;
 
         // Flip gote pieces, render sente pieces normally
         if (pieceSide == Sides.GOTE) {
             AffineTransform at = new AffineTransform();
-            at.translate(x + imgW / 2.0, y + imgH / 2.0);
+            at.translate(x + scaledW / 2.0, y + scaledH / 2.0);
             at.rotate(Math.toRadians(180));
+            at.scale(scale, scale);
             at.translate(-imgW / 2.0, -imgH / 2.0);
             g2d.drawImage(image, at, null);
         } else {
-            g2d.drawImage(image, x, y, null);
+            g2d.drawImage(image, x, y, scaledW, scaledH, null);
         }
         g2d.dispose();
     }

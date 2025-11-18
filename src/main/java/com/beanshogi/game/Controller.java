@@ -25,6 +25,7 @@ public class Controller {
     private final PieceSprites sprites = new PieceSprites();
 
     private final int cellSize;
+    private final int handCellSize = 69; // Smaller size for hand panel pieces
     private final int gap = 2;
 
     private GameStatsListener statsListener;
@@ -63,8 +64,8 @@ public class Controller {
         hl.addMouseListener(new BoardMouseListener(this::handleBoardClick, cellSize, gap));
 
         // Hand click listeners
-        handTop.addMouseListener(new HandPanelMouseListener(this::handleHandClick, cellSize, gap, Sides.GOTE));
-        handBottom.addMouseListener(new HandPanelMouseListener(this::handleHandClick, cellSize, gap, Sides.SENTE));
+        handTop.addMouseListener(new HandPanelMouseListener(this::handleHandClick, handCellSize, gap, Sides.GOTE));
+        handBottom.addMouseListener(new HandPanelMouseListener(this::handleHandClick, handCellSize, gap, Sides.SENTE));
     }
 
     // ==================== TURN MANAGEMENT ====================
@@ -114,8 +115,8 @@ public class Controller {
         for (Piece piece : handGrid.getAllPieces()) {
             if (piece != null) {
                 BufferedImage image = sprites.get(piece.getClass());
-                PieceComponent comp = new PieceComponent(image, piece.getSide(), cellSize);
-                panel.addPiece(comp, piece.getHandPosition().x, piece.getHandPosition().y, cellSize);
+                PieceComponent comp = new PieceComponent(image, piece.getSide(), handCellSize);
+                panel.addPiece(comp, piece.getHandPosition().x, piece.getHandPosition().y, handCellSize);
             }
         }
     }

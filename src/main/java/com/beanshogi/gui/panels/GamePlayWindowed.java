@@ -37,11 +37,11 @@ public class GamePlayWindowed extends BackgroundPanel {
 
         // Hand pieces panels (captured pieces display) - placed to the right of the board
         PieceLayerPanel handTop = new PieceLayerPanel();
-        handTop.setBounds(950, 50, 1225, 445);
+        handTop.setBounds(915, 50, 1260, 445);
         add(handTop);
 
         PieceLayerPanel handBottom = new PieceLayerPanel();
-        handBottom.setBounds(950, 570, 1225, 915);
+        handBottom.setBounds(915, 570, 1260, 915);
         add(handBottom);
 
         // Create new highlight layer
