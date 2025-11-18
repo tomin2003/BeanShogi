@@ -68,16 +68,19 @@ public class Evals {
     /**
      * Simulate if a move on a board might result in check
      * @param simBoard board cloned for simulation
-     * @param piece moved piece
+     * @param piecePos position of the piece to move (on simBoard)
      * @param to position the piece is moved to
      * @param promote promotion state of piece
      * @return king is safe or not
      */
-    private boolean simulateMoveCheck(Board simBoard, Piece piece, Position to, boolean promote) {
+    private boolean simulateMoveCheck(Board simBoard, Position piecePos, Position to, boolean promote) {
+        Piece piece = simBoard.getPiece(piecePos);
+        if (piece == null) return false;
+        
         Player player = simBoard.getPlayer(piece.getSide());
         simBoard.moveManager.applyMove(new Move(
             player, 
-            piece.getBoardPosition(),
+            piecePos,
             to,
             piece,
             simBoard.getPiece(to),
@@ -89,11 +92,28 @@ public class Evals {
         return kingSafe;
     }
 
-    private boolean simulateDropCheck(Board simBoard, Piece piece, Position dropPos) {
-        Piece clone = piece.cloneForBoard(simBoard);
-        simBoard.setPiece(dropPos, clone);
-        boolean kingSafe = !simBoard.evals.isKingInCheck(piece.getSide());
-        simBoard.removePiece(dropPos); // undo the drop in the simulation
+    private boolean simulateDropCheck(Board simBoard, Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
+        // Find a piece of the given class in the player's hand
+        Player player = simBoard.getPlayer(side);
+        Piece handPiece = null;
+        for (Piece p : player.getHand()) {
+            if (pieceClass.isInstance(p)) {
+                handPiece = p;
+                break;
+            }
+        }
+        if (handPiece == null) return false;
+        
+        // Temporarily remove from hand and place on board
+        player.getHandGrid().removePiece(handPiece);
+        simBoard.setPiece(dropPos, handPiece);
+        
+        boolean kingSafe = !simBoard.evals.isKingInCheck(side);
+        
+        // Undo the drop
+        simBoard.removePiece(dropPos);
+        player.getHandGrid().addPiece(handPiece);
+        
         return kingSafe;
     }
 
@@ -104,24 +124,33 @@ public class Evals {
         Board simBoard = board.copy(); // copy for isolated simulation
 
         // 1. King moves
-        for (Position move : king.getLegalMoves()) {
-            if (simulateMoveCheck(simBoard, simBoard.getKing(side), move, false)) return false;
+        King simKing = simBoard.getKing(side);
+        if (simKing != null) {
+            for (Position move : simKing.getLegalMoves()) {
+                if (simulateMoveCheck(simBoard, simKing.getBoardPosition(), move, false)) {
+                    return false;
+                }
+            }
         }
 
-        // 2. Other piece moves
+        // 2. Other piece moves (blocking or capturing)
         for (Piece piece : simBoard.getPiecesOfSide(side)) {
             if (piece instanceof King) continue;
             for (Position move : piece.getLegalMoves()) {
                 boolean promote = move.inPromotionZone(side) && piece.canPromote();
-                if (simulateMoveCheck(simBoard, piece, move, promote)) return false;
+                if (simulateMoveCheck(simBoard, piece.getBoardPosition(), move, promote)) {
+                    return false;
+                }
             }
         }
 
-        // 3. Hand drops
+        // 3. Hand drops (blocking)
         Player player = simBoard.getPlayer(side);
         for (Piece handPiece : player.getHand()) {
             for (Position dropPos : simBoard.getPieceDropPoints(handPiece.getClass(), side)) {
-                if (simulateDropCheck(simBoard, handPiece, dropPos)) return false;
+                if (simulateDropCheck(simBoard, handPiece.getClass(), side, dropPos)) {
+                    return false;
+                }
             }
         }
         return true; // no move prevents check → checkmate

@@ -1,6 +1,6 @@
 package com.beanshogi.gui.piece;
 
-import com.beanshogi.gui.utils.SwingUtils;
+import com.beanshogi.gui.util.SwingUtils;
 import com.beanshogi.model.Piece;
 import com.beanshogi.pieces.normal.*;
 import com.beanshogi.pieces.normal.slider.*;

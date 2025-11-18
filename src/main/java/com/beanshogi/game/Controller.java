@@ -3,14 +3,14 @@ package com.beanshogi.game;
 import com.beanshogi.gui.listeners.*;
 import com.beanshogi.gui.panels.*;
 import com.beanshogi.gui.piece.*;
-import com.beanshogi.gui.utils.PromotePopup;
+import com.beanshogi.gui.util.Popups;
 import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 import com.beanshogi.engine.ai.*;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
-import javax.swing.Timer;
+import javax.swing.SwingUtilities;
 
 public class Controller {
 
@@ -31,8 +31,10 @@ public class Controller {
     private GameStatsListener statsListener;
     private UndoRedoListener undoRedoListener;
     private KingCheckListener kingCheckListener;
+    private Runnable onGameEndCallback;
 
     private Sides sideOnTurn = Sides.SENTE;
+    private boolean gameActive = true;
 
     // Separate selection state
     private Piece selectedBoardPiece = null;
@@ -42,7 +44,7 @@ public class Controller {
 
     public Controller(GameStatsListener gsl, UndoRedoListener url, KingCheckListener kcl,
                       HighlightLayerPanel hl, PieceLayerPanel pl, PieceLayerPanel handTop,
-                      PieceLayerPanel handBottom, int cellSize) {
+                      PieceLayerPanel handBottom, int cellSize, Runnable onGameEndCallback) {
 
         this.game = new Game();
         this.board = game.getBoard();
@@ -57,6 +59,7 @@ public class Controller {
         this.statsListener = gsl;
         this.undoRedoListener = url;
         this.kingCheckListener = kcl;
+        this.onGameEndCallback = onGameEndCallback;
 
         statsListener.onSideOnTurnChanged(sideOnTurn);
 
@@ -66,6 +69,22 @@ public class Controller {
         // Hand click listeners
         handTop.addMouseListener(new HandPanelMouseListener(this::handleHandClick, handCellSize, gap, Sides.GOTE));
         handBottom.addMouseListener(new HandPanelMouseListener(this::handleHandClick, handCellSize, gap, Sides.SENTE));
+    }
+
+    /**
+     * Start the game (for AI vs AI auto-play)
+     */
+    public void startGame() {
+        renderBoard();
+        notifyListeners();
+        tryAIMove();
+    }
+
+    /**
+     * Stop the game and cleanup resources
+     */
+    public void stopGame() {
+        gameActive = false;
     }
 
     // ==================== TURN MANAGEMENT ====================
@@ -140,17 +159,24 @@ public class Controller {
     }
 
     private void onGameEnd(Sides winner) {
-        System.out.println(sideOnTurn + " wins");
-        // TODO: Proper game end screen/popup
+        stopGame();
+        String winnerName = board.getPlayer(winner).getName();
+        Popups.showGameOver(winnerName);
+        if (onGameEndCallback != null) {
+            onGameEndCallback.run();
+        }
     }
 
     /**
      * Perform AI move operation
      */
     private void tryAIMove() {
-        if (!board.getPlayer(sideOnTurn).isAI()) return;
+        if (!gameActive || !board.getPlayer(sideOnTurn).isAI()) return;
 
-        Timer aiTimer = new Timer(100, e -> {
+        // Use invokeLater to allow UI to update between moves
+        SwingUtilities.invokeLater(() -> {
+            if (!gameActive) return;
+            
             Move aiMove = ai.getBestMove(sideOnTurn);
             if (aiMove != null) {
                 // Reconstruct the move with the real board's player and pieces
@@ -191,8 +217,6 @@ public class Controller {
                 tryAIMove(); // support AI vs AI
             }
         });
-        aiTimer.setRepeats(false);
-        aiTimer.start();
     }
 
     // ==================== BOARD CLICK HANDLING ====================
@@ -227,7 +251,7 @@ public class Controller {
     private void handleBoardMove(Position to) {
         boolean promotion = false;
         if (selectedBoardPiece.canPromote() && to.inPromotionZone(sideOnTurn)) {
-            promotion = PromotePopup.ask(); // GUI-driven callback
+            promotion = Popups.askPromotion();
         }
 
         board.moveManager.applyMove(new Move(

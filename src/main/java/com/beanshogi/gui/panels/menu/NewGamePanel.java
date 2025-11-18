@@ -6,7 +6,7 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 
 import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.utils.*;
+import com.beanshogi.gui.util.*;
 
 public class NewGamePanel extends JPanel {
 

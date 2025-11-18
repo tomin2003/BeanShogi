@@ -8,7 +8,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 
 import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.utils.*;
+import com.beanshogi.gui.util.*;
 
 public class MainMenuPanel extends BackgroundPanel {
     

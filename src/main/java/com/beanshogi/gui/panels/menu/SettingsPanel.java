@@ -12,7 +12,7 @@ import javax.swing.JSlider;
 import java.awt.Dimension;
 
 import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.utils.*;
+import com.beanshogi.gui.util.*;
 
 public class SettingsPanel extends JPanel {
 

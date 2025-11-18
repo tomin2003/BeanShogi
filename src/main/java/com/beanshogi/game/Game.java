@@ -20,7 +20,7 @@ public class Game {
     
     public Game() {
         List<Player> players = new ArrayList<>();
-        players.add(new Player(Sides.GOTE, "P1", PlayerType.AI));
+        players.add(new Player(Sides.GOTE, "P1", PlayerType.HUMAN));
         players.add(new Player(Sides.SENTE, "P2", PlayerType.HUMAN));
 
         this.board = new Board(players);

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.beanshogi.gui.listeners.GameStatsListener;
-import com.beanshogi.gui.utils.FilledRectanglePanel;
+import com.beanshogi.gui.util.FilledRectanglePanel;
 import com.beanshogi.util.Sides;
 
 public class StatsPanel extends JPanel implements GameStatsListener {

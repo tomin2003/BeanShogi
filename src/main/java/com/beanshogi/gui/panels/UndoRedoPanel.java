@@ -8,7 +8,7 @@ import javax.swing.SwingUtilities;
 
 import com.beanshogi.game.Controller;
 import com.beanshogi.gui.listeners.UndoRedoListener;
-import com.beanshogi.gui.utils.SwingUtils;
+import com.beanshogi.gui.util.SwingUtils;
 
 public class UndoRedoPanel extends JPanel implements UndoRedoListener {
 

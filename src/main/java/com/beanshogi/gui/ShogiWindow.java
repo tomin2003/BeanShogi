@@ -8,7 +8,7 @@ import com.beanshogi.gui.panels.menu.LoadGamePanel;
 import com.beanshogi.gui.panels.menu.MainMenuPanel;
 import com.beanshogi.gui.panels.menu.NewGamePanel;
 import com.beanshogi.gui.panels.menu.SettingsPanel;
-import com.beanshogi.gui.utils.SwingUtils;
+import com.beanshogi.gui.util.SwingUtils;
 
 import java.awt.*;
 
@@ -49,6 +49,14 @@ public class ShogiWindow extends JFrame {
     }
 
     public void showGamePlay() {
+        // Remove old game panels to prevent resource leaks
+        Component[] components = mainPanel.getComponents();
+        for (Component comp : components) {
+            if (comp instanceof GamePlayFullscreen || comp instanceof GamePlayWindowed) {
+                mainPanel.remove(comp);
+            }
+        }
+        
         if (fullScreen) {
             GamePlayFullscreen fsPanel = new GamePlayFullscreen(this);
             mainPanel.add(fsPanel, "GAME_FULLSCREEN");
@@ -99,6 +107,26 @@ public class ShogiWindow extends JFrame {
     }
 
     public void showCard(String cardName) {
+        // Clear menu bar when not in game
+        if (!cardName.equals("GAME_FULLSCREEN") && !cardName.equals("GAME_WINDOWED")) {
+            setJMenuBar(null);
+            if (!fullScreen) {
+                // Let pack() resize based on content
+                pack();
+                setLocationRelativeTo(null);
+            }
+        }
         cardLayout.show(mainPanel, cardName);
+    }
+    
+    public void adjustFrameForMenuBar(JMenuBar menuBar) {
+        setJMenuBar(menuBar);
+        if (!fullScreen) {
+            // Pack will now include the menu bar height automatically
+            pack();
+            setLocationRelativeTo(null);
+        }
+        revalidate();
+        repaint();
     }
 }

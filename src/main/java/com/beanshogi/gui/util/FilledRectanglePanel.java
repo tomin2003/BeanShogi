@@ -1,4 +1,4 @@
-package com.beanshogi.gui.utils;
+package com.beanshogi.gui.util;
 
 import java.awt.Color;
 import java.awt.Dimension;

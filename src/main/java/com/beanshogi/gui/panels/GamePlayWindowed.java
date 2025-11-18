@@ -6,8 +6,8 @@ import javax.swing.*;
 
 import com.beanshogi.game.Controller;
 import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.utils.BackgroundPanel;
-import com.beanshogi.gui.utils.SwingUtils;
+import com.beanshogi.gui.util.BackgroundPanel;
+import com.beanshogi.gui.util.SwingUtils;
 
 public class GamePlayWindowed extends BackgroundPanel {
 
@@ -17,9 +17,17 @@ public class GamePlayWindowed extends BackgroundPanel {
         super("/sprites/gamebg4_3.png");
         setLayout(null);
 
-        JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
-        backButton.setBounds(30, 700, 120, 40);
-        add(backButton);
+        // Create menu bar
+        JMenuBar menuBar = new JMenuBar();
+        
+        JMenu gameMenu = new JMenu("Game");
+        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay()));
+        gameMenu.add(SwingUtils.makeMenuItem("Main Menu", e -> window.showCard("MAIN")));
+        gameMenu.addSeparator();
+        gameMenu.add(SwingUtils.makeMenuItem("Exit", e -> System.exit(0)));
+
+        menuBar.add(gameMenu);
+        window.adjustFrameForMenuBar(menuBar);
         
         // Undo redo move button panel
         UndoRedoPanel urp = new UndoRedoPanel(1000, 600);
@@ -54,9 +62,10 @@ public class GamePlayWindowed extends BackgroundPanel {
         add(statsPanel);
 
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, handTop, handBottom, CELL_SIZE);
+        Controller controller = new Controller(statsPanel, urp, alp, highlightLayer, pieceLayer, handTop, handBottom, CELL_SIZE, 
+            () -> window.showCard("MAIN"));
 
-        // Ask controller to draw the initial pieces
-        controller.renderBoard();
+        // Start the game (renders board and kickstarts AI if needed)
+        controller.startGame();
     }
 }
