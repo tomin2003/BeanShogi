@@ -4,10 +4,12 @@ import com.beanshogi.gui.listeners.*;
 import com.beanshogi.gui.panels.*;
 import com.beanshogi.gui.piece.*;
 import com.beanshogi.gui.util.Popups;
+import com.beanshogi.gui.util.SoundPlayer;
 import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 import com.beanshogi.engine.ShogiAI;
 
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javax.swing.SwingUtilities;
@@ -25,6 +27,7 @@ public class Controller {
     private final PieceLayerPanel handTopPanel;
     private final PieceLayerPanel handBottomPanel;
     private final PieceSprites sprites = new PieceSprites();
+    private final Component parentComponent;
 
     private GameStatsListener statsListener;
     private UndoRedoListener undoRedoListener;
@@ -40,13 +43,14 @@ public class Controller {
     private Sides selectedHandSide = null;
     private List<Position> selectedLegalMoves = null;
 
-    public Controller(GameStatsListener gsl, UndoRedoListener url, KingCheckListener kcl,
+    public Controller(Component parent, GameStatsListener gsl, UndoRedoListener url, KingCheckListener kcl,
                       HighlightLayerPanel hl, HighlightLayerPanel handTopHL, HighlightLayerPanel handBottomHL,
                       PieceLayerPanel bp, PieceLayerPanel ht, PieceLayerPanel hb, Runnable onGameEndCallback) {
 
         this.game = new Game();
         this.board = game.getBoard();
         this.ai = new ShogiAI(board);
+        this.parentComponent = parent;
 
         this.highlightLayer = hl;
         this.handTopHighlight = handTopHL;
@@ -154,7 +158,7 @@ public class Controller {
         notifyListeners();
         renderBoard();
 
-        if (board.evals.isCheckMate(sideOnTurn)) {
+        if (board.evals.isCheckMate(sideOnTurn.getOpposite())) {
             onGameEnd(sideOnTurn.getOpposite());
         }
     }
@@ -162,7 +166,7 @@ public class Controller {
     private void onGameEnd(Sides winner) {
         stopGame();
         String winnerName = board.getPlayer(winner).getName();
-        Popups.showGameOver(winnerName);
+        Popups.showGameOver(parentComponent, winnerName);
         if (onGameEndCallback != null) {
             onGameEndCallback.run();
         }
@@ -260,7 +264,7 @@ public class Controller {
             if (selectedBoardPiece.shouldPromote(from, to)) {
                 promotion = true;
             } else {
-                promotion = Popups.askPromotion();
+                promotion = Popups.askPromotion(parentComponent);
             }
         }
 
@@ -276,6 +280,7 @@ public class Controller {
         advanceTurn();
         afterMove();
         tryAIMove();
+        SoundPlayer.playPieceSfx();
     }
 
      /**
@@ -311,12 +316,12 @@ public class Controller {
     }
 
     // TODO: review drop legality logic
-    private boolean handleHandDrop(Position boardPos) {
+    private void handleHandDrop(Position boardPos) {
         if (selectedHandPiece == null || selectedHandSide == null) {
-            return false;
+            return;
         }
         if (selectedLegalMoves == null || !selectedLegalMoves.contains(boardPos)) {
-            return false;
+            return;
         }
 
         // Use the proper API for applying drops
@@ -333,8 +338,7 @@ public class Controller {
         advanceTurn();
         afterMove();
         tryAIMove();
-
-        return true;
+        SoundPlayer.playPieceSfx();
     }
 
     // ==================== UNDO / REDO ====================

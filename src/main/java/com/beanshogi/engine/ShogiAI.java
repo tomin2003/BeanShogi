@@ -223,17 +223,22 @@ public class ShogiAI {
     private int evaluate(Board board, Sides maximizingSide) {
         int score = 0;
 
-        if (board.evals.isCheckMate(maximizingSide.getOpposite())) {
+        // Only check for checkmate if a king is in check (much faster!)
+        boolean maxInCheck = board.evals.isKingInCheck(maximizingSide);
+        boolean oppInCheck = board.evals.isKingInCheck(maximizingSide.getOpposite());
+
+        if (oppInCheck && board.evals.isCheckMate(maximizingSide.getOpposite())) {
             return Integer.MAX_VALUE - 1;
         }
-        if (board.evals.isCheckMate(maximizingSide)) {
+        if (maxInCheck && board.evals.isCheckMate(maximizingSide)) {
             return Integer.MIN_VALUE + 1;
         }
 
-        if (board.evals.isKingInCheck(maximizingSide)) {
+        // Apply check bonuses/penalties
+        if (maxInCheck) {
             score -= 200;
         }
-        if (board.evals.isKingInCheck(maximizingSide.getOpposite())) {
+        if (oppInCheck) {
             score += 300;
         }
 

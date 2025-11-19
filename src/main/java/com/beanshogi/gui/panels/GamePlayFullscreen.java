@@ -78,7 +78,7 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(alp);
         
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(sp, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(this, sp, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();

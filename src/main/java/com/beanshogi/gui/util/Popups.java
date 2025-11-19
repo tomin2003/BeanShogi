@@ -1,11 +1,12 @@
 package com.beanshogi.gui.util;
 
 import javax.swing.JOptionPane;
+import java.awt.Component;
 
 public class Popups {
-    public static boolean askPromotion() {
+    public static boolean askPromotion(Component parent) {
         int choice = JOptionPane.showConfirmDialog(
-            null,
+            parent,
             "Promote?",
             "Promotion",
             JOptionPane.YES_NO_OPTION
@@ -13,9 +14,9 @@ public class Popups {
         return choice == JOptionPane.YES_OPTION;
     }
 
-    public static void showGameOver(String winnerName) {
+    public static void showGameOver(Component parent, String winnerName) {
         JOptionPane.showMessageDialog(
-            null,
+            parent,
             winnerName + " wins!\n\nCheckmate!",
             "Game Over",
             JOptionPane.INFORMATION_MESSAGE

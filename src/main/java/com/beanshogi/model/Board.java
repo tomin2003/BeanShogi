@@ -109,18 +109,18 @@ public class Board {
                 if (!isEmptyAt(pos)) {
                     continue;
                 }
-                // Pawn specific rule: no two pawns in the same column
                 if (pieceClass == Pawn.class) {
-                    boolean sameColumnPawns = false;
+                    // Pawn specific rule (nifu): no two pawns in the same column
+                    boolean nifu = false;
                     for (int i = 0; i < 9; i++) {
                         Piece p = board[x][i];
                         if (p instanceof Pawn && p.getSide() == pieceside) {
-                            sameColumnPawns = true;
+                            nifu = true;
                             break;
                         }
                     }
                     // Pawns are on the same column, cannot move here
-                    if (sameColumnPawns) {
+                    if (nifu) {
                         continue;
                     }
                     // Piece cannot be dropped past the drop zone

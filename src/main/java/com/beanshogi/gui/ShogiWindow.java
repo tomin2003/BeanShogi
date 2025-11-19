@@ -25,7 +25,6 @@ public class ShogiWindow extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         
         cardLayout = new CardLayout();
-
         mainPanel = new JPanel(cardLayout);
 
         // Create screens
