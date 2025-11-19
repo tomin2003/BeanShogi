@@ -13,13 +13,13 @@ import com.beanshogi.util.Position;
 
 public class HighlightLayerPanel extends JPanel {
 
-    private int gap;
     private int cellSize;
+    private Position gap;
     private Color color;
 
     private final Set<Position> highlightedSquares = new HashSet<>();
 
-    public HighlightLayerPanel(int cellSize, int gap, Color color) {
+    public HighlightLayerPanel(int cellSize, Position gap, Color color) {
         setOpaque(false);
         this.cellSize = cellSize;
         this.gap = gap;
@@ -53,8 +53,8 @@ public class HighlightLayerPanel extends JPanel {
         g2.setColor(color);
 
         for (Position p : highlightedSquares) {
-            int px = p.x * (cellSize + gap);
-            int py = p.y * (cellSize + gap);
+            int px = p.x * (cellSize + gap.x);
+            int py = p.y * (cellSize + gap.y);
             g2.fillRect(px, py, cellSize, cellSize);
         }
     }

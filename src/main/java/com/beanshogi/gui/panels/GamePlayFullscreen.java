@@ -16,6 +16,8 @@ public class GamePlayFullscreen extends BackgroundPanel {
     private static final int BOARD_CELL_SIZE = 100;
     private static final int HAND_CELL_SIZE = 70;
     private static final int BOARD_GRID_GAP = 2;
+    private static final int HAND_VERT_GAP = 10;
+
 
     public GamePlayFullscreen(ShogiWindow window) {
         super("/sprites/gamebg16_9.png");
@@ -34,9 +36,9 @@ public class GamePlayFullscreen extends BackgroundPanel {
         window.adjustFrameForMenuBar(menuBar);
         
         // Create UI layers
-        PieceLayerPanel pieceLayer = new PieceLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP));
-        pieceLayer.setBounds(460, 80, 1460, 1000);
-        add(pieceLayer);
+        PieceLayerPanel boardPanel = new PieceLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP));
+        boardPanel.setBounds(460, 80, 1460, 1000);
+        add(boardPanel);
 
         // Hand pieces panels (captured pieces display)
         // Place to the left of the board in fullscreen layout
@@ -48,17 +50,17 @@ public class GamePlayFullscreen extends BackgroundPanel {
         handBottom.setBounds(20, 300, 400, 200);
         add(handBottom);
         
-        // Create highlight layer for board
-        HighlightLayerPanel hl = new HighlightLayerPanel(BOARD_CELL_SIZE, BOARD_GRID_GAP, new Color(255,0,0,80));
-        hl.setBounds(pieceLayer.getBounds());
-        add(hl);
+        // Create new highlight layer for board
+        HighlightLayerPanel boardHighlight = new HighlightLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP), new Color(255,0,0,80));
+        boardHighlight.setBounds(boardPanel.getBounds());
+        add(boardHighlight);
 
         // Create highlight layers for hand panels
-        HighlightLayerPanel handTopHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, 0, new Color(0,0,255,80));
+        HighlightLayerPanel handTopHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP), new Color(0,0,255,80));
         handTopHighlight.setBounds(handTop.getBounds());
         add(handTopHighlight);
 
-        HighlightLayerPanel handBottomHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, 0, new Color(0,0,255,80));
+        HighlightLayerPanel handBottomHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP), new Color(0,0,255,80));
         handBottomHighlight.setBounds(handBottom.getBounds());
         add(handBottomHighlight);
 
@@ -76,7 +78,7 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(alp);
         
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(sp, urp, alp, hl, handTopHighlight, handBottomHighlight, pieceLayer, handTop, handBottom, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(sp, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();
