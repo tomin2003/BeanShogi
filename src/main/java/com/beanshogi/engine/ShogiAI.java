@@ -2,16 +2,27 @@ package com.beanshogi.engine;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
 
+import com.beanshogi.game.Player;
 import com.beanshogi.model.*;
 import com.beanshogi.util.Position;
 import com.beanshogi.util.Sides;
 
 public class ShogiAI {
 
+    private static class MoveScore {
+        final Move move;
+        final int orderingScore;
+        MoveScore(Move m, int ordering) {
+            move = m;
+            orderingScore = ordering;
+        }
+    }
+
     private final int MAX_DEPTH = 3;
     private final Board board;
+    private long totalNodes = 0;
+    private long totalPruned = 0;
 
     public ShogiAI(Board board) {
         this.board = board;
@@ -21,194 +32,188 @@ public class ShogiAI {
      * Returns the best move (normal or drop) for the given side.
      */
     public Move getBestMove(Sides sideToMove) {
-        int bestScore = sideToMove == Sides.SENTE ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        long startTime = System.nanoTime();
+        totalNodes = 0;
+        totalPruned = 0;
+        
+        System.out.println("\n=== AI Move Search Started ===");
+        System.out.println("Side: " + sideToMove);
+        System.out.println("Max Depth: " + MAX_DEPTH);
+        
+        // Work on an isolated copy so search can apply/undo moves without touching the live board
+        Board searchBoard = board.copy();
+        int bestScore = Integer.MIN_VALUE;
         Move bestMove = null;
 
-        ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-        List<Callable<MoveScore>> tasks = new ArrayList<>();
+        // Generate all possible moves from the copied board so we can apply/undo safely
+        long moveGenStart = System.nanoTime();
+        List<MoveScore> candidateMoves = generateAllMoves(searchBoard, sideToMove);
+        long moveGenTime = System.nanoTime() - moveGenStart;
+        
+        System.out.println("Candidate moves generated: " + candidateMoves.size());
+        System.out.printf("Move generation time: %.2f ms\n", moveGenTime / 1_000_000.0);
+        
+        // Evaluate moves sequentially with alpha-beta
+        long evalStart = System.nanoTime();
 
-        // Normal moves without drop
-        for (Piece piece : board.getPiecesOfSide(sideToMove)) {
-            Position from = piece.getBoardPosition();
-            for (Position to : piece.getLegalMoves()) {
-                final Position fFrom = from;
-                final Position fTo = to;
+        for (MoveScore ms : candidateMoves) {
 
-                tasks.add(() -> {
-                    Board simBoard = board.copy();
-                    Piece simPiece = simBoard.getPiece(fFrom);
-
-                    boolean promotion = false;
-                    if (simPiece.canPromote() && fTo.inPromotionZone(sideToMove)) {
-                        promotion = true; // can be improved later with conditional promotion
-                    }
-
-                    Piece captured = board.getPiece(fTo);
-                    Move move = new Move(
-                        simBoard.getPlayer(sideToMove), 
-                        fFrom, 
-                        fTo, 
-                        simPiece, 
-                        captured, 
-                        promotion,
-                        false
-                    );
-                    simBoard.moveManager.applyMove(move);
-
-                    int score = minimax(simBoard, MAX_DEPTH - 1, sideToMove.getOpposite(),
-                                        Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    return new MoveScore(move, score);
-                });
+            searchBoard.moveManager.applyMove(ms.move);
+            if (searchBoard.evals.isKingInCheck(sideToMove)) {
+                // Illegal move (king left in check)
+                searchBoard.moveManager.undoMove();
+                searchBoard.moveManager.getRedoStack().clear();
+                continue;
             }
+
+            int score = minimax(searchBoard, MAX_DEPTH - 1, sideToMove.getOpposite(),
+                                sideToMove, Integer.MIN_VALUE, Integer.MAX_VALUE);
+
+            if (bestMove == null || score > bestScore) {
+                bestScore = score;
+                bestMove = ms.move;
+            }
+
+            searchBoard.moveManager.undoMove();
+            searchBoard.moveManager.getRedoStack().clear();
+        }
+        
+        if (bestMove == null) {
+            System.out.println("No legal moves found. Likely stalemate or checkmate.");
+            return null;
         }
 
-        // Drops from hand
-        List<Piece> handPieces = board.getPlayer(sideToMove).getHand();
-        for (Piece handPiece : handPieces) {
-            List<Position> dropPoints = board.getPieceDropPoints(handPiece.getClass(), sideToMove);
-            for (Position dropPos : dropPoints) {
-                final Piece fHandPiece = handPiece;
-                final Position fDropPos = dropPos;
-
-                tasks.add(() -> {
-                    Board simBoard = board.copy();
-                    Piece simPiece = simBoard.getPlayer(sideToMove)
-                                            .getHandGrid()
-                                            .findAndRemoveMatching(fHandPiece);
-
-                    if (simPiece == null) return null; // should not happen
-
-                    simBoard.setPiece(fDropPos, simPiece);
-
-                    Move dropMove = new Move(
-                        simBoard.getPlayer(sideToMove),
-                        fDropPos, 
-                        fDropPos,
-                        simPiece, 
-                        null, 
-                        false,
-                        true
-                    );
-                    simBoard.moveManager.getUndoStack().push(dropMove);
-                    simBoard.moveManager.getRedoStack().clear();
-
-                    int score = minimax(simBoard, MAX_DEPTH - 1, sideToMove.getOpposite(),
-                                        Integer.MIN_VALUE, Integer.MAX_VALUE);
-                    return new MoveScore(dropMove, score);
-                });
-            }
-        }
-
-        try {
-            List<Future<MoveScore>> futures = exec.invokeAll(tasks);
-            exec.shutdown();
-            exec.awaitTermination(10, TimeUnit.SECONDS);
-
-            for (Future<MoveScore> fut : futures) {
-                MoveScore ms = fut.get();
-                if (ms == null) continue;
-
-                int score = ms.score;
-
-                if (sideToMove == Sides.SENTE && score > bestScore) {
-                    bestScore = score;
-                    bestMove = ms.move;
-                } else if (sideToMove == Sides.GOTE && score < bestScore) {
-                    bestScore = score;
-                    bestMove = ms.move;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        long evalTime = System.nanoTime() - evalStart;
+        long totalTime = System.nanoTime() - startTime;
+        
+        System.out.println("\n=== AI Move Search Complete ===");
+        System.out.printf("Total nodes evaluated: %d\n", totalNodes);
+        System.out.printf("Nodes pruned by alpha-beta: %d (%.1f%%)\n", 
+            totalPruned, totalPruned * 100.0 / Math.max(1, totalNodes));
+        System.out.printf("Evaluation time: %.2f ms\n", evalTime / 1_000_000.0);
+        System.out.printf("Total time: %.2f ms\n", totalTime / 1_000_000.0);
+        System.out.printf("Best score: %d\n", bestScore);
+        System.out.println("================================\n");
+        
         return bestMove;
     }
+    
+    /**
+     * Generate pseudo-legal moves for the given board/side, ordered by simple heuristics.
+     */
+    private List<MoveScore> generateAllMoves(Board targetBoard, Sides sideToMove) {
+        List<MoveScore> moves = new ArrayList<>();
+        Player player = targetBoard.getPlayer(sideToMove);
 
-    private static class MoveScore {
-        final Move move;
-        final int score;
-        MoveScore(Move m, int s) { move = m; score = s; }
+        for (Piece piece : targetBoard.getPiecesOfSide(sideToMove)) {
+            Position from = piece.getBoardPosition();
+            if (from == null) {
+                continue;
+            }
+
+            // Generate both promotion and non-promotion variants up-front so move ordering can pick the best quickly
+            for (Position to : piece.getLegalMoves()) {
+                Piece captured = targetBoard.getPiece(to);
+                boolean canPromote = piece.canPromote() &&
+                    (from.inPromotionZone(sideToMove) || to.inPromotionZone(sideToMove));
+                boolean mustPromote = canPromote && piece.shouldPromote(from, to);
+
+                int priority = (captured != null ? Math.abs(captured.value()) + 100 : 0);
+
+                if (mustPromote) {
+                    moves.add(new MoveScore(new Move(player, from, to, piece, captured, true, false),
+                                             priority + 50));
+                } else if (canPromote) {
+                    moves.add(new MoveScore(new Move(player, from, to, piece, captured, true, false),
+                                             priority + 50));
+                    moves.add(new MoveScore(new Move(player, from, to, piece, captured, false, false),
+                                             priority));
+                } else {
+                    moves.add(new MoveScore(new Move(player, from, to, piece, captured, false, false),
+                                             priority));
+                }
+            }
+        }
+
+        for (Piece handPiece : player.getHand()) {
+            List<Position> dropPoints = targetBoard.getPieceDropPoints(handPiece.getClass(), sideToMove);
+            for (Position dropPos : dropPoints) {
+                Move dropMove = new Move(
+                    player,
+                    handPiece.getHandPosition(),
+                    dropPos,
+                    handPiece,
+                    null,
+                    false,
+                    true
+                );
+                moves.add(new MoveScore(dropMove, 10));
+            }
+        }
+
+        moves.sort((a, b) -> Integer.compare(b.orderingScore, a.orderingScore));
+        return moves;
     }
 
     /**
-     * 
+     * Minimax with alpha-beta pruning
      * @param currentBoard
      * @param depth
      * @param sideToMove
      * @param alpha
      * @param beta
-     * @return
+     * @return evaluation score
      */
-    private int minimax(Board currentBoard, int depth, Sides sideToMove, int alpha, int beta) {
-        if (depth == 0) return evaluate(currentBoard, sideToMove);
+    private int minimax(Board currentBoard, int depth, Sides sideToMove, Sides maximizingSide,
+                        int alpha, int beta) {
+        totalNodes++;
 
-        boolean maximizing = sideToMove == Sides.SENTE;
+        if (depth == 0) {
+            return evaluate(currentBoard, maximizingSide);
+        }
+
+        List<MoveScore> moves = generateAllMoves(currentBoard, sideToMove);
+        boolean maximizing = sideToMove == maximizingSide;
         int best = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
+        boolean exploredLegalMove = false;
 
-        // 1. Normal moves
-        for (Piece piece : currentBoard.getPiecesOfSide(sideToMove)) {
-            Position from = piece.getBoardPosition();
-            for (Position to : piece.getLegalMoves()) {
-                Board simBoard = currentBoard.copy();
-                Piece simPiece = simBoard.getPiece(from);
+        if (moves.isEmpty()) {
+            return currentBoard.evals.isKingInCheck(sideToMove) ? (maximizing ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth) : 0;
+        }
 
-                boolean promotion = false;
-                if (simPiece.canPromote() && to.inPromotionZone(sideToMove)) {
-                    promotion = true;
-                }
+        for (MoveScore ms : moves) {
+            // Apply the move directly on the shared board, evaluate, then undo to reuse state
+            currentBoard.moveManager.applyMove(ms.move);
+            if (currentBoard.evals.isKingInCheck(sideToMove)) {
+                currentBoard.moveManager.undoMove();
+                currentBoard.moveManager.getRedoStack().clear();
+                continue;
+            }
 
-                Piece captured = board.getPiece(to);
-                Move move = new Move(simBoard.getPlayer(sideToMove), from, to, simPiece, captured, promotion, false);
-                simBoard.moveManager.applyMove(move);
+            exploredLegalMove = true;
+            int score = minimax(currentBoard, depth - 1, sideToMove.getOpposite(), maximizingSide, alpha, beta);
 
-                int score = minimax(simBoard, depth - 1, sideToMove.getOpposite(), alpha, beta);
+            currentBoard.moveManager.undoMove();
+            currentBoard.moveManager.getRedoStack().clear();
 
-                if (maximizing) {
-                    best = Math.max(best, score);
-                    alpha = Math.max(alpha, best);
-                    if (beta <= alpha) break;
-                } else {
-                    best = Math.min(best, score);
-                    beta = Math.min(beta, best);
-                    if (beta <= alpha) break;
-                }
+            if (maximizing) {
+                best = Math.max(best, score);
+                alpha = Math.max(alpha, best);
+            } else {
+                best = Math.min(best, score);
+                beta = Math.min(beta, best);
+            }
+
+            if (beta <= alpha) {
+                totalPruned++;
+                break;
             }
         }
 
-        // 2. Hand drops
-        for (Piece handPiece : currentBoard.getPlayer(sideToMove).getHand()) {
-            List<Position> dropPoints = currentBoard.getPieceDropPoints(handPiece.getClass(), sideToMove);
-            for (Position dropPos : dropPoints) {
-                Board simBoard = currentBoard.copy();
-                Piece simPiece = simBoard.getPlayer(sideToMove)
-                                        .getHandGrid()
-                                        .findAndRemoveMatching(handPiece);
-                if (simPiece == null) continue;
-
-                simBoard.setPiece(dropPos, simPiece);
-
-                Move dropMove = new Move(simBoard.getPlayer(sideToMove),
-                                         dropPos, 
-                                         dropPos, 
-                                         simPiece, 
-                                         null, 
-                                         false,
-                                         true);
-                simBoard.moveManager.getUndoStack().push(dropMove);
-                simBoard.moveManager.getRedoStack().clear();
-
-                int score = minimax(simBoard, depth - 1, sideToMove.getOpposite(), alpha, beta);
-
-                if (maximizing) {
-                    best = Math.max(best, score);
-                    alpha = Math.max(alpha, best);
-                    if (beta <= alpha) break;
-                } else {
-                    best = Math.min(best, score);
-                    beta = Math.min(beta, best);
-                    if (beta <= alpha) break;
-                }
-            }
+        if (!exploredLegalMove) {
+            return currentBoard.evals.isKingInCheck(sideToMove)
+                    ? (maximizing ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth)
+                    : 0;
         }
 
         return best;
@@ -218,12 +223,12 @@ public class ShogiAI {
      * Evaluate score
      * @param board
      * @param maximizingSide
-     * @return
+     * @return evaluation score
      */
     private int evaluate(Board board, Sides maximizingSide) {
         int score = 0;
 
-        // Only check for checkmate if a king is in check (much faster!)
+        // Only run expensive mate checks when a king is already in check, otherwise rely on material heuristics
         boolean maxInCheck = board.evals.isKingInCheck(maximizingSide);
         boolean oppInCheck = board.evals.isKingInCheck(maximizingSide.getOpposite());
 
@@ -242,18 +247,19 @@ public class ShogiAI {
             score += 300;
         }
 
-        // Material evaluation
+        // Material evaluation - optimized to iterate once
         for (Piece piece : board.getAllPieces()) {
-            int pieceScore = piece.value() + piece.getLegalMoves().size() * 3 + evaluatePiecePosition(piece, maximizingSide);
+            int mobilityBonus = piece.getLegalMoves().size() * 3;
+            int positionBonus = evaluatePiecePosition(piece, maximizingSide);
+            int promotionBonus = 0;
+            
+            // Check promotion potential
+            if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(piece.getSide())) {
+                promotionBonus = 100;
+            }
+            
+            int pieceScore = piece.value() + mobilityBonus + positionBonus + promotionBonus;
             score += piece.getSide() == maximizingSide ? pieceScore : -pieceScore;
-        }
-
-        // Promotion bonuses
-        for (Piece piece : board.getPiecesOfSide(maximizingSide)) {
-            if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide)) score += 100;
-        }
-        for (Piece piece : board.getPiecesOfSide(maximizingSide.getOpposite())) {
-            if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide.getOpposite())) score -= 100;
         }
 
         return score;

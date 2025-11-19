@@ -158,7 +158,7 @@ public class Controller {
         notifyListeners();
         renderBoard();
 
-        if (board.evals.isCheckMate(sideOnTurn.getOpposite())) {
+        if (board.evals.isCheckMate(sideOnTurn)) {
             onGameEnd(sideOnTurn.getOpposite());
         }
     }

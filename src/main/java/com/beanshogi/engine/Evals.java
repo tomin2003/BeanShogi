@@ -21,14 +21,17 @@ public class Evals {
     }
 
     /**
-     * Get the list of pieces checking king
-     * @param side the side from which the evaluation is done (sente attacker -> gote king)
-     * @return the list of pieces checking the king
+     * Get the list of attackers checking the king for the given side.
+     * @param side the side whose king we want to evaluate
+     * @return the list of pieces checking that king
      */
-    public List<CheckEvent> kingChecks(Sides side) {
+    public List<CheckEvent> kingChecks(Sides kingSide) {
         List<CheckEvent> checks = new ArrayList<>();
-        Piece king = board.getKing(side.getOpposite());
-        for (Piece piece : board.getPiecesOfSide(side)) {
+        King king = board.getKing(kingSide);
+        if (king == null) {
+            return checks;
+        }
+        for (Piece piece : board.getPiecesOfSide(kingSide.getOpposite())) {
             if (piece.getAttackMoves().contains(king.getBoardPosition())) {
                 checks.add(new CheckEvent(piece, king));
             }
@@ -57,8 +60,8 @@ public class Evals {
     }
 
     /**
-     * Checks wheteher any pieces check the king
-     * @param side the side from which the evaluation is done (sente attacker -> gote king)
+     * Checks whether the specified king is currently in check.
+     * @param side the side whose king should be tested
      * @return king in check or not
      */
     public boolean isKingInCheck(Sides side) {
@@ -91,6 +94,7 @@ public class Evals {
         ));
         boolean kingSafe = !simBoard.evals.isKingInCheck(piece.getSide());
         simBoard.moveManager.undoMove(); // Step back to previous position
+        simBoard.moveManager.getRedoStack().clear();
         return kingSafe;
     }
 
@@ -105,17 +109,21 @@ public class Evals {
             }
         }
         if (handPiece == null) return false;
-        
-        // Temporarily remove from hand and place on board
-        player.getHandGrid().removePiece(handPiece);
-        simBoard.setPiece(dropPos, handPiece);
-        
+
+        Move dropMove = new Move(
+            player,
+            handPiece.getHandPosition(),
+            dropPos,
+            handPiece,
+            null,
+            false,
+            true
+        );
+        simBoard.moveManager.applyMove(dropMove);
         boolean kingSafe = !simBoard.evals.isKingInCheck(side);
-        
-        // Undo the drop
-        simBoard.removePiece(dropPos);
-        player.getHandGrid().addPiece(handPiece);
-        
+        simBoard.moveManager.undoMove();
+        simBoard.moveManager.getRedoStack().clear();
+
         return kingSafe;
     }
 
