@@ -11,7 +11,6 @@ import com.beanshogi.util.Sides;
 /**
  * Class defining board evaluation methods
  * @param board the board on which evaluation is done
- * @param moveManager the moveManager linked to board
  */
 public class Evals {
     private transient Board board;  // Mark as transient to prevent circular reference in JSON

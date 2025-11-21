@@ -7,7 +7,13 @@ import javax.swing.*;
 
 import com.beanshogi.game.Controller;
 import com.beanshogi.game.Game;
+import com.beanshogi.gui.listeners.ControllerListeners;
 import com.beanshogi.gui.ShogiWindow;
+import com.beanshogi.gui.panels.overlays.AttackLinePanel;
+import com.beanshogi.gui.panels.overlays.HighlightLayerPanel;
+import com.beanshogi.gui.panels.overlays.StatsPanel;
+import com.beanshogi.gui.panels.overlays.UndoRedoPanel;
+import com.beanshogi.gui.panels.overlays.piece.PieceLayerPanel;
 import com.beanshogi.gui.util.BackgroundPanel;
 import com.beanshogi.gui.util.SwingUtils;
 import com.beanshogi.util.Position;
@@ -21,25 +27,12 @@ public class GamePlayWindowed extends BackgroundPanel {
 
     public GamePlayWindowed(ShogiWindow window, Game game) {
         super("/sprites/gamebg4_3.png");
-        setLayout(null);
+        
+        // Allow for pixel precision alignment of components
+        setLayout(null); 
 
-        // Create overlay menu bar
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setOpaque(true);
-        menuBar.setBackground(new Color(255,255,255,120)); // translucent white menubar
-
-        JMenu gameMenu = new JMenu("Game");
-        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay(new Game(game.getBoard().getPlayers()))));
-        gameMenu.add(SwingUtils.makeMenuItem("Main Menu", e -> window.showCard("MAIN")));
-        gameMenu.addSeparator();
-        gameMenu.add(SwingUtils.makeMenuItem("Settings", e -> window.showCard("SETTINGS")));
-        gameMenu.addSeparator();
-        gameMenu.add(SwingUtils.makeMenuItem("Exit", e -> System.exit(0)));
-
-        menuBar.add(gameMenu);
-        int menuHeight = menuBar.getPreferredSize().height;
-        menuBar.setBounds(0, 0, 1280, menuHeight);
-        add(menuBar);
+        JMenuBar mb = SwingUtils.makeMenuBar(window, getWidth(), game);
+        add(mb);
 
         // PS: These pixel offsets might seem like magic numbers, but they are actually carefully 
         // calculated for the 1280x960 standard 4:3 resolution gameplay BG using GIMP.
@@ -49,7 +42,7 @@ public class GamePlayWindowed extends BackgroundPanel {
         add(statsPanel);
 
         // Undo redo move button panel
-        UndoRedoPanel urp = new UndoRedoPanel(985, 505);
+        UndoRedoPanel urp = new UndoRedoPanel(new Position(985, 505));
         urp.setBounds(985, 505, 200, 100);
         add(urp, BorderLayout.EAST);
 
@@ -86,8 +79,11 @@ public class GamePlayWindowed extends BackgroundPanel {
         handBottomHighlight.setBounds(handBottom.getBounds());
         add(handBottomHighlight);
 
+        ControllerPanels panels = new ControllerPanels(boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom);
+        ControllerListeners listeners = new ControllerListeners(statsPanel, urp, alp);
+
         // Create controller
-        Controller controller = new Controller(game, this, statsPanel, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(game, this, listeners, panels, () -> window.showCard("MAIN"));
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();

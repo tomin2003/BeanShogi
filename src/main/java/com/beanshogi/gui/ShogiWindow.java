@@ -4,11 +4,11 @@ import javax.swing.*;
 
 import com.beanshogi.game.Game;
 import com.beanshogi.gui.panels.*;
-import com.beanshogi.gui.panels.menu.LeaderboardPanel;
-import com.beanshogi.gui.panels.menu.LoadGamePanel;
-import com.beanshogi.gui.panels.menu.MainMenuPanel;
-import com.beanshogi.gui.panels.menu.NewGamePanel;
-import com.beanshogi.gui.panels.menu.SettingsPanel;
+import com.beanshogi.gui.panels.menucards.LeaderboardPanel;
+import com.beanshogi.gui.panels.menucards.LoadGamePanel;
+import com.beanshogi.gui.panels.menucards.MainMenuPanel;
+import com.beanshogi.gui.panels.menucards.NewGamePanel;
+import com.beanshogi.gui.panels.menucards.SettingsPanel;
 import com.beanshogi.gui.util.SwingUtils;
 
 import java.awt.*;

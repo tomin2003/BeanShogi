@@ -8,6 +8,12 @@ import javax.swing.*;
 import com.beanshogi.game.Controller;
 import com.beanshogi.game.Game;
 import com.beanshogi.gui.ShogiWindow;
+import com.beanshogi.gui.listeners.ControllerListeners;
+import com.beanshogi.gui.panels.overlays.AttackLinePanel;
+import com.beanshogi.gui.panels.overlays.HighlightLayerPanel;
+import com.beanshogi.gui.panels.overlays.StatsPanel;
+import com.beanshogi.gui.panels.overlays.UndoRedoPanel;
+import com.beanshogi.gui.panels.overlays.piece.PieceLayerPanel;
 import com.beanshogi.gui.util.BackgroundPanel;
 import com.beanshogi.gui.util.SwingUtils;
 import com.beanshogi.util.Position;
@@ -22,26 +28,11 @@ public class GamePlayFullscreen extends BackgroundPanel {
 
     public GamePlayFullscreen(ShogiWindow window, Game game) {
         super("/sprites/gamebg16_9.png");
-        setLayout(null);
+        // Allow for pixel precision alignment of components
+        setLayout(null); 
 
-        // Create overlay menu bar
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setOpaque(true);
-        menuBar.setBackground(new Color(255,255,255,120)); // translucent white menubar
-
-        JMenu gameMenu = new JMenu("Game");
-        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay(new Game(game.getBoard().getPlayers()))));
-        gameMenu.add(SwingUtils.makeMenuItem("Main Menu", e -> window.showCard("MAIN")));
-        gameMenu.addSeparator();
-        gameMenu.add(SwingUtils.makeMenuItem("Settings", e -> window.showCard("SETTINGS")));
-        gameMenu.addSeparator();
-        gameMenu.add(SwingUtils.makeMenuItem("Exit", e -> System.exit(0)));
-
-        menuBar.add(gameMenu);
-        int menuHeight = menuBar.getPreferredSize().height;
-        // Fullscreen background expected ~1920 width; overlay at top spanning width
-        menuBar.setBounds(0, 0, 1920, menuHeight);
-        add(menuBar);
+        JMenuBar mb = SwingUtils.makeMenuBar(window, getWidth(), game);
+        add(mb);
         
         // Create UI layers
         PieceLayerPanel boardPanel = new PieceLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP));
@@ -77,7 +68,7 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(sp);
 
         // Undo redo move button panel
-        UndoRedoPanel urp = new UndoRedoPanel(1000, 600);
+        UndoRedoPanel urp = new UndoRedoPanel(new Position(1000, 600));
         urp.setBounds(1000, 600, 200, 100);
         add(urp, BorderLayout.EAST);
 
@@ -85,8 +76,11 @@ public class GamePlayFullscreen extends BackgroundPanel {
         alp.setBounds(0,0,1920,1080);
         add(alp);
         
+        ControllerPanels panels = new ControllerPanels(boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom);
+        ControllerListeners listeners = new ControllerListeners(sp, urp, alp);
+
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(game, this, sp, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(game, this, listeners, panels, () -> window.showCard("MAIN"));
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();
