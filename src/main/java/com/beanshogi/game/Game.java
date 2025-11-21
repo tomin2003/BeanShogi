@@ -2,7 +2,6 @@ package com.beanshogi.game;
 
 import com.beanshogi.util.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.beanshogi.model.*;
@@ -18,13 +17,9 @@ import com.beanshogi.pieces.normal.slider.Rook;
 public class Game {
     private Board board;
     
-    public Game() {
-        List<Player> players = new ArrayList<>();
-        players.add(new Player(Sides.GOTE, "P1", PlayerType.AI));
-        players.add(new Player(Sides.SENTE, "P2", PlayerType.HUMAN));
-
+    public Game(List<Player> players) {
         this.board = new Board(players);
-        // Initialize board by entire rows
+        // Initialize board by entire rows - boardPosition value is set in setPiece()
         for (int i = 0; i < 9; i++) {
             if (i == 0 || i == 8) {
                 board.setPiece(new Position(i, 0), new Lance(Sides.GOTE, null, null, board));
@@ -60,5 +55,9 @@ public class Game {
     }
     public Board getBoard() {
         return board;
+    }
+
+    public static Game getInstance() {
+        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
     }
 } 

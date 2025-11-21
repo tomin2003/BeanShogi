@@ -14,7 +14,7 @@ import com.beanshogi.util.Sides;
  * @param moveManager the moveManager linked to board
  */
 public class Evals {
-    private Board board;
+    private transient Board board;  // Mark as transient to prevent circular reference in JSON
 
     public Evals(Board board) {
         this.board = board;

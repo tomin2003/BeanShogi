@@ -6,6 +6,7 @@ import java.awt.Color;
 import javax.swing.*;
 
 import com.beanshogi.game.Controller;
+import com.beanshogi.game.Game;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.BackgroundPanel;
 import com.beanshogi.gui.util.SwingUtils;
@@ -18,21 +19,27 @@ public class GamePlayWindowed extends BackgroundPanel {
     private static final int BOARD_GRID_GAP = 2;
     private static final int HAND_VERT_GAP = 10;
 
-    public GamePlayWindowed(ShogiWindow window) {
+    public GamePlayWindowed(ShogiWindow window, Game game) {
         super("/sprites/gamebg4_3.png");
         setLayout(null);
 
-        // Create menu bar
+        // Create overlay menu bar
         JMenuBar menuBar = new JMenuBar();
-        
+        menuBar.setOpaque(true);
+        menuBar.setBackground(new Color(255,255,255,120)); // translucent white menubar
+
         JMenu gameMenu = new JMenu("Game");
-        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay()));
+        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay(new Game(game.getBoard().getPlayers()))));
         gameMenu.add(SwingUtils.makeMenuItem("Main Menu", e -> window.showCard("MAIN")));
+        gameMenu.addSeparator();
+        gameMenu.add(SwingUtils.makeMenuItem("Settings", e -> window.showCard("SETTINGS")));
         gameMenu.addSeparator();
         gameMenu.add(SwingUtils.makeMenuItem("Exit", e -> System.exit(0)));
 
         menuBar.add(gameMenu);
-        window.adjustFrameForMenuBar(menuBar);
+        int menuHeight = menuBar.getPreferredSize().height;
+        menuBar.setBounds(0, 0, 1280, menuHeight);
+        add(menuBar);
 
         // PS: These pixel offsets might seem like magic numbers, but they are actually carefully 
         // calculated for the 1280x960 standard 4:3 resolution gameplay BG using GIMP.
@@ -46,16 +53,17 @@ public class GamePlayWindowed extends BackgroundPanel {
         urp.setBounds(985, 505, 200, 100);
         add(urp, BorderLayout.EAST);
 
+        // Overlay panel for king attack lines
         AttackLinePanel alp = new AttackLinePanel(BOARD_CELL_SIZE, BOARD_GRID_GAP);
         alp.setBounds(42, 67, 870, 895);
         add(alp);
         
-        // Create UI layers
+        // Board piece overlay panel
         PieceLayerPanel boardPanel = new PieceLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP));
         boardPanel.setBounds(42, 67, 870, 895);
         add(boardPanel);
 
-        // Hand pieces panels (captured pieces display) - placed to the right of the board
+        // Hand pieces panels, top and bottom on the right of board
         PieceLayerPanel handTop = new PieceLayerPanel(HAND_CELL_SIZE, new Position(0,10));
         handTop.setBounds(910, 50, 1260, 440);
         add(handTop);
@@ -78,9 +86,8 @@ public class GamePlayWindowed extends BackgroundPanel {
         handBottomHighlight.setBounds(handBottom.getBounds());
         add(handBottomHighlight);
 
-
-        // Create controller (which creates the Game internally)
-        Controller controller = new Controller(this, statsPanel, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
+        // Create controller
+        Controller controller = new Controller(game, this, statsPanel, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();

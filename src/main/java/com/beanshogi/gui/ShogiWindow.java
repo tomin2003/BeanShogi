@@ -2,6 +2,7 @@ package com.beanshogi.gui;
 
 import javax.swing.*;
 
+import com.beanshogi.game.Game;
 import com.beanshogi.gui.panels.*;
 import com.beanshogi.gui.panels.menu.LeaderboardPanel;
 import com.beanshogi.gui.panels.menu.LoadGamePanel;
@@ -47,7 +48,7 @@ public class ShogiWindow extends JFrame {
         setVisible(true);
     }
 
-    public void showGamePlay() {
+    public void showGamePlay(Game game) {
         // Remove old game panels to prevent resource leaks
         Component[] components = mainPanel.getComponents();
         for (Component comp : components) {
@@ -57,11 +58,11 @@ public class ShogiWindow extends JFrame {
         }
         
         if (fullScreen) {
-            GamePlayFullscreen fsPanel = new GamePlayFullscreen(this);
+            GamePlayFullscreen fsPanel = new GamePlayFullscreen(this, game);
             mainPanel.add(fsPanel, "GAME_FULLSCREEN");
             showCard("GAME_FULLSCREEN");
         } else {
-            GamePlayWindowed wPanel = new GamePlayWindowed(this);
+            GamePlayWindowed wPanel = new GamePlayWindowed(this, game);
             mainPanel.add(wPanel, "GAME_WINDOWED");
             showCard("GAME_WINDOWED");
         }
@@ -78,13 +79,9 @@ public class ShogiWindow extends JFrame {
 
         gd.setFullScreenWindow(null);
 
-        // Set preferred frame size, and then wrap around content
-        setPreferredSize(new Dimension(1280,960));
-        setContentPane(mainPanel);
         pack();
         setLocationRelativeTo(null);
-
-        // Make frame visible again
+        setContentPane(mainPanel);
         setVisible(true);
         fullScreen = false;
     }
@@ -116,16 +113,5 @@ public class ShogiWindow extends JFrame {
             }
         }
         cardLayout.show(mainPanel, cardName);
-    }
-    
-    public void adjustFrameForMenuBar(JMenuBar menuBar) {
-        setJMenuBar(menuBar);
-        if (!fullScreen) {
-            // Pack will now include the menu bar height automatically
-            pack();
-            setLocationRelativeTo(null);
-        }
-        revalidate();
-        repaint();
     }
 }

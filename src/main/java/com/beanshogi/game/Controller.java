@@ -15,8 +15,6 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 public class Controller {
-
-    private final Game game;
     private final Board board;
     private final ShogiAI ai;
 
@@ -43,11 +41,10 @@ public class Controller {
     private Sides selectedHandSide = null;
     private List<Position> selectedLegalMoves = null;
 
-    public Controller(Component parent, GameStatsListener gsl, UndoRedoListener url, KingCheckListener kcl,
+    public Controller(Game game, Component parent, GameStatsListener gsl, UndoRedoListener url, KingCheckListener kcl,
                       HighlightLayerPanel hl, HighlightLayerPanel handTopHL, HighlightLayerPanel handBottomHL,
                       PieceLayerPanel bp, PieceLayerPanel ht, PieceLayerPanel hb, Runnable onGameEndCallback) {
 
-        this.game = new Game();
         this.board = game.getBoard();
         this.ai = new ShogiAI(board);
         this.parentComponent = parent;
@@ -67,7 +64,7 @@ public class Controller {
         statsListener.onSideOnTurnChanged(sideOnTurn);
 
         // Board click listener - now uses BiConsumer for consistency with HandPanelMouseListener
-        hl.addMouseListener(new BoardMouseListener((pos, unused) -> handleBoardClick(pos), bp.getCellSize(), bp.getGap()));
+        hl.addMouseListener(new BoardMouseListener((pos) -> handleBoardClick(pos), bp.getCellSize(), bp.getGap()));
 
         // Hand click listeners
         ht.addMouseListener(new HandPanelMouseListener(this::handleHandClick, ht.getCellSize(), ht.getGap(), Sides.GOTE));
@@ -147,6 +144,7 @@ public class Controller {
      * Perform these operations after move
      */
     private void afterMove() {
+        SoundPlayer.playPieceSfx();
         highlightLayer.clearAllHighlights();
         handTopHighlight.clearAllHighlights();
         handBottomHighlight.clearAllHighlights();
@@ -280,7 +278,6 @@ public class Controller {
         advanceTurn();
         afterMove();
         tryAIMove();
-        SoundPlayer.playPieceSfx();
     }
 
      /**
@@ -338,7 +335,6 @@ public class Controller {
         advanceTurn();
         afterMove();
         tryAIMove();
-        SoundPlayer.playPieceSfx();
     }
 
     // ==================== UNDO / REDO ====================

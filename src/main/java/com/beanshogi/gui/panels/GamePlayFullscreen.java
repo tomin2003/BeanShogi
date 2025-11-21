@@ -6,6 +6,7 @@ import java.awt.Color;
 import javax.swing.*;
 
 import com.beanshogi.game.Controller;
+import com.beanshogi.game.Game;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.BackgroundPanel;
 import com.beanshogi.gui.util.SwingUtils;
@@ -19,21 +20,28 @@ public class GamePlayFullscreen extends BackgroundPanel {
     private static final int HAND_VERT_GAP = 10;
 
 
-    public GamePlayFullscreen(ShogiWindow window) {
+    public GamePlayFullscreen(ShogiWindow window, Game game) {
         super("/sprites/gamebg16_9.png");
         setLayout(null);
 
-        // Create menu bar
+        // Create overlay menu bar
         JMenuBar menuBar = new JMenuBar();
-        
+        menuBar.setOpaque(true);
+        menuBar.setBackground(new Color(255,255,255,120)); // translucent white menubar
+
         JMenu gameMenu = new JMenu("Game");
-        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay()));
+        gameMenu.add(SwingUtils.makeMenuItem("New Game", e -> window.showGamePlay(new Game(game.getBoard().getPlayers()))));
         gameMenu.add(SwingUtils.makeMenuItem("Main Menu", e -> window.showCard("MAIN")));
+        gameMenu.addSeparator();
+        gameMenu.add(SwingUtils.makeMenuItem("Settings", e -> window.showCard("SETTINGS")));
         gameMenu.addSeparator();
         gameMenu.add(SwingUtils.makeMenuItem("Exit", e -> System.exit(0)));
 
         menuBar.add(gameMenu);
-        window.adjustFrameForMenuBar(menuBar);
+        int menuHeight = menuBar.getPreferredSize().height;
+        // Fullscreen background expected ~1920 width; overlay at top spanning width
+        menuBar.setBounds(0, 0, 1920, menuHeight);
+        add(menuBar);
         
         // Create UI layers
         PieceLayerPanel boardPanel = new PieceLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP));
@@ -78,7 +86,7 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(alp);
         
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(this, sp, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(game, this, sp, urp, alp, boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom, () -> window.showCard("MAIN"));
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();

@@ -14,7 +14,7 @@ import com.beanshogi.model.Piece;
  * @param redoStack a stack using which an undone move can be redone
  */
 public class MoveManager {
-    private Board board;
+    private transient Board board;  // Mark as transient to prevent circular reference in JSON
     protected Stack<Move> undoStack = new Stack<>();
     protected Stack<Move> redoStack = new Stack<>();
 

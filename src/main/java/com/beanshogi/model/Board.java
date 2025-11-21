@@ -30,6 +30,10 @@ public class Board {
         this.players = players;
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     public Player getPlayer(Sides side) {
         for (Player player : players) {
             if (player.getSide() == side) {

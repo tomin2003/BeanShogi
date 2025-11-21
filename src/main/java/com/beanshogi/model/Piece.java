@@ -14,7 +14,7 @@ public abstract class Piece {
     protected Sides side;
     protected Position boardPosition;
     protected Position handPosition;
-    protected Board board;
+    protected transient Board board;  // Mark as transient to prevent circular reference in JSON
 
     // Non promotable pieces handle promotions like so
     public Piece promote() { return this; }
