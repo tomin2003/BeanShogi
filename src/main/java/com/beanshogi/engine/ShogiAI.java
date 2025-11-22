@@ -12,8 +12,6 @@ import com.beanshogi.util.Sides;
 
 public class ShogiAI {
 
-    // TODO: Add difficulty levels
-
     private static class MoveScore {
         final Move move;
         final int orderingScore;

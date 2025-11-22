@@ -1,6 +1,8 @@
 package com.beanshogi;
 import com.beanshogi.gui.ShogiWindow;
 
+// TODO: overall - refactor, comment
+
 public class Main {
     public static void main(String[] args) {
         // Separate GUI thread

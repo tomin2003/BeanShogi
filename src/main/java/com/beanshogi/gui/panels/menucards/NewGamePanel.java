@@ -1,20 +1,19 @@
-package com.beanshogi.gui.panels.menucards;
+    package com.beanshogi.gui.panels.menucards;
 
-// Removed unused Dimension import
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import java.util.List;
+    import java.awt.GridBagLayout;
+    import java.awt.GridBagConstraints;
+    import java.awt.Insets;
+    import java.util.List;
 
-import javax.swing.*;
+    import javax.swing.*;
 
-import com.beanshogi.game.Game;
-import com.beanshogi.game.Player;
-import com.beanshogi.gui.ShogiWindow;
-import com.beanshogi.gui.util.*;
-import com.beanshogi.util.AIDifficulty;
-import com.beanshogi.util.PlayerType;
-import com.beanshogi.util.Sides;
+    import com.beanshogi.game.Game;
+    import com.beanshogi.game.Player;
+    import com.beanshogi.gui.ShogiWindow;
+    import com.beanshogi.gui.util.*;
+    import com.beanshogi.util.AIDifficulty;
+    import com.beanshogi.util.PlayerType;
+    import com.beanshogi.util.Sides;
 
 public class NewGamePanel extends JPanel {
 
@@ -34,17 +33,11 @@ public class NewGamePanel extends JPanel {
         // Player name fields
         gbc.gridwidth = 1;
         gbc.gridy++;
-        add(new JLabel("Sente (先手) Name:"), gbc);
         JTextField senteNameField = new JTextField("Player 1", 15);
-        gbc.gridx = 1;
-        add(senteNameField, gbc);
+        addRow(gbc, new JLabel("Sente (先手) Name:"), senteNameField);
 
-        gbc.gridx = 0;
-        gbc.gridy++;
-        add(new JLabel("Gote (後手) Name:"), gbc);
         JTextField goteNameField = new JTextField("Player 2", 15);
-        gbc.gridx = 1;
-        add(goteNameField, gbc);
+        addRow(gbc, new JLabel("Gote (後手) Name:"), goteNameField);
 
         // Player type radio button groups
         ButtonGroup senteTypeGroup = new ButtonGroup();
@@ -72,31 +65,18 @@ public class NewGamePanel extends JPanel {
         goteHuman.addActionListener(e -> goteDifficultyCombo.setEnabled(false));
         goteAI.addActionListener(e -> goteDifficultyCombo.setEnabled(true));
 
-        gbc.gridx = 0; gbc.gridy++;
-        add(new JLabel("Sente Type:"), gbc);
         JPanel senteTypePanel = new JPanel();
         senteTypePanel.add(senteHuman);
         senteTypePanel.add(senteAI);
-        gbc.gridx = 1;
-        add(senteTypePanel, gbc);
+        addRow(gbc, new JLabel("Sente Type:"), senteTypePanel);
 
-        gbc.gridx = 0; gbc.gridy++;
-        add(new JLabel("Gote Type:"), gbc);
         JPanel goteTypePanel = new JPanel();
         goteTypePanel.add(goteHuman);
         goteTypePanel.add(goteAI);
-        gbc.gridx = 1;
-        add(goteTypePanel, gbc);
+        addRow(gbc, new JLabel("Gote Type:"), goteTypePanel);
 
-        gbc.gridx = 0; gbc.gridy++;
-        add(new JLabel("Sente Difficulty:"), gbc);
-        gbc.gridx = 1;
-        add(senteDifficultyCombo, gbc);
-
-        gbc.gridx = 0; gbc.gridy++;
-        add(new JLabel("Gote Difficulty:"), gbc);
-        gbc.gridx = 1;
-        add(goteDifficultyCombo, gbc);
+        addRow(gbc, new JLabel("Sente Difficulty:"), senteDifficultyCombo);
+        addRow(gbc, new JLabel("Gote Difficulty:"), goteDifficultyCombo);
 
         // Play button - construct Game from form
         JButton playButton = SwingUtils.makeButton("Play", e -> {
@@ -121,9 +101,18 @@ public class NewGamePanel extends JPanel {
 
         JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
 
-        gbc.gridx = 0; gbc.gridy++; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridwidth = 2;
         add(playButton, gbc);
         gbc.gridy++;
         add(backButton, gbc);
+    }
+
+    private void addRow(GridBagConstraints gbc, JLabel label, JComponent comp) {
+        add(label, gbc);
+        gbc.gridx = 1;
+        add(comp, gbc);
+        gbc.gridx = 0;
+        gbc.gridy++;
     }
 }

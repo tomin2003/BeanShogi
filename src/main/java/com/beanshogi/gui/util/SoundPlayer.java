@@ -1,10 +1,17 @@
 package com.beanshogi.gui.util;
 
 import javax.sound.sampled.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+
+// TODO: introduce BGM
 
 public class SoundPlayer {
     private static float volume = 0.5f; // Default volume (0.0 to 1.0)
+    private static byte[] pieceAudioData;
+    private static AudioFormat pieceAudioFormat;
     
     /**
      * Sets the volume for sound playback.
@@ -24,23 +31,68 @@ public class SoundPlayer {
     
     public static void playPieceSfx() {
         try {
-            InputStream audioStream = SoundPlayer.class.getResourceAsStream("/sound/piece_se.wav");
+            AudioInputStream audioStream = createPieceStream();
             if (audioStream == null) {
-                System.err.println("Sound file not found: /sound/piece_se.wav");
                 return;
             }
-            
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(audioStream);
 
             Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            
-            // Apply volume control
+            clip.open(audioStream);
+            audioStream.close();
+
+            clip.addLineListener(event -> {
+                if (event.getType() == LineEvent.Type.STOP || event.getType() == LineEvent.Type.CLOSE) {
+                    clip.close();
+                }
+            });
+
             applyVolume(clip, volume);
-            
             clip.start();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private static AudioInputStream createPieceStream() throws IOException, UnsupportedAudioFileException {
+        loadPieceAudio();
+        if (pieceAudioData == null || pieceAudioFormat == null) {
+            return null;
+        }
+
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(pieceAudioData);
+        long frameLength = pieceAudioData.length / pieceAudioFormat.getFrameSize();
+        return new AudioInputStream(byteStream, pieceAudioFormat, frameLength);
+    }
+
+    private static void loadPieceAudio() throws IOException, UnsupportedAudioFileException {
+        if (pieceAudioData != null) {
+            return;
+        }
+
+        synchronized (SoundPlayer.class) {
+            if (pieceAudioData != null) {
+                return;
+            }
+
+            try (InputStream resourceStream = SoundPlayer.class.getResourceAsStream("/sound/piece_se.wav")) {
+                if (resourceStream == null) {
+                    System.err.println("Sound file not found: /sound/piece_se.wav");
+                    return;
+                }
+
+                try (AudioInputStream audioIn = AudioSystem.getAudioInputStream(resourceStream);
+                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                    pieceAudioFormat = audioIn.getFormat();
+
+                    byte[] data = new byte[4096];
+                    int bytesRead;
+                    while ((bytesRead = audioIn.read(data)) != -1) {
+                        buffer.write(data, 0, bytesRead);
+                    }
+
+                    pieceAudioData = buffer.toByteArray();
+                }
+            }
         }
     }
     
