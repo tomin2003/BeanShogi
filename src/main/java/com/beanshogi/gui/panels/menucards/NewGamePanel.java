@@ -12,6 +12,7 @@ import com.beanshogi.game.Game;
 import com.beanshogi.game.Player;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.*;
+import com.beanshogi.util.AIDifficulty;
 import com.beanshogi.util.PlayerType;
 import com.beanshogi.util.Sides;
 
@@ -58,6 +59,19 @@ public class NewGamePanel extends JPanel {
         goteTypeGroup.add(goteHuman);
         goteTypeGroup.add(goteAI);
 
+        JComboBox<AIDifficulty> senteDifficultyCombo = new JComboBox<>(AIDifficulty.values());
+        senteDifficultyCombo.setSelectedItem(AIDifficulty.NORMAL);
+        senteDifficultyCombo.setEnabled(false);
+
+        JComboBox<AIDifficulty> goteDifficultyCombo = new JComboBox<>(AIDifficulty.values());
+        goteDifficultyCombo.setSelectedItem(AIDifficulty.NORMAL);
+        goteDifficultyCombo.setEnabled(false);
+
+        senteHuman.addActionListener(e -> senteDifficultyCombo.setEnabled(false));
+        senteAI.addActionListener(e -> senteDifficultyCombo.setEnabled(true));
+        goteHuman.addActionListener(e -> goteDifficultyCombo.setEnabled(false));
+        goteAI.addActionListener(e -> goteDifficultyCombo.setEnabled(true));
+
         gbc.gridx = 0; gbc.gridy++;
         add(new JLabel("Sente Type:"), gbc);
         JPanel senteTypePanel = new JPanel();
@@ -74,6 +88,16 @@ public class NewGamePanel extends JPanel {
         gbc.gridx = 1;
         add(goteTypePanel, gbc);
 
+        gbc.gridx = 0; gbc.gridy++;
+        add(new JLabel("Sente Difficulty:"), gbc);
+        gbc.gridx = 1;
+        add(senteDifficultyCombo, gbc);
+
+        gbc.gridx = 0; gbc.gridy++;
+        add(new JLabel("Gote Difficulty:"), gbc);
+        gbc.gridx = 1;
+        add(goteDifficultyCombo, gbc);
+
         // Play button - construct Game from form
         JButton playButton = SwingUtils.makeButton("Play", e -> {
             String senteName = senteNameField.getText().trim();
@@ -82,9 +106,15 @@ public class NewGamePanel extends JPanel {
             if (goteName.isEmpty()) goteName = "Player 2";
             PlayerType senteType = senteHuman.isSelected() ? PlayerType.HUMAN : PlayerType.AI;
             PlayerType goteType = goteAI.isSelected() ? PlayerType.AI : PlayerType.HUMAN;
+            AIDifficulty senteDifficulty = senteType == PlayerType.AI
+                ? (AIDifficulty) senteDifficultyCombo.getSelectedItem()
+                : AIDifficulty.NORMAL;
+            AIDifficulty goteDifficulty = goteType == PlayerType.AI
+                ? (AIDifficulty) goteDifficultyCombo.getSelectedItem()
+                : AIDifficulty.NORMAL;
             Game game = new Game(List.of(
-                new Player(Sides.SENTE, senteName, senteType),
-                new Player(Sides.GOTE, goteName, goteType)
+                new Player(Sides.SENTE, senteName, senteType, senteDifficulty),
+                new Player(Sides.GOTE, goteName, goteType, goteDifficulty)
             ));
             window.showGamePlay(game);
         });

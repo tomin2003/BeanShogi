@@ -228,7 +228,7 @@ public class Controller {
             if (gameOver) {
                 return;
             }
-            Move aiMove = ai.getBestMove(sideOnTurn);
+            Move aiMove = ai.getBestMove(sideOnTurn, board.getPlayer(sideOnTurn).getDifficulty());
             if (aiMove != null) {
                 // Reconstruct the move with the real board's player and pieces
                 // The AI returns a move with references to simulated board objects

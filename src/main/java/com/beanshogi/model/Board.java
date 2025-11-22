@@ -159,7 +159,7 @@ public class Board {
 
         // Create empty player instances corresponding to original players
         for (Player p : this.players) {
-            Player np = new Player(p.getSide(), p.getName(), p.getType());
+            Player np = new Player(p.getSide(), p.getName(), p.getType(), p.getDifficulty());
             newPlayers.add(np);
         }
 

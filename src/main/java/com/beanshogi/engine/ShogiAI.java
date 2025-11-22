@@ -2,9 +2,11 @@ package com.beanshogi.engine;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import com.beanshogi.game.Player;
 import com.beanshogi.model.*;
+import com.beanshogi.util.AIDifficulty;
 import com.beanshogi.util.Position;
 import com.beanshogi.util.Sides;
 
@@ -21,10 +23,8 @@ public class ShogiAI {
         }
     }
 
-    private final int MAX_DEPTH = 3;
     private final Board board;
-    private long totalNodes = 0;
-    private long totalPruned = 0;
+    private final Random random = new Random();
 
     public ShogiAI(Board board) {
         this.board = board;
@@ -33,14 +33,9 @@ public class ShogiAI {
     /**
      * Returns the best move (normal or drop) for the given side.
      */
-    public Move getBestMove(Sides sideToMove) {
-        long startTime = System.nanoTime();
-        totalNodes = 0;
-        totalPruned = 0;
-        
-        System.out.println("\n=== AI Move Search Started ===");
-        System.out.println("Side: " + sideToMove);
-        System.out.println("Max Depth: " + MAX_DEPTH);
+    public Move getBestMove(Sides sideToMove, AIDifficulty difficulty) {
+        AIDifficulty activeDifficulty = difficulty != null ? difficulty : AIDifficulty.NORMAL;
+        int maxDepth = Math.max(1, activeDifficulty.getSearchDepth());
         
         // Work on an isolated copy so search can apply/undo moves without touching the live board
         Board searchBoard = board.copy();
@@ -48,16 +43,9 @@ public class ShogiAI {
         Move bestMove = null;
 
         // Generate all possible moves from the copied board so we can apply/undo safely
-        long moveGenStart = System.nanoTime();
-        List<MoveScore> candidateMoves = generateAllMoves(searchBoard, sideToMove);
-        long moveGenTime = System.nanoTime() - moveGenStart;
-        
-        System.out.println("Candidate moves generated: " + candidateMoves.size());
-        System.out.printf("Move generation time: %.2f ms\n", moveGenTime / 1_000_000.0);
-        
-        // Evaluate moves sequentially with alpha-beta
-        long evalStart = System.nanoTime();
+        List<MoveScore> candidateMoves = generateAllMoves(searchBoard, sideToMove, activeDifficulty, true);
 
+        // Evaluate moves sequentially with alpha-beta
         for (MoveScore ms : candidateMoves) {
 
             searchBoard.moveManager.applyMove(ms.move);
@@ -68,8 +56,8 @@ public class ShogiAI {
                 continue;
             }
 
-            int score = minimax(searchBoard, MAX_DEPTH - 1, sideToMove.getOpposite(),
-                                sideToMove, Integer.MIN_VALUE, Integer.MAX_VALUE);
+            int score = minimax(searchBoard, maxDepth - 1, sideToMove.getOpposite(),
+                                sideToMove, Integer.MIN_VALUE, Integer.MAX_VALUE, activeDifficulty);
 
             if (bestMove == null || score > bestScore) {
                 bestScore = score;
@@ -85,25 +73,13 @@ public class ShogiAI {
             return null;
         }
 
-        long evalTime = System.nanoTime() - evalStart;
-        long totalTime = System.nanoTime() - startTime;
-        
-        System.out.println("\n=== AI Move Search Complete ===");
-        System.out.printf("Total nodes evaluated: %d\n", totalNodes);
-        System.out.printf("Nodes pruned by alpha-beta: %d (%.1f%%)\n", 
-            totalPruned, totalPruned * 100.0 / Math.max(1, totalNodes));
-        System.out.printf("Evaluation time: %.2f ms\n", evalTime / 1_000_000.0);
-        System.out.printf("Total time: %.2f ms\n", totalTime / 1_000_000.0);
-        System.out.printf("Best score: %d\n", bestScore);
-        System.out.println("================================\n");
-        
         return bestMove;
     }
     
     /**
      * Generate pseudo-legal moves for the given board/side, ordered by simple heuristics.
      */
-    private List<MoveScore> generateAllMoves(Board targetBoard, Sides sideToMove) {
+    private List<MoveScore> generateAllMoves(Board targetBoard, Sides sideToMove, AIDifficulty difficulty, boolean applyNoise) {
         List<MoveScore> moves = new ArrayList<>();
         Player player = targetBoard.getPlayer(sideToMove);
 
@@ -124,15 +100,15 @@ public class ShogiAI {
 
                 if (mustPromote) {
                     moves.add(new MoveScore(new Move(player, from, to, piece, captured, true, false),
-                                             priority + 50));
+                                             addOrderingNoise(priority + 50, difficulty, applyNoise)));
                 } else if (canPromote) {
                     moves.add(new MoveScore(new Move(player, from, to, piece, captured, true, false),
-                                             priority + 50));
+                                             addOrderingNoise(priority + 50, difficulty, applyNoise)));
                     moves.add(new MoveScore(new Move(player, from, to, piece, captured, false, false),
-                                             priority));
+                                             addOrderingNoise(priority, difficulty, applyNoise)));
                 } else {
                     moves.add(new MoveScore(new Move(player, from, to, piece, captured, false, false),
-                                             priority));
+                                             addOrderingNoise(priority, difficulty, applyNoise)));
                 }
             }
         }
@@ -149,12 +125,24 @@ public class ShogiAI {
                     false,
                     true
                 );
-                moves.add(new MoveScore(dropMove, 10));
+                moves.add(new MoveScore(dropMove, addOrderingNoise(10, difficulty, applyNoise)));
             }
         }
 
         moves.sort((a, b) -> Integer.compare(b.orderingScore, a.orderingScore));
         return moves;
+    }
+
+    private int addOrderingNoise(int baseScore, AIDifficulty difficulty, boolean applyNoise) {
+        if (!applyNoise) {
+            return Math.max(0, baseScore);
+        }
+        int noiseRange = difficulty.getOrderingNoise();
+        if (noiseRange <= 0) {
+            return Math.max(0, baseScore);
+        }
+        int jitter = random.nextInt(noiseRange * 2 + 1) - noiseRange;
+        return Math.max(0, baseScore + jitter);
     }
 
     /**
@@ -167,14 +155,13 @@ public class ShogiAI {
      * @return evaluation score
      */
     private int minimax(Board currentBoard, int depth, Sides sideToMove, Sides maximizingSide,
-                        int alpha, int beta) {
-        totalNodes++;
+                        int alpha, int beta, AIDifficulty difficulty) {
 
         if (depth == 0) {
             return evaluate(currentBoard, maximizingSide);
         }
 
-        List<MoveScore> moves = generateAllMoves(currentBoard, sideToMove);
+        List<MoveScore> moves = generateAllMoves(currentBoard, sideToMove, difficulty, false);
         boolean maximizing = sideToMove == maximizingSide;
         int best = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         boolean exploredLegalMove = false;
@@ -193,7 +180,7 @@ public class ShogiAI {
             }
 
             exploredLegalMove = true;
-            int score = minimax(currentBoard, depth - 1, sideToMove.getOpposite(), maximizingSide, alpha, beta);
+            int score = minimax(currentBoard, depth - 1, sideToMove.getOpposite(), maximizingSide, alpha, beta, difficulty);
 
             currentBoard.moveManager.undoMove();
             currentBoard.moveManager.getRedoStack().clear();
@@ -207,7 +194,6 @@ public class ShogiAI {
             }
 
             if (beta <= alpha) {
-                totalPruned++;
                 break;
             }
         }

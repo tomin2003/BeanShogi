@@ -12,13 +12,19 @@ public class Player {
     private String name;
     private HandGrid hand;
     private PlayerType type;
+    private AIDifficulty difficulty;
 
     public Player(Sides side, String name, PlayerType type) {
+        this(side, name, type, AIDifficulty.NORMAL);
+    }
+
+    public Player(Sides side, String name, PlayerType type, AIDifficulty difficulty) {
         this.side = side;
         this.name = name;
         this.type = type;
-        hand = new HandGrid();
-    }  
+        this.hand = new HandGrid();
+        setDifficulty(difficulty);
+    }
 
     public Sides getSide() {
         return side;
@@ -46,6 +52,14 @@ public class Player {
 
     public PlayerType getType() {
         return type;
+    }
+
+    public AIDifficulty getDifficulty() {
+        return difficulty != null ? difficulty : AIDifficulty.NORMAL;
+    }
+
+    public void setDifficulty(AIDifficulty difficulty) {
+        this.difficulty = difficulty != null ? difficulty : AIDifficulty.NORMAL;
     }
 
     /**
