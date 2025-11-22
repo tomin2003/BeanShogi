@@ -117,22 +117,28 @@ public class Evals {
             return false;
         }
 
-        Board sim = board.copy();
-        Piece simPiece = sim.getPiece(from);
-        if (simPiece == null) {
-            return false;
-        }
+        MoveManager moveManager = board.moveManager;
+        Stack<Move> redoBackup = copyStack(moveManager.getRedoStack());
+        Piece captured = board.getPiece(to);
+        Move move = new Move(board.getPlayer(piece.getSide()), from, to, piece, captured, promote, false);
 
-        Player simPlayer = sim.getPlayer(simPiece.getSide());
-        Piece captured = sim.getPiece(to);
-        Move move = new Move(simPlayer, from, to, simPiece, captured, promote, false);
-        sim.moveManager.applyMove(move);
-        return !sim.evals.isKingInCheck(simPiece.getSide());
+        boolean applied = false;
+        boolean kingSafe = false;
+        try {
+            moveManager.applyMove(move);
+            applied = true;
+            kingSafe = !isKingInCheck(piece.getSide());
+        } finally {
+            if (applied) {
+                moveManager.undoMove();
+            }
+            restoreStack(moveManager.getRedoStack(), redoBackup);
+        }
+        return kingSafe;
     }
 
-    private boolean simulateDropCheck(Board simBoard, Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
-        // Find a piece of the given class in the player's hand
-        Player player = simBoard.getPlayer(side);
+    private boolean simulateDropCheck(Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
+        Player player = board.getPlayer(side);
         Piece handPiece = null;
         for (Piece p : player.getHandPieces()) {
             if (pieceClass.isInstance(p)) {
@@ -140,21 +146,26 @@ public class Evals {
                 break;
             }
         }
-        if (handPiece == null) return false;
+        if (handPiece == null) {
+            return false;
+        }
 
-        Move dropMove = new Move(
-            player,
-            handPiece.getHandPosition(),
-            dropPos,
-            handPiece,
-            null,
-            false,
-            true
-        );
-        simBoard.moveManager.applyMove(dropMove);
-        boolean kingSafe = !simBoard.evals.isKingInCheck(side);
-        simBoard.moveManager.undoMove();
-        simBoard.moveManager.getRedoStack().clear();
+        MoveManager moveManager = board.moveManager;
+        Stack<Move> redoBackup = copyStack(moveManager.getRedoStack());
+        Move dropMove = new Move(player, handPiece.getHandPosition(), dropPos, handPiece, null, false, true);
+
+        boolean applied = false;
+        boolean kingSafe = false;
+        try {
+            moveManager.applyMove(dropMove);
+            applied = true;
+            kingSafe = !isKingInCheck(side);
+        } finally {
+            if (applied) {
+                moveManager.undoMove();
+            }
+            restoreStack(moveManager.getRedoStack(), redoBackup);
+        }
 
         return kingSafe;
     }
@@ -184,7 +195,7 @@ public class Evals {
         Player player = board.getPlayer(side);
         for (Piece handPiece : player.getHandPieces()) {
             for (Position dropPos : board.getPieceDropPoints(handPiece.getClass(), side)) {
-                if (simulateDropCheck(board.copy(), handPiece.getClass(), side, dropPos)) { // use copy to avoid state pollution
+                if (simulateDropCheck(handPiece.getClass(), side, dropPos)) {
                     return false;
                 }
             }
@@ -199,8 +210,7 @@ public class Evals {
      * @return true if illegal drop, false otherwise.
      */
     public boolean violatesUchifuzume(Sides dropSide, Position dropPos) {
-        Board simulated = board.copy();
-        Player dropPlayer = simulated.getPlayer(dropSide);
+        Player dropPlayer = board.getPlayer(dropSide);
 
         Piece dropPiece = null;
         for (Piece handPiece : dropPlayer.getHandPieces()) {
@@ -210,23 +220,44 @@ public class Evals {
             }
         }
 
+        boolean createdTempPawn = false;
         if (dropPiece == null) {
-            dropPiece = new Pawn(dropSide, null, null, simulated);
+            dropPiece = new Pawn(dropSide, null, null, board);
             dropPlayer.getHandGrid().addPiece(dropPiece);
+            createdTempPawn = true;
         }
 
-        Move dropMove = new Move(
-            dropPlayer,
-            dropPiece.getHandPosition(),
-            dropPos,
-            dropPiece,
-            null,
-            false,
-            true
-        );
+        MoveManager moveManager = board.moveManager;
+        Stack<Move> redoBackup = copyStack(moveManager.getRedoStack());
+        Move dropMove = new Move(dropPlayer, dropPiece.getHandPosition(), dropPos, dropPiece, null, false, true);
 
-        simulated.moveManager.applyMove(dropMove);
-        Sides opponent = dropSide.getOpposite();
-        return simulated.evals.isKingInCheck(opponent) && simulated.evals.isCheckMate(opponent);
+        boolean applied = false;
+        boolean isMate = false;
+        try {
+            moveManager.applyMove(dropMove);
+            applied = true;
+            Sides opponent = dropSide.getOpposite();
+            isMate = isKingInCheck(opponent) && isCheckMate(opponent);
+        } finally {
+            if (applied) {
+                moveManager.undoMove();
+            }
+            restoreStack(moveManager.getRedoStack(), redoBackup);
+            if (createdTempPawn) {
+                dropPlayer.getHandGrid().removePiece(dropPiece);
+            }
+        }
+        return isMate;
+    }
+
+    private Stack<Move> copyStack(Stack<Move> original) {
+        Stack<Move> copy = new Stack<>();
+        copy.addAll(original);
+        return copy;
+    }
+
+    private void restoreStack(Stack<Move> target, Stack<Move> snapshot) {
+        target.clear();
+        target.addAll(snapshot);
     }
 }
