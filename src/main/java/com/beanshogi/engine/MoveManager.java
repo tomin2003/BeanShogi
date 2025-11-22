@@ -17,6 +17,7 @@ public class MoveManager {
     private transient Board board;  // Mark as transient to prevent circular reference in JSON
     protected Stack<Move> undoStack = new Stack<>();
     protected Stack<Move> redoStack = new Stack<>();
+    private int archivedMovesMade = 0;
 
     public MoveManager(Board board) {
         this.board = board;
@@ -38,8 +39,12 @@ public class MoveManager {
         return redoStack.isEmpty();
     }
 
+    public void setArchivedMovesMade(int noOfMoves) {
+        this.archivedMovesMade = noOfMoves;
+    }
+
     public int getNoOfMoves() {
-        return undoStack.size();
+        return archivedMovesMade + undoStack.size();
     }
 
     public Stack<Move> getUndoStack() {

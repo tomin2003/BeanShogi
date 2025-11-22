@@ -103,7 +103,7 @@ public class Board {
                     .collect(Collectors.toList());
     }
 
-    // Get a hashset of drop points
+    // TODO: Add uchifuzume, possibly refactor
     public <T extends Piece> List<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
         Set<Position> dropPoints = new HashSet<>();
 

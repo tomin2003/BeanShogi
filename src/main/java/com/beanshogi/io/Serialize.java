@@ -11,10 +11,9 @@ public class Serialize {
     /**
      * Generic wrapper class to add metadata header to saved data
      */
+    @SuppressWarnings("unused")
     private static class SaveData<T> {
-        @SuppressWarnings("unused")
         public String appName = "BeanShogi";
-        @SuppressWarnings("unused")
         public String version = "1.0";
         public T data;
         
@@ -52,10 +51,10 @@ public class Serialize {
     /**
      * Load an object from a JSON file.
      * @param filepath The file path to load from
-     * @param clazz The class type to deserialize to
+     * @param classType The class type to deserialize to
      * @return The loaded object
      */
-    protected static <T> T load(String filepath, Class<T> clazz) {
+    protected static <T> T load(String filepath, Class<T> classType) {
         Gson gson = createGson();
         
         try (FileReader reader = new FileReader(filepath)) {
@@ -68,7 +67,7 @@ public class Serialize {
             
             // Convert the data field to the correct type
             String json = gson.toJson(saveData.data);
-            return gson.fromJson(json, clazz);
+            return gson.fromJson(json, classType);
             
         } catch (IOException e) {
             throw new RuntimeException("Failed to load from " + filepath, e);

@@ -15,8 +15,8 @@ public class Player {
 
     public Player(Sides side, String name, PlayerType type) {
         this.side = side;
-        this.type = type;
         this.name = name;
+        this.type = type;
         hand = new HandGrid();
     }  
 
@@ -28,7 +28,7 @@ public class Player {
         return name;
     }
 
-    public List<Piece> getHand() {
+    public List<Piece> getHandPieces() {
         return hand.getAllPieces();
     }
 
@@ -48,7 +48,18 @@ public class Player {
         return type;
     }
 
-    // Add to hand (when captured)
+    /**
+     * Function for clearing hand contents before starting a new game
+     * (in case the hand still has contents left over from previous game)
+     */
+    public void clearHand() {
+        hand.clear();
+    }
+
+    /**
+     * Adds a piece to the player's hand. (when captured)
+     * @param piece captured piece to be added
+     */
     public void addToHand(Piece piece) {
         if (piece == null) {
             return;
@@ -58,7 +69,10 @@ public class Player {
         hand.addPiece(piece);
     }    
 
-    // Remove from hand (when placing down a captured piece)
+    /**
+     * Remove from hand (when placing down a captured piece) 
+     * @param piece captured piece to be removed
+     */
     public void removeFromHand(Piece piece) {
         hand.removePiece(piece);
     }

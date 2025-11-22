@@ -45,7 +45,7 @@ public class NewGamePanel extends JPanel {
         gbc.gridx = 1;
         add(goteNameField, gbc);
 
-        // Player type radio groups
+        // Player type radio button groups
         ButtonGroup senteTypeGroup = new ButtonGroup();
         JRadioButton senteHuman = new JRadioButton("Human", true);
         JRadioButton senteAI = new JRadioButton("AI");

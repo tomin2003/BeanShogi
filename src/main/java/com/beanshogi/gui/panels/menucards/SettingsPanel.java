@@ -15,19 +15,28 @@ import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.*;
 
 public class SettingsPanel extends JPanel {
+    private final ShogiWindow window;
+    private Runnable backAction;
+    private final JRadioButton windowedButton;
+    private final JRadioButton fullscreenButton;
 
     public SettingsPanel(ShogiWindow window) {
 
+        this.window = window;
+
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+        // Default back behavior returns to the main menu unless overridden.
+        backAction = () -> window.showCard("MAIN");
+
         // Aspect ratio setting radio buttons
-        JRadioButton windowedButton = new JRadioButton("Windowed");
+        windowedButton = new JRadioButton("Windowed");
         windowedButton.addActionListener(e -> window.setSmallWindow());
         
         // Windowed by default
         windowedButton.setSelected(true);
         
-        JRadioButton fullscreenButton = new JRadioButton("Full screen");
+        fullscreenButton = new JRadioButton("Full screen");
         fullscreenButton.addActionListener(e -> window.setFullscreenWindow());
 
         ButtonGroup aButtonGroup = new ButtonGroup();
@@ -92,7 +101,7 @@ public class SettingsPanel extends JPanel {
         sePanel.add(seVolume);
 
         // Back button
-        JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
+        JButton backButton = SwingUtils.makeButton("Back", e -> backAction.run());
 
         // UI panels alignment
         add(Box.createVerticalStrut(50));
@@ -103,5 +112,27 @@ public class SettingsPanel extends JPanel {
         add(Box.createVerticalStrut(50));
         add(backButton);
         add(Box.createVerticalGlue());
+    }
+
+    @Override
+    public void setVisible(boolean aFlag) {
+        if (aFlag) {
+            boolean isFullScreen = window.isFullScreenMode();
+            if (isFullScreen) {
+                fullscreenButton.setSelected(true);
+            } else {
+                windowedButton.setSelected(true);
+            }
+        }
+        super.setVisible(aFlag);
+    }
+
+    public void setBackAction(Runnable backAction) {
+        this.backAction = backAction != null ? backAction : () -> window.showCard("MAIN");
+    }
+
+    public void setDisplayModeControlsEnabled(boolean enabled) {
+        windowedButton.setEnabled(enabled);
+        fullscreenButton.setEnabled(enabled);
     }
 }

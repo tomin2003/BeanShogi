@@ -26,9 +26,9 @@ public class MainMenuPanel extends BackgroundPanel {
         List<JButton> menuButtons = new ArrayList<>();
 
         menuButtons.add(SwingUtils.makeButton("New Game", e -> window.showCard("NEW")));
-        menuButtons.add(SwingUtils.makeButton("Load Game", e -> window.showCard("LOAD")));
+        menuButtons.add(SwingUtils.makeButton("Load Game", e -> window.openLoadMenu(() -> window.showCard("MAIN"))));
         menuButtons.add(SwingUtils.makeButton("Leaderboard", e -> window.showCard("LEADERBOARD")));
-        menuButtons.add(SwingUtils.makeButton("Settings", e -> window.showCard("SETTINGS")));
+        menuButtons.add(SwingUtils.makeButton("Settings", e -> window.openSettings(() -> window.showCard("MAIN"))));
         menuButtons.add(SwingUtils.makeButton("Exit", e -> System.exit(0)));
 
         // Top glue: pushes buttons down proportionally

@@ -20,6 +20,16 @@ public class PromotedLance extends PromotedPiece {
     }
 
     @Override
+    public void setBoard(Board board) {
+        super.setBoard(board);
+        if (goldDelegate == null) {
+            goldDelegate = new GoldGeneral(side, boardPosition, handPosition, board);
+        } else {
+            goldDelegate.setBoard(board);
+        }
+    }
+
+    @Override
     public List<Position> getLegalMoves() {
         goldDelegate.setBoardPosition(this.boardPosition);
         goldDelegate.setHandPosition(this.handPosition);

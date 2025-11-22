@@ -31,9 +31,6 @@ public class GamePlayFullscreen extends BackgroundPanel {
         // Allow for pixel precision alignment of components
         setLayout(null); 
 
-        JMenuBar mb = SwingUtils.makeMenuBar(window, getWidth(), game);
-        add(mb);
-        
         // Create UI layers
         PieceLayerPanel boardPanel = new PieceLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP));
         boardPanel.setBounds(460, 80, 1460, 1000);
@@ -49,12 +46,12 @@ public class GamePlayFullscreen extends BackgroundPanel {
         handBottom.setBounds(20, 300, 400, 200);
         add(handBottom);
         
-        // Create new highlight layer for board
+        // Create new highlight layer for board (translucent red highlights)
         HighlightLayerPanel boardHighlight = new HighlightLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP), new Color(255,0,0,80));
         boardHighlight.setBounds(boardPanel.getBounds());
         add(boardHighlight);
 
-        // Create highlight layers for hand panels
+        // Create highlight layers for hand panels (translucent blue highlights)
         HighlightLayerPanel handTopHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP), new Color(0,0,255,80));
         handTopHighlight.setBounds(handTop.getBounds());
         add(handTopHighlight);
@@ -80,9 +77,13 @@ public class GamePlayFullscreen extends BackgroundPanel {
         ControllerListeners listeners = new ControllerListeners(sp, urp, alp);
 
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(game, this, listeners, panels, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(game, this, listeners, panels, window::returnToMainMenu);
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();
+
+        // Add menubar with the resign option
+        JMenuBar mb = SwingUtils.makeMenuBar(window, game, controller::resign);
+        add(mb);
     }
 }

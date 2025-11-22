@@ -10,6 +10,8 @@ import com.beanshogi.util.Sides;
 
 public class ShogiAI {
 
+    // TODO: Add difficulty levels
+
     private static class MoveScore {
         final Move move;
         final int orderingScore;
@@ -135,7 +137,7 @@ public class ShogiAI {
             }
         }
 
-        for (Piece handPiece : player.getHand()) {
+        for (Piece handPiece : player.getHandPieces()) {
             List<Position> dropPoints = targetBoard.getPieceDropPoints(handPiece.getClass(), sideToMove);
             for (Position dropPos : dropPoints) {
                 Move dropMove = new Move(

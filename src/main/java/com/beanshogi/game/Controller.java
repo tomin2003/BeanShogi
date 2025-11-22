@@ -6,6 +6,9 @@ import com.beanshogi.gui.panels.overlays.HighlightLayerPanel;
 import com.beanshogi.gui.panels.overlays.piece.*;
 import com.beanshogi.gui.util.Popups;
 import com.beanshogi.gui.util.SoundPlayer;
+import com.beanshogi.io.LeaderboardSaveLoad;
+import com.beanshogi.leaderboard.Entry;
+import com.beanshogi.leaderboard.ResultType;
 import com.beanshogi.model.*;
 import com.beanshogi.util.*;
 import com.beanshogi.engine.ShogiAI;
@@ -16,6 +19,7 @@ import java.util.List;
 import javax.swing.SwingUtilities;
 
 public class Controller {
+    private final Game game;
     private final Board board;
     private final ShogiAI ai;
     private final ControllerPanels panels;
@@ -25,7 +29,8 @@ public class Controller {
     private final ControllerListeners listeners;
     private Runnable onGameEndCallback;
 
-    private Sides sideOnTurn = Sides.SENTE;
+    private Sides sideOnTurn;
+    private boolean gameOver = false;
 
     // Separate selection state
     private Piece selectedBoardPiece = null;
@@ -35,6 +40,7 @@ public class Controller {
 
     public Controller(Game game, Component parent, ControllerListeners listeners, ControllerPanels panels, Runnable onGameEndCallback) {
 
+        this.game = game;
         this.board = game.getBoard();
         this.ai = new ShogiAI(board);
         this.parentComponent = parent;
@@ -42,7 +48,11 @@ public class Controller {
         this.listeners = listeners;
         this.onGameEndCallback = onGameEndCallback;
 
+        Sides savedTurn = game.getNextTurn();
+        this.sideOnTurn = savedTurn != null ? savedTurn : Sides.SENTE;
+
         listeners.notifySideOnTurnChanged(sideOnTurn);
+        game.setNextTurn(sideOnTurn);
 
         // Board click listener
         panels.getBoardHighlight().addMouseListener(new BoardMouseListener(
@@ -78,8 +88,12 @@ public class Controller {
 
     // ==================== TURN MANAGEMENT ====================
     private void advanceTurn() {
+        if (gameOver) {
+            return;
+        }
         sideOnTurn = sideOnTurn.getOpposite();
         listeners.notifySideOnTurnChanged(sideOnTurn);
+        game.setNextTurn(sideOnTurn);
     }
 
     /**
@@ -152,32 +166,68 @@ public class Controller {
      * Clear and reset all transient states of board, notify listeners, render, and handle game over state.
      */
     private void afterMove() {
+        if (gameOver) {
+            return;
+        }
         clearAllHighlights();
         nullifySelections();
         notifyListeners();
         renderBoard();
 
         if (board.evals.isCheckMate(sideOnTurn)) {
-            onGameEnd(sideOnTurn.getOpposite());
+            onGameEnd(sideOnTurn.getOpposite(), "Checkmate", ResultType.CHECKMATE);
         }
     }
 
-    private void onGameEnd(Sides winner) {
+    private void onGameEnd(Sides winner, String reason, ResultType resultType) {
+        if (gameOver) {
+            return;
+        }
+        gameOver = true;
         String winnerName = board.getPlayer(winner).getName();
-        Popups.showGameOver(parentComponent, winnerName);
+        String loserName = board.getPlayer(winner.getOpposite()).getName();
+
+        Entry entry = new Entry(
+            winnerName,
+            loserName,
+            winner.getOpposite(),
+            board.moveManager.getNoOfMoves(),
+            resultType,
+            java.time.Instant.now(),
+            board.getPlayer(winner).getType(),
+            board.getPlayer(winner.getOpposite()).getType()
+        );
+        LeaderboardSaveLoad.appendEntry(entry);
+
+        Popups.showGameOver(parentComponent, winnerName, reason);
         if (onGameEndCallback != null) {
             onGameEndCallback.run();
         }
+    }
+
+    public void resign(Sides resigningSide) {
+        if (resigningSide == null || gameOver) {
+            return;
+        }
+        Sides winner = resigningSide.getOpposite();
+        String resigningName = board.getPlayer(resigningSide).getName();
+        onGameEnd(winner, resigningName + " resigned.", ResultType.RESIGNATION);
     }
 
     /**
      * Perform AI move operation
      */
     private void tryAIMove() {
+        if (gameOver) {
+            return;
+        }
         if (!board.getPlayer(sideOnTurn).isAI()) return;
 
         // Use invokeLater to allow UI to update between moves
         SwingUtilities.invokeLater(() -> {
+            if (gameOver) {
+                return;
+            }
             Move aiMove = ai.getBestMove(sideOnTurn);
             if (aiMove != null) {
                 // Reconstruct the move with the real board's player and pieces
@@ -185,7 +235,7 @@ public class Controller {
                 Piece realMovedPiece = null;
                 if (aiMove.isDrop()) {
                     // For drops, find matching piece in real player's hand
-                    for (Piece p : board.getPlayer(sideOnTurn).getHand()) {
+                    for (Piece p : board.getPlayer(sideOnTurn).getHandPieces()) {
                         if (p.getClass() == aiMove.getMovedPiece().getClass() && 
                             p.getSide() == sideOnTurn) {
                             realMovedPiece = p;
@@ -318,6 +368,9 @@ public class Controller {
     }
 
     private void handleBoardClick(Position clickPosition) {
+        if (gameOver) {
+            return;
+        }
         // Handle hand piece drop first
         if (selectedHandPiece != null && selectedHandSide != null) {
             if (selectedLegalMoves != null && selectedLegalMoves.contains(clickPosition)) {
@@ -351,6 +404,9 @@ public class Controller {
      * @param handSide The side of click handled hand table.
      */
     public Piece handleHandClick(Position clickPosition, Sides handSide) {
+        if (gameOver) {
+            return null;
+        }
         HandGrid handGrid = board.getPlayer(handSide).getHandGrid();
 
         for (Piece piece : handGrid.getAllPieces()) {

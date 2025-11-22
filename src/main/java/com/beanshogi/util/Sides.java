@@ -1,7 +1,7 @@
 package com.beanshogi.util;
 
 /**
- * Represents the two player sides in shogi (Black/White color equivalent in chess)
+ * Represents the two player sides in shogi (Black/White color equivalent in chess).
  * Sente - lit. "First hand" - the side that moves first. Perspective: the pieces facing upward.
  * Gote - lit. "Second hand" - the side that moves second. Perspective: the pieces facing downward.
  */

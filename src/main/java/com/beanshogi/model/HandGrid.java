@@ -8,7 +8,7 @@ import com.beanshogi.util.Sides;
 
 /**
  * Represents a 4x5 grid for storing captured pieces (hand pieces).
- * Provides both a flat list interface (for external use) and grid-based access (for rendering).
+ * Provides both a flat list interface and operations for abstracting underlying grid structure.
  */
 public class HandGrid {
     private static final int ROWS = 4;
@@ -102,7 +102,7 @@ public class HandGrid {
 
     /**
      * Get all pieces in the hand as a list
-     * @return unmodifiable list of all non-null pieces
+     * @return list of all non-null pieces
      */
     public List<Piece> getAllPieces() {
         List<Piece> pieces = new ArrayList<>();
@@ -114,7 +114,7 @@ public class HandGrid {
                 pieces.add(piece);
             }
         }
-        return Collections.unmodifiableList(pieces);
+        return pieces;
     }
 
     /**
@@ -125,7 +125,7 @@ public class HandGrid {
     public Collection<Piece> getPiecesOfSide(Sides side) {
         return getAllPieces().stream()
                     .filter(p -> p.getSide() == side)
-                    .collect(Collectors.toUnmodifiableList());
+                    .collect(Collectors.toList());
     }
 
     /**

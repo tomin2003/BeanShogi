@@ -31,9 +31,6 @@ public class GamePlayWindowed extends BackgroundPanel {
         // Allow for pixel precision alignment of components
         setLayout(null); 
 
-        JMenuBar mb = SwingUtils.makeMenuBar(window, getWidth(), game);
-        add(mb);
-
         // PS: These pixel offsets might seem like magic numbers, but they are actually carefully 
         // calculated for the 1280x960 standard 4:3 resolution gameplay BG using GIMP.
 
@@ -65,12 +62,12 @@ public class GamePlayWindowed extends BackgroundPanel {
         handBottom.setBounds(910, 570, 1260, 910);
         add(handBottom);
 
-        // Create new highlight layer for board
+        // Create new highlight layer for board (translucent red highlights)
         HighlightLayerPanel boardHighlight = new HighlightLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP), new Color(255,0,0,80));
         boardHighlight.setBounds(boardPanel.getBounds());
         add(boardHighlight);
 
-        // Create highlight layers for hand panels
+        // Create highlight layers for hand panels (translucent blue highlights)
         HighlightLayerPanel handTopHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP), new Color(0,0,255,80));
         handTopHighlight.setBounds(handTop.getBounds());
         add(handTopHighlight);
@@ -83,9 +80,13 @@ public class GamePlayWindowed extends BackgroundPanel {
         ControllerListeners listeners = new ControllerListeners(statsPanel, urp, alp);
 
         // Create controller
-        Controller controller = new Controller(game, this, listeners, panels, () -> window.showCard("MAIN"));
+        Controller controller = new Controller(game, this, listeners, panels, window::returnToMainMenu);
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();
+
+        // Add menubar with the resign option
+            JMenuBar mb = SwingUtils.makeMenuBar(window, game, controller::resign);
+        add(mb);
     }
 }

@@ -8,6 +8,8 @@ import com.beanshogi.pieces.normal.King;
 import com.beanshogi.util.Position;
 import com.beanshogi.util.Sides;
 
+// TODO: possibly implement logic where a check has to be ended before making other moves
+
 /**
  * Class defining board evaluation methods
  * @param board the board on which evaluation is done
@@ -101,7 +103,7 @@ public class Evals {
         // Find a piece of the given class in the player's hand
         Player player = simBoard.getPlayer(side);
         Piece handPiece = null;
-        for (Piece p : player.getHand()) {
+        for (Piece p : player.getHandPieces()) {
             if (pieceClass.isInstance(p)) {
                 handPiece = p;
                 break;
@@ -155,7 +157,7 @@ public class Evals {
 
         // 3. Hand drops (blocking)
         Player player = simBoard.getPlayer(side);
-        for (Piece handPiece : player.getHand()) {
+        for (Piece handPiece : player.getHandPieces()) {
             for (Position dropPos : simBoard.getPieceDropPoints(handPiece.getClass(), side)) {
                 if (simulateDropCheck(simBoard, handPiece.getClass(), side, dropPos)) {
                     return false;

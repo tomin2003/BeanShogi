@@ -18,6 +18,12 @@ public class ShogiWindow extends JFrame {
     private JPanel mainPanel;
     private CardLayout cardLayout;
     private boolean fullScreen = false;
+    private static final int WINDOW_WIDTH = 1280;
+    private static final int WINDOW_HEIGHT = 960;
+    private SettingsPanel settingsMenu;
+    private LoadGamePanel loadMenu;
+    private LeaderboardPanel leaderboardMenu;
+    private String currentGameCard;
 
     public ShogiWindow() {
         setTitle("BeanShogi");
@@ -31,9 +37,9 @@ public class ShogiWindow extends JFrame {
         // Create screens
         MainMenuPanel mainMenu = new MainMenuPanel(this);
         NewGamePanel newGameMenu = new NewGamePanel(this);
-        LoadGamePanel loadMenu = new LoadGamePanel(this);
-        LeaderboardPanel leaderboardMenu = new LeaderboardPanel(this);
-        SettingsPanel settingsMenu = new SettingsPanel(this);
+        loadMenu = new LoadGamePanel(this);
+        leaderboardMenu = new LeaderboardPanel(this);
+        settingsMenu = new SettingsPanel(this);
 
         // Register cards
         mainPanel.add(mainMenu, "MAIN");
@@ -43,6 +49,7 @@ public class ShogiWindow extends JFrame {
         mainPanel.add(settingsMenu, "SETTINGS");
 
         setContentPane(mainPanel);
+        mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
         pack();
         setLocationRelativeTo(null);
         setVisible(true);
@@ -56,16 +63,45 @@ public class ShogiWindow extends JFrame {
                 mainPanel.remove(comp);
             }
         }
-        
         if (fullScreen) {
             GamePlayFullscreen fsPanel = new GamePlayFullscreen(this, game);
             mainPanel.add(fsPanel, "GAME_FULLSCREEN");
-            showCard("GAME_FULLSCREEN");
+            currentGameCard = "GAME_FULLSCREEN";
+            showCard(currentGameCard);
         } else {
             GamePlayWindowed wPanel = new GamePlayWindowed(this, game);
             mainPanel.add(wPanel, "GAME_WINDOWED");
-            showCard("GAME_WINDOWED");
+            currentGameCard = "GAME_WINDOWED";
+            showCard(currentGameCard);
         }
+    }
+
+    public void openSettings(Runnable backAction) {
+        openSettings(backAction, true);
+    }
+
+    public void openSettings(Runnable backAction, boolean allowDisplayModeChanges) {
+        settingsMenu.setBackAction(backAction);
+        settingsMenu.setDisplayModeControlsEnabled(allowDisplayModeChanges);
+        showCard("SETTINGS");
+    }
+
+    public void openLoadMenu(Runnable backAction) {
+        loadMenu.setBackAction(backAction);
+        showCard("LOAD");
+    }
+
+    public void returnToGame() {
+        if (currentGameCard != null) {
+            showCard(currentGameCard);
+        } else {
+            showCard("MAIN");
+        }
+    }
+
+    public void returnToMainMenu() {
+        currentGameCard = null;
+        showCard("MAIN");
     }
 
     public void setSmallWindow() {
@@ -77,16 +113,17 @@ public class ShogiWindow extends JFrame {
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         GraphicsDevice gd = ge.getDefaultScreenDevice();
 
-        gd.setFullScreenWindow(null);
+        gd.setFullScreenWindow(null);   
+        mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+        setContentPane(mainPanel);
 
         pack();
         setLocationRelativeTo(null);
-        setContentPane(mainPanel);
         setVisible(true);
         fullScreen = false;
     }
 
-    public void setFullscreenWindow() {
+     public void setFullscreenWindow() {
         // Dispose current frame and remove decoration
         dispose();
         setUndecorated(true);
@@ -102,6 +139,10 @@ public class ShogiWindow extends JFrame {
         fullScreen = true;
     }
 
+    public boolean isFullScreenMode() {
+        return fullScreen;
+    }
+
     public void showCard(String cardName) {
         // Clear menu bar when not in game
         if (!cardName.equals("GAME_FULLSCREEN") && !cardName.equals("GAME_WINDOWED")) {
@@ -111,6 +152,9 @@ public class ShogiWindow extends JFrame {
                 pack();
                 setLocationRelativeTo(null);
             }
+        }
+        if ("LEADERBOARD".equals(cardName) && leaderboardMenu != null) {
+            leaderboardMenu.refresh();
         }
         cardLayout.show(mainPanel, cardName);
     }

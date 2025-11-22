@@ -16,9 +16,17 @@ import com.beanshogi.pieces.normal.slider.Rook;
 
 public class Game {
     private Board board;
+    private Sides nextTurn = Sides.SENTE;
     
     public Game(List<Player> players) {
+
+        // Clear hand before starting a new game (eg. on a loaded game)
+        for (Player player : players) {
+            player.getHandGrid().clear();
+        }
+
         this.board = new Board(players);
+        this.nextTurn = Sides.SENTE;
         // Initialize board by entire rows - boardPosition value is set in setPiece()
         for (int i = 0; i < 9; i++) {
             if (i == 0 || i == 8) {
@@ -55,6 +63,14 @@ public class Game {
     }
     public Board getBoard() {
         return board;
+    }
+
+    public Sides getNextTurn() {
+        return nextTurn;
+    }
+
+    public void setNextTurn(Sides nextTurn) {
+        this.nextTurn = nextTurn;
     }
 
     public static Game getInstance() {

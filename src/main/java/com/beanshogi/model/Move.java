@@ -16,7 +16,7 @@ public class Move {
     private final Player player;
     private final Position from;
     private final Position to;
-    private final Piece movedPiece;
+    private Piece movedPiece;
     private Piece capturedPiece;
     private final boolean isPromotion;
     private final boolean isDrop;
