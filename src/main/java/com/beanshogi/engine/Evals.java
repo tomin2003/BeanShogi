@@ -73,31 +73,61 @@ public class Evals {
     // TODO: Review checkmate logic for correctness
 
     /**
-     * Simulate if a move on a board might result in check
-     * @param simBoard board cloned for simulation
-     * @param piecePos position of the piece to move (on simBoard)
-     * @param to position the piece is moved to
-     * @param promote promotion state of piece
-     * @return king is safe or not
+     * Produce legal destination squares for a piece, excluding those that leave own king in check.
+     * If the side is currently in check, only include moves that resolve the check.
      */
-    private boolean simulateMoveCheck(Board simBoard, Position piecePos, Position to, boolean promote) {
-        Piece piece = simBoard.getPiece(piecePos);
-        if (piece == null) return false;
-        
-        Player player = simBoard.getPlayer(piece.getSide());
-        simBoard.moveManager.applyMove(new Move(
-            player, 
-            piecePos,
-            to,
-            piece,
-            simBoard.getPiece(to),
-            promote,
-            false
-        ));
-        boolean kingSafe = !simBoard.evals.isKingInCheck(piece.getSide());
-        simBoard.moveManager.undoMove(); // Step back to previous position
-        simBoard.moveManager.getRedoStack().clear();
-        return kingSafe;
+    public List<Position> getFilteredLegalMoves(Piece piece) {
+        List<Position> filtered = new ArrayList<>();
+        if (piece == null || piece.getBoardPosition() == null) {
+            return filtered;
+        }
+        Sides side = piece.getSide();
+        boolean mustResolveCheck = isKingInCheck(side);
+        Position from = piece.getBoardPosition();
+        for (Position to : piece.getLegalMoves()) {
+            // Simulate without promotion
+            boolean canPromote = piece.canPromote() && (from.inPromotionZone(side) || to.inPromotionZone(side));
+            boolean mustPromote = canPromote && piece.shouldPromote(from, to);
+
+            boolean resolves = false;
+            // Try unpromoted variant first (if allowed)
+            if (!mustPromote) {
+                if (isMoveLegal(piece, from, to, false)) {
+                    resolves = true;
+                }
+            }
+            // Try promoted variant if promotion is possible and not yet resolved
+            if (canPromote && !resolves) {
+                if (isMoveLegal(piece, from, to, true)) {
+                    resolves = true;
+                }
+            }
+            if (resolves && (!mustResolveCheck || (mustResolveCheck && resolves))) {
+                filtered.add(to);
+            }
+        }
+        return filtered;
+    }
+
+    /**
+     * Helper to test a move on a copied board so the real position is untouched.
+     */
+    public boolean isMoveLegal(Piece piece, Position from, Position to, boolean promote) {
+        if (piece == null || from == null || to == null) {
+            return false;
+        }
+
+        Board sim = board.copy();
+        Piece simPiece = sim.getPiece(from);
+        if (simPiece == null) {
+            return false;
+        }
+
+        Player simPlayer = sim.getPlayer(simPiece.getSide());
+        Piece captured = sim.getPiece(to);
+        Move move = new Move(simPlayer, from, to, simPiece, captured, promote, false);
+        sim.moveManager.applyMove(move);
+        return !sim.evals.isKingInCheck(simPiece.getSide());
     }
 
     private boolean simulateDropCheck(Board simBoard, Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
@@ -130,42 +160,36 @@ public class Evals {
     }
 
     public boolean isCheckMate(Sides side) {
-        King king = board.getKing(side);
-        if (king == null || !isKingInCheck(side)) return false;
-
-        Board simBoard = board.copy(); // copy for isolated simulation
-
-        // 1. King moves
-        King simKing = simBoard.getKing(side);
-        if (simKing != null) {
-            for (Position move : simKing.getLegalMoves()) {
-                if (simulateMoveCheck(simBoard, simKing.getBoardPosition(), move, false)) {
+        if (!isKingInCheck(side)) {
+            return false; // not in check -> cannot be checkmate
+        }
+        // Any legal move that leaves king safe ends checkmate test early.
+        for (Piece piece : board.getPiecesOfSide(side)) {
+            Position from = piece.getBoardPosition();
+            if (from == null) continue;
+            for (Position to : piece.getLegalMoves()) {
+                boolean canPromote = piece.canPromote() && (from.inPromotionZone(side) || to.inPromotionZone(side));
+                boolean mustPromote = canPromote && piece.shouldPromote(from, to);
+                // Unpromoted
+                if (!mustPromote && isMoveLegal(piece, from, to, false)) {
+                    return false;
+                }
+                // Promoted variant
+                if (canPromote && isMoveLegal(piece, from, to, true)) {
                     return false;
                 }
             }
         }
-
-        // 2. Other piece moves (blocking or capturing)
-        for (Piece piece : simBoard.getPiecesOfSide(side)) {
-            if (piece instanceof King) continue;
-            for (Position move : piece.getLegalMoves()) {
-                boolean promote = move.inPromotionZone(side) && piece.canPromote();
-                if (simulateMoveCheck(simBoard, piece.getBoardPosition(), move, promote)) {
-                    return false;
-                }
-            }
-        }
-
-        // 3. Hand drops (blocking)
-        Player player = simBoard.getPlayer(side);
+        // Drops
+        Player player = board.getPlayer(side);
         for (Piece handPiece : player.getHandPieces()) {
-            for (Position dropPos : simBoard.getPieceDropPoints(handPiece.getClass(), side)) {
-                if (simulateDropCheck(simBoard, handPiece.getClass(), side, dropPos)) {
+            for (Position dropPos : board.getPieceDropPoints(handPiece.getClass(), side)) {
+                if (simulateDropCheck(board.copy(), handPiece.getClass(), side, dropPos)) { // use copy to avoid state pollution
                     return false;
                 }
             }
         }
-        return true; // no move prevents check → checkmate
+        return true; // no legal resolving moves
     }
 
     /**

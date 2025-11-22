@@ -52,6 +52,226 @@
         "finishedAt": "2025-11-22 14:18",
         "winnerType": "AI",
         "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 49,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:04",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 49,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:16",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 49,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:30",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 111,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:30",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 137,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:31",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 140,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:31",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 90,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:31",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 92,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:31",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 142,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:31",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 57,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:39",
+        "winnerType": "HUMAN",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 84,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 22:47",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 54,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:07",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 49,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:15",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 49,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:24",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 102,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 92,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 90,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 120,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 122,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 117,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 70,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 84,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-22 23:28",
+        "winnerType": "AI",
+        "loserType": "AI"
       }
     ]
   }

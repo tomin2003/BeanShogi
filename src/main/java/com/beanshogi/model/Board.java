@@ -104,36 +104,6 @@ public class Board {
                     .collect(Collectors.toList());
     }
 
-    public List<Position> getLegalMovesForPiece(Piece piece) {
-        if (piece == null || piece.getBoardPosition() == null) {
-            return Collections.emptyList();
-        }
-
-        Position from = piece.getBoardPosition();
-        Sides side = piece.getSide();
-        List<Position> legalMoves = new ArrayList<>();
-
-        for (Position to : piece.getLegalMoves()) {
-            boolean mustPromote = piece.canPromote() && piece.shouldPromote(from, to);
-            boolean canPromote = piece.canPromote() && (from.inPromotionZone(side) || to.inPromotionZone(side));
-
-            boolean moveIsLegal;
-            if (mustPromote) {
-                moveIsLegal = isMoveSafe(piece, from, to, true);
-            } else if (canPromote) {
-                moveIsLegal = isMoveSafe(piece, from, to, false) || isMoveSafe(piece, from, to, true);
-            } else {
-                moveIsLegal = isMoveSafe(piece, from, to, false);
-            }
-
-            if (moveIsLegal) {
-                legalMoves.add(to);
-            }
-        }
-
-        return legalMoves;
-    }
-
     /**
      * Get legal drop points from hand on this board.
      * @param pieceClass evaluated generic piece
@@ -142,6 +112,16 @@ public class Board {
      */
     public <T extends Piece> List<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
         Set<Position> dropPoints = new HashSet<>();
+        boolean sideInCheck = evals.isKingInCheck(pieceside);
+        Player player = getPlayer(pieceside);
+        Piece handTemplate = null;
+        for (Piece hp : player.getHandPieces()) {
+            if (pieceClass.isInstance(hp)) { handTemplate = hp; break; }
+        }
+        // If no piece of that class in hand, no drop points
+        if (handTemplate == null) {
+            return Collections.emptyList();
+        }
 
         for (int y = 0; y < 9; y++) {
             for (int x = 0; x < 9; x++) {
@@ -170,9 +150,6 @@ public class Board {
                     if (evals.violatesUchifuzume(pieceside, pos)) {
                         continue;
                     }
-                    if (!isDropSafe(pieceClass, pieceside, pos)) {
-                        continue;
-                    }
                 }   
                 if (pieceClass == Lance.class) {
                     if ((pieceside == Sides.SENTE && y == 0) || (pieceside == Sides.GOTE && y == 8)) {
@@ -184,7 +161,8 @@ public class Board {
                         continue;
                     }
                 }
-                if (pieceClass != Pawn.class && !isDropSafe(pieceClass, pieceside, pos)) {
+                // Simulate drop to ensure it does not leave king in check and (if currently in check) resolves it
+                if (!isLegalDrop(handTemplate, pieceside, pos, sideInCheck)) {
                     continue;
                 }
                 dropPoints.add(pos);
@@ -193,61 +171,16 @@ public class Board {
         return new ArrayList<>(dropPoints);
     }
 
-    private boolean isMoveSafe(Piece piece, Position from, Position to, boolean promote) {
-        Player player = getPlayer(piece.getSide());
-        Move trialMove = new Move(
-            player,
-            from,
-            to,
-            piece,
-            null,
-            promote,
-            false
-        );
-
-        moveManager.applyMove(trialMove);
-        boolean kingSafe = !evals.isKingInCheck(piece.getSide());
-        moveManager.undoMove();
-        moveManager.getRedoStack().clear();
-        return kingSafe;
-    }
-
-    private boolean isDropSafe(Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
-        Player player = getPlayer(side);
-        Piece handPiece = null;
-        for (Piece p : player.getHandPieces()) {
-            if (pieceClass.isInstance(p)) {
-                handPiece = p;
-                break;
-            }
-        }
-
-        if (handPiece == null) {
-            return false;
-        }
-
-        Move dropMove = new Move(
-            player,
-            handPiece.getHandPosition(),
-            dropPos,
-            handPiece,
-            null,
-            false,
-            true
-        );
-
+    private boolean isLegalDrop(Piece handPiece, Sides side, Position target, boolean mustResolveCheck) {
+        Move dropMove = new Move(getPlayer(side), handPiece.getHandPosition(), target, handPiece, null, false, true);
         moveManager.applyMove(dropMove);
         boolean kingSafe = !evals.isKingInCheck(side);
+        boolean resolves = kingSafe;
         moveManager.undoMove();
         moveManager.getRedoStack().clear();
-        return kingSafe;
-    }
-
-    public boolean isMoveLegalWithPromotionChoice(Piece piece, Position to, boolean promote) {
-        if (piece == null || piece.getBoardPosition() == null) {
-            return false;
-        }
-        return isMoveSafe(piece, piece.getBoardPosition(), to, promote);
+        if (!kingSafe) return false;
+        if (mustResolveCheck && !resolves) return false;
+        return true;
     }
 
     /**

@@ -9,15 +9,17 @@ import com.beanshogi.util.Sides;
  */
 public class ControllerPanels {
     private final HighlightLayerPanel boardHighlight;
+    private final HighlightLayerPanel boardSelectionHighlight;
     private final HighlightLayerPanel handTopHighlight;
     private final HighlightLayerPanel handBottomHighlight;
     private final PieceLayerPanel boardPanel;
     private final PieceLayerPanel handTopPanel;
     private final PieceLayerPanel handBottomPanel;
 
-    public ControllerPanels(HighlightLayerPanel boardHighlight, HighlightLayerPanel handTopHighlight, HighlightLayerPanel handBottomHighlight,
+    public ControllerPanels(HighlightLayerPanel boardHighlight, HighlightLayerPanel boardSelectionHighlight, HighlightLayerPanel handTopHighlight, HighlightLayerPanel handBottomHighlight,
                                                      PieceLayerPanel boardPanel, PieceLayerPanel handTopPanel, PieceLayerPanel handBottomPanel) {
         this.boardHighlight = boardHighlight;
+        this.boardSelectionHighlight = boardSelectionHighlight;
         this.handTopHighlight = handTopHighlight;
         this.handBottomHighlight = handBottomHighlight;
         this.boardPanel = boardPanel;
@@ -27,6 +29,10 @@ public class ControllerPanels {
 
     public HighlightLayerPanel getBoardHighlight() {
         return boardHighlight;
+    }
+
+    public HighlightLayerPanel getBoardSelectionHighlight() {
+        return boardSelectionHighlight;
     }
 
     public HighlightLayerPanel getHandTopHighlight() {
@@ -59,6 +65,7 @@ public class ControllerPanels {
 
     public void clearAllHighlights() {
         boardHighlight.clearAllHighlights();
+        boardSelectionHighlight.clearAllHighlights();
         handTopHighlight.clearAllHighlights();
         handBottomHighlight.clearAllHighlights();
     }

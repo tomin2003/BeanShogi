@@ -74,9 +74,11 @@ public class MoveManager {
             
             // Handle capture
             if (capturedPiece != null) {
+                boolean wasPromoted = isPiecePromoted(capturedPiece);
+                move.setCapturedWasPromoted(wasPromoted);
                 // In Shogi: change side, demote if promoted, add to hand
                 capturedPiece.changeSide();
-                if (isPiecePromoted(capturedPiece)) {
+                if (wasPromoted) {
                     capturedPiece = capturedPiece.demote();
                 }
                 movePlayer.getHandGrid().addPiece(capturedPiece);
@@ -123,13 +125,14 @@ public class MoveManager {
             
             // If there was a captured piece, restore it to the board
             if (capturedPiece != null) {
-                // Change side back to original, re-promote if needed
-                capturedPiece.changeSide();
-                // Note: You might need to track if it was originally promoted
-                board.setPiece(lastMove.getTo(), capturedPiece);
-                
-                // Remove from capturing player's hand
+                // Remove from capturing player's hand, restore side and promotion state
                 movePlayer.getHandGrid().removePiece(capturedPiece);
+                capturedPiece.changeSide();
+                Piece restoredPiece = capturedPiece;
+                if (lastMove.wasCapturedPromoted()) {
+                    restoredPiece = capturedPiece.promote();
+                }
+                board.setPiece(lastMove.getTo(), restoredPiece);
             }
             
             // Return moved piece to original position
@@ -165,7 +168,7 @@ public class MoveManager {
             if (capturedPiece != null) {
                 board.removePiece(redoMove.getTo());
                 capturedPiece.changeSide();
-                if (isPiecePromoted(capturedPiece)) {
+                if (redoMove.wasCapturedPromoted()) {
                     capturedPiece = capturedPiece.demote();
                 }
                 movePlayer.getHandGrid().addPiece(capturedPiece);

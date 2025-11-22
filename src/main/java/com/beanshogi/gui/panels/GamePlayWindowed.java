@@ -62,10 +62,15 @@ public class GamePlayWindowed extends BackgroundPanel {
         handBottom.setBounds(910, 570, 1260, 910);
         add(handBottom);
 
-        // Create new highlight layer for board (translucent red highlights)
+        // Create new highlight layer for board move targets (translucent red)
         HighlightLayerPanel boardHighlight = new HighlightLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP), new Color(255,0,0,80));
         boardHighlight.setBounds(boardPanel.getBounds());
         add(boardHighlight);
+
+        // Create highlight layer for currently selected board square (translucent dark red)
+        HighlightLayerPanel boardSelectionHighlight = new HighlightLayerPanel(BOARD_CELL_SIZE, new Position(BOARD_GRID_GAP), new Color(128,0,0,80));
+        boardSelectionHighlight.setBounds(boardPanel.getBounds());
+        add(boardSelectionHighlight);
 
         // Create highlight layers for hand panels (translucent blue highlights)
         HighlightLayerPanel handTopHighlight = new HighlightLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP), new Color(0,0,255,80));
@@ -76,7 +81,7 @@ public class GamePlayWindowed extends BackgroundPanel {
         handBottomHighlight.setBounds(handBottom.getBounds());
         add(handBottomHighlight);
 
-        ControllerPanels panels = new ControllerPanels(boardHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom);
+        ControllerPanels panels = new ControllerPanels(boardHighlight, boardSelectionHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom);
         ControllerListeners listeners = new ControllerListeners(statsPanel, urp, alp);
 
         // Create controller

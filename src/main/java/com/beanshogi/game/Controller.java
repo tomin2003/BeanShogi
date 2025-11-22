@@ -386,9 +386,10 @@ public class Controller {
         // Selecting a board piece
         if (piece != null && piece.getSide() == sideOnTurn) {
             selectedBoardPiece = piece;
-            selectedLegalMoves = piece.getLegalMoves();
+            selectedLegalMoves = board.evals.getFilteredLegalMoves(piece);
             clearAllHighlights();
             panels.getBoardHighlight().highlightSquares(selectedLegalMoves);
+            panels.getBoardSelectionHighlight().highlightSquare(piece.getBoardPosition());
             return;
         }
 

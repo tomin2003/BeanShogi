@@ -20,6 +20,7 @@ public class Move {
     private Piece capturedPiece;
     private final boolean isPromotion;
     private final boolean isDrop;
+    private boolean capturedWasPromoted;
 
     public Move(Player player, Position from, Position to, Piece movedPiece, Piece capturedPiece, boolean isPromotion, boolean isDrop) {
         this.player = player;
@@ -53,6 +54,14 @@ public class Move {
 
     public void setCapturedPiece(Piece capturedPiece) { 
         this.capturedPiece = capturedPiece;
+    }
+
+    public void setCapturedWasPromoted(boolean wasPromoted) {
+        this.capturedWasPromoted = wasPromoted;
+    }
+
+    public boolean wasCapturedPromoted() {
+        return capturedWasPromoted;
     }
     
     public boolean isPromotion() { 
