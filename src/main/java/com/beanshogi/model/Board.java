@@ -11,6 +11,7 @@ import com.beanshogi.pieces.normal.Knight;
 import com.beanshogi.pieces.normal.Pawn;
 import com.beanshogi.pieces.normal.slider.Lance;
 import com.beanshogi.util.*;
+import com.beanshogi.util.Exceptions.PlayerNotFoundException;
 
 /**
  * Class representing a game board.
@@ -40,7 +41,7 @@ public class Board {
                 return player;
             }
         }
-        throw new IllegalArgumentException("No player with side: " + side);
+        throw new PlayerNotFoundException("No player with side: " + side);
     }
 
     public Piece getPiece(Position pos) {
@@ -103,7 +104,42 @@ public class Board {
                     .collect(Collectors.toList());
     }
 
-    // TODO: Add uchifuzume, possibly refactor
+    public List<Position> getLegalMovesForPiece(Piece piece) {
+        if (piece == null || piece.getBoardPosition() == null) {
+            return Collections.emptyList();
+        }
+
+        Position from = piece.getBoardPosition();
+        Sides side = piece.getSide();
+        List<Position> legalMoves = new ArrayList<>();
+
+        for (Position to : piece.getLegalMoves()) {
+            boolean mustPromote = piece.canPromote() && piece.shouldPromote(from, to);
+            boolean canPromote = piece.canPromote() && (from.inPromotionZone(side) || to.inPromotionZone(side));
+
+            boolean moveIsLegal;
+            if (mustPromote) {
+                moveIsLegal = isMoveSafe(piece, from, to, true);
+            } else if (canPromote) {
+                moveIsLegal = isMoveSafe(piece, from, to, false) || isMoveSafe(piece, from, to, true);
+            } else {
+                moveIsLegal = isMoveSafe(piece, from, to, false);
+            }
+
+            if (moveIsLegal) {
+                legalMoves.add(to);
+            }
+        }
+
+        return legalMoves;
+    }
+
+    /**
+     * Get legal drop points from hand on this board.
+     * @param pieceClass evaluated generic piece
+     * @param pieceside side of evaluation
+     * @return list of all legal drop points
+     */
     public <T extends Piece> List<Position> getPieceDropPoints(Class<T> pieceClass, Sides pieceside) {
         Set<Position> dropPoints = new HashSet<>();
 
@@ -131,6 +167,12 @@ public class Board {
                     if ((pieceside == Sides.SENTE && y == 0) || (pieceside == Sides.GOTE && y == 8)) {
                         continue;
                     }
+                    if (evals.violatesUchifuzume(pieceside, pos)) {
+                        continue;
+                    }
+                    if (!isDropSafe(pieceClass, pieceside, pos)) {
+                        continue;
+                    }
                 }   
                 if (pieceClass == Lance.class) {
                     if ((pieceside == Sides.SENTE && y == 0) || (pieceside == Sides.GOTE && y == 8)) {
@@ -142,10 +184,70 @@ public class Board {
                         continue;
                     }
                 }
+                if (pieceClass != Pawn.class && !isDropSafe(pieceClass, pieceside, pos)) {
+                    continue;
+                }
                 dropPoints.add(pos);
             }
         }
         return new ArrayList<>(dropPoints);
+    }
+
+    private boolean isMoveSafe(Piece piece, Position from, Position to, boolean promote) {
+        Player player = getPlayer(piece.getSide());
+        Move trialMove = new Move(
+            player,
+            from,
+            to,
+            piece,
+            null,
+            promote,
+            false
+        );
+
+        moveManager.applyMove(trialMove);
+        boolean kingSafe = !evals.isKingInCheck(piece.getSide());
+        moveManager.undoMove();
+        moveManager.getRedoStack().clear();
+        return kingSafe;
+    }
+
+    private boolean isDropSafe(Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
+        Player player = getPlayer(side);
+        Piece handPiece = null;
+        for (Piece p : player.getHandPieces()) {
+            if (pieceClass.isInstance(p)) {
+                handPiece = p;
+                break;
+            }
+        }
+
+        if (handPiece == null) {
+            return false;
+        }
+
+        Move dropMove = new Move(
+            player,
+            handPiece.getHandPosition(),
+            dropPos,
+            handPiece,
+            null,
+            false,
+            true
+        );
+
+        moveManager.applyMove(dropMove);
+        boolean kingSafe = !evals.isKingInCheck(side);
+        moveManager.undoMove();
+        moveManager.getRedoStack().clear();
+        return kingSafe;
+    }
+
+    public boolean isMoveLegalWithPromotionChoice(Piece piece, Position to, boolean promote) {
+        if (piece == null || piece.getBoardPosition() == null) {
+            return false;
+        }
+        return isMoveSafe(piece, piece.getBoardPosition(), to, promote);
     }
 
     /**

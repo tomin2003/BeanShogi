@@ -5,6 +5,7 @@ import java.util.*;
 import com.beanshogi.game.Player;
 import com.beanshogi.model.*;
 import com.beanshogi.pieces.normal.King;
+import com.beanshogi.pieces.normal.Pawn;
 import com.beanshogi.util.Position;
 import com.beanshogi.util.Sides;
 
@@ -165,5 +166,43 @@ public class Evals {
             }
         }
         return true; // no move prevents check → checkmate
+    }
+
+    /**
+     * Function to evaluate if a drop is uchifuzume - a pawn drop that would deliver a checkmate. If so, it's illegal.
+     * @param dropSide The side of evaluation
+     * @param dropPos The target position of drop
+     * @return true if illegal drop, false otherwise.
+     */
+    public boolean violatesUchifuzume(Sides dropSide, Position dropPos) {
+        Board simulated = board.copy();
+        Player dropPlayer = simulated.getPlayer(dropSide);
+
+        Piece dropPiece = null;
+        for (Piece handPiece : dropPlayer.getHandPieces()) {
+            if (handPiece instanceof Pawn) {
+                dropPiece = handPiece;
+                break;
+            }
+        }
+
+        if (dropPiece == null) {
+            dropPiece = new Pawn(dropSide, null, null, simulated);
+            dropPlayer.getHandGrid().addPiece(dropPiece);
+        }
+
+        Move dropMove = new Move(
+            dropPlayer,
+            dropPiece.getHandPosition(),
+            dropPos,
+            dropPiece,
+            null,
+            false,
+            true
+        );
+
+        simulated.moveManager.applyMove(dropMove);
+        Sides opponent = dropSide.getOpposite();
+        return simulated.evals.isKingInCheck(opponent) && simulated.evals.isCheckMate(opponent);
     }
 }

@@ -32,11 +32,13 @@ D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\gui\util\FilledRectanglePanel.
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\gui\util\Popups.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\gui\util\SoundPlayer.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\gui\util\SwingUtils.java
+D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\io\GameSaveLoad.java
+D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\io\LeaderboardSaveLoad.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\io\PieceTypeAdapter.java
-D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\io\SaveLoad.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\io\Serialize.java
+D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\leaderboard\Entry.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\leaderboard\Leaderboard.java
-D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\leaderboard\LeaderboardIO.java
+D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\leaderboard\ResultType.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\Main.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\model\Board.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\model\CheckEvent.java
@@ -60,6 +62,7 @@ D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\pieces\promoted\slider\Promote
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\pieces\promoted\slider\PromotedRook.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\pieces\PromotedPiece.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\pieces\UnPromotedPiece.java
+D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\util\AIDifficulty.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\util\Exceptions.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\util\PlayerType.java
 D:\cs\PROG3\beanshogi\src\main\java\com\beanshogi\util\Position.java

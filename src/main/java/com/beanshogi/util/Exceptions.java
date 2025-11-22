@@ -6,5 +6,10 @@ public class Exceptions {
             super(message);
         }
     }
-    
+
+    public static class PlayerNotFoundException extends RuntimeException {
+        public PlayerNotFoundException(String message) {
+            super(message);
+        }
+    }
 }
