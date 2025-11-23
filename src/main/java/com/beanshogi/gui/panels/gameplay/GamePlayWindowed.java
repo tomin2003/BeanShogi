@@ -42,8 +42,8 @@ public class GamePlayWindowed extends BackgroundPanel {
         // calculated for the 1280x960 standard 4:3 resolution gameplay BG using GIMP.
 
         // Create a new game statistics panel - current turn, number of moves
-        StatsPanel statsPanel = new StatsPanel(1025, 425);
-        add(statsPanel);
+        StatsPanel sp = new StatsPanel(1025, 425);
+        add(sp);
 
         // Undo redo move button panel
         UndoRedoPanel urp = new UndoRedoPanel(new Position(985, 505));
@@ -61,11 +61,11 @@ public class GamePlayWindowed extends BackgroundPanel {
         add(boardPanel);
 
         // Hand pieces panels, top and bottom on the right of board
-        PieceLayerPanel handTop = new PieceLayerPanel(HAND_CELL_SIZE, new Position(0,10));
+        PieceLayerPanel handTop = new PieceLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP));
         handTop.setBounds(910, 50, 1260, 440);
         add(handTop);
 
-        PieceLayerPanel handBottom = new PieceLayerPanel(HAND_CELL_SIZE, new Position(0,10));
+        PieceLayerPanel handBottom = new PieceLayerPanel(HAND_CELL_SIZE, new Position(0,HAND_VERT_GAP));
         handBottom.setBounds(910, 570, 1260, 910);
         add(handBottom);
 
@@ -95,7 +95,7 @@ public class GamePlayWindowed extends BackgroundPanel {
         UIInteractionListener uiInteractionListener = new GameOverUIListener(this, window::returnToMainMenu);
         SoundEventListener soundEventListener = new DefaultSoundEventListener();
         
-        ControllerListeners listeners = new ControllerListeners(statsPanel, urp, alp, gameEventListener, uiInteractionListener, soundEventListener);
+        ControllerListeners listeners = new ControllerListeners(sp, urp, alp, gameEventListener, uiInteractionListener, soundEventListener);
 
         // Create controller
         Controller controller = new Controller(game, this, listeners, panels);

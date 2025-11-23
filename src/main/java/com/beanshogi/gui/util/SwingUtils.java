@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
@@ -214,7 +215,7 @@ public class SwingUtils {
         menuBar.add(buildGameMenu(window, game, resignAction));
 
         int menuHeight = menuBar.getPreferredSize().height;
-        menuBar.setBounds(0, 0, 1280, menuHeight);
+        menuBar.setBounds(0, 0, window.getWidth(), menuHeight);
         return menuBar;
     }
 
@@ -296,12 +297,15 @@ public class SwingUtils {
      * @return the loaded image
      */
     public static BufferedImage loadImage(String resourcePath) {
-        try {
-            // Load from resources
-            return ImageIO.read(SwingUtils.class.getResourceAsStream(resourcePath));
-        } catch (IOException | IllegalArgumentException e) {
-            e.printStackTrace();
+        InputStream is = SwingUtils.class.getResourceAsStream(resourcePath);
+        if (is == null) {
             System.err.println("Failed to load image: " + resourcePath);
+            return null;
+        }
+        try {
+            return ImageIO.read(is);
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
     }

@@ -16,11 +16,7 @@ public class SoundPlayer {
     
     private static float sfxVolume = 0.5f; // Default SFX volume (0.0 to 1.0)
     private static float bgmVolume = 0.5f; // Default BGM volume (0.0 to 1.0)
-    private static byte[] pieceAudioData;
-    private static AudioFormat pieceAudioFormat;
     
-    private static byte[] musicAudioData;
-    private static AudioFormat musicAudioFormat;
     private static Clip musicClip;
     
     /**
@@ -80,12 +76,10 @@ public class SoundPlayer {
      * Plays the piece movement sound effect.
      * Creates a new clip each time to allow overlapping sounds.
      */
-    public static void playPieceSfx() {
+     public static void playPieceSfx() {
         try {
-            AudioInputStream audioStream = createPieceStream();
-            if (audioStream == null) {
-                return;
-            }
+            AudioInputStream audioStream = createAudioStream(PIECE_SOUND_FILE, true);
+            if (audioStream == null) return;
 
             Clip clip = AudioSystem.getClip();
             clip.open(audioStream);
@@ -101,49 +95,6 @@ public class SoundPlayer {
             clip.start();
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    private static AudioInputStream createPieceStream() throws IOException, UnsupportedAudioFileException {
-        loadPieceAudio();
-        if (pieceAudioData == null || pieceAudioFormat == null) {
-            return null;
-        }
-
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(pieceAudioData);
-        long frameLength = pieceAudioData.length / pieceAudioFormat.getFrameSize();
-        return new AudioInputStream(byteStream, pieceAudioFormat, frameLength);
-    }
-
-    private static void loadPieceAudio() throws IOException, UnsupportedAudioFileException {
-        if (pieceAudioData != null) {
-            return;
-        }
-
-        synchronized (SoundPlayer.class) {
-            if (pieceAudioData != null) {
-                return;
-            }
-
-            try (InputStream resourceStream = SoundPlayer.class.getResourceAsStream(PIECE_SOUND_FILE)) {
-                if (resourceStream == null) {
-                    System.err.println("Sound file not found: " + PIECE_SOUND_FILE);
-                    return;
-                }
-
-                try (AudioInputStream audioIn = AudioSystem.getAudioInputStream(resourceStream);
-                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-                    pieceAudioFormat = audioIn.getFormat();
-
-                    byte[] data = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = audioIn.read(data)) != -1) {
-                        buffer.write(data, 0, bytesRead);
-                    }
-
-                    pieceAudioData = buffer.toByteArray();
-                }
-            }
         }
     }
     
@@ -180,12 +131,10 @@ public class SoundPlayer {
      */
     public static void playBackgroundMusic() {
         try {
-            stopBackgroundMusic(); // Stop any currently playing music
-            
-            AudioInputStream audioStream = createMusicStream();
-            if (audioStream == null) {
-                return;
-            }
+            stopBackgroundMusic();
+
+            AudioInputStream audioStream = createAudioStream(BACKGROUND_MUSIC_FILE, false);
+            if (audioStream == null) return;
 
             musicClip = AudioSystem.getClip();
             musicClip.open(audioStream);
@@ -220,45 +169,29 @@ public class SoundPlayer {
         }
     }
 
-    private static AudioInputStream createMusicStream() throws IOException, UnsupportedAudioFileException {
-        loadMusicAudio();
-        if (musicAudioData == null || musicAudioFormat == null) {
-            return null;
-        }
+    private static AudioInputStream createAudioStream(String resourcePath, boolean isSfx) throws IOException, UnsupportedAudioFileException {
+        byte[] audioData = loadAudioBytes(resourcePath);
+        if (audioData == null) return null;
 
-        ByteArrayInputStream byteStream = new ByteArrayInputStream(musicAudioData);
-        long frameLength = musicAudioData.length / musicAudioFormat.getFrameSize();
-        return new AudioInputStream(byteStream, musicAudioFormat, frameLength);
+        ByteArrayInputStream byteStream = new ByteArrayInputStream(audioData);
+        AudioInputStream audioIn = AudioSystem.getAudioInputStream(byteStream);
+        return audioIn;
     }
 
-    private static void loadMusicAudio() throws IOException, UnsupportedAudioFileException {
-        if (musicAudioData != null) {
-            return;
-        }
-
-        synchronized (SoundPlayer.class) {
-            if (musicAudioData != null) {
-                return;
+    private static byte[] loadAudioBytes(String resourcePath) throws IOException, UnsupportedAudioFileException {
+        try (InputStream resourceStream = SoundPlayer.class.getResourceAsStream(resourcePath)) {
+            if (resourceStream == null) {
+                System.err.println("Audio file not found: " + resourcePath);
+                return null;
             }
 
-            try (InputStream resourceStream = SoundPlayer.class.getResourceAsStream(BACKGROUND_MUSIC_FILE)) {
-                if (resourceStream == null) {
-                    System.err.println("Music file not found: " + BACKGROUND_MUSIC_FILE);
-                    return;
+            try (ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
+                byte[] data = new byte[4096];
+                int bytesRead;
+                while ((bytesRead = resourceStream.read(data)) != -1) {
+                    buffer.write(data, 0, bytesRead);
                 }
-
-                try (AudioInputStream audioIn = AudioSystem.getAudioInputStream(resourceStream);
-                     ByteArrayOutputStream buffer = new ByteArrayOutputStream()) {
-                    musicAudioFormat = audioIn.getFormat();
-
-                    byte[] data = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = audioIn.read(data)) != -1) {
-                        buffer.write(data, 0, bytesRead);
-                    }
-
-                    musicAudioData = buffer.toByteArray();
-                }
+                return buffer.toByteArray();
             }
         }
     }

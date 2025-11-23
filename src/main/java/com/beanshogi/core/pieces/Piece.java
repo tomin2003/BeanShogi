@@ -144,7 +144,7 @@ public abstract class Piece {
      * Calculate all pseudo-legal moves for normal, non sliding pieces.
      * @param offsets Transformation matrix for defining move offset radius.
      * @param isKingInclude Flag for including king - used for defining attack lines
-     * @return List of pseudo-legal moves
+     * @return List of pseudo-legal movesSS
      */
     protected List<Position> getLegalMovesNormal(int[][] offsets, boolean isKingInclude) {
         int x = boardPosition.x;
