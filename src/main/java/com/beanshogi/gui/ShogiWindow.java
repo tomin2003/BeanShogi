@@ -133,6 +133,8 @@ public class ShogiWindow extends JFrame {
             mainPanel.revalidate();
             // Use buffer strategy for initial paint
             renderWithBufferStrategy();
+            // Force repaint to fix disappearing components on some platforms
+            mainPanel.repaint();
         } else {
             gd.setFullScreenWindow(null);
             setIgnoreRepaint(false);
@@ -154,22 +156,32 @@ public class ShogiWindow extends JFrame {
         if (!fullScreen) return;
         BufferStrategy bs = getBufferStrategy();
         if (bs == null) return;
-        do {
+        try {
             do {
-                Graphics g = null;
+                do {
+                    Graphics g = null;
+                    try {
+                        g = bs.getDrawGraphics();
+                        if (g == null) return; // Defensive: buffer not ready
+                        // Clear background
+                        g.setColor(Color.BLACK);
+                        g.fillRect(0, 0, getWidth(), getHeight());
+                        // Paint the main panel
+                        mainPanel.paintAll(g);
+                    } finally {
+                        if (g != null) g.dispose();
+                    }
+                } while (bs.contentsRestored());
                 try {
-                    g = bs.getDrawGraphics();
-                    // Clear background
-                    g.setColor(Color.BLACK);
-                    g.fillRect(0, 0, getWidth(), getHeight());
-                    // Paint the main panel
-                    mainPanel.paintAll(g);
-                } finally {
-                    if (g != null) g.dispose();
+                    bs.show();
+                } catch (NullPointerException e) {
+                    // Defensive: buffer may be null on some platforms
+                    return;
                 }
-            } while (bs.contentsRestored());
-            bs.show();
-        } while (bs.contentsLost());
+            } while (bs.contentsLost());
+        } catch (Exception e) {
+            System.out.println(e.getStackTrace());
+        }
     }
 
     public boolean isFullScreenMode() {
@@ -190,6 +202,9 @@ public class ShogiWindow extends JFrame {
             leaderboardMenu.refresh();
         }
         cardLayout.show(mainPanel, cardName);
+        // Force refresh to fix rendering issues after card switch
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
     @Override
