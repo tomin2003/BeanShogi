@@ -6,8 +6,8 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import com.beanshogi.util.PlayerType;
-import com.beanshogi.util.Sides;
+import com.beanshogi.core.game.PlayerType;
+import com.beanshogi.core.game.Sides;
 
 /**
  * Represents a single leaderboard entry.

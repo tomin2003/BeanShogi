@@ -1,19 +1,19 @@
-    package com.beanshogi.gui.panels.menucards;
+package com.beanshogi.gui.panels.menucards;
 
-    import java.awt.GridBagLayout;
-    import java.awt.GridBagConstraints;
-    import java.awt.Insets;
-    import java.util.List;
+import java.awt.GridBagLayout;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import java.util.List;
 
-    import javax.swing.*;
+import javax.swing.*;
 
-    import com.beanshogi.game.Game;
-    import com.beanshogi.game.Player;
-    import com.beanshogi.gui.ShogiWindow;
-    import com.beanshogi.gui.util.*;
-    import com.beanshogi.util.AIDifficulty;
-    import com.beanshogi.util.PlayerType;
-    import com.beanshogi.util.Sides;
+import com.beanshogi.core.ai.AIDifficulty;
+import com.beanshogi.core.game.Game;
+import com.beanshogi.core.game.Player;
+import com.beanshogi.core.game.PlayerType;
+import com.beanshogi.core.game.Sides;
+import com.beanshogi.gui.ShogiWindow;
+import com.beanshogi.gui.util.SwingUtils;
 
 public class NewGamePanel extends JPanel {
 

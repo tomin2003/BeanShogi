@@ -10,4 +10,4 @@ public class Main {
         // Launch GUI on Event Dispatch Thread (EDT) to avoid threading issues
         javax.swing.SwingUtilities.invokeLater(ShogiWindow::new);
     }
-}
+} 

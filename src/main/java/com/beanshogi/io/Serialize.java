@@ -1,8 +1,8 @@
 package com.beanshogi.io;
 
+import com.beanshogi.core.pieces.Piece;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.beanshogi.model.Piece;
 
 import java.io.*;
 

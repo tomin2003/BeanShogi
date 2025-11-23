@@ -1,11 +1,12 @@
 package com.beanshogi.io;
 
 import java.io.File;
-import com.beanshogi.game.Game;
-import com.beanshogi.game.Player;
-import com.beanshogi.model.Board;
-import com.beanshogi.model.Piece;
-import com.beanshogi.util.Sides;
+
+import com.beanshogi.core.board.Board;
+import com.beanshogi.core.game.Game;
+import com.beanshogi.core.game.Player;
+import com.beanshogi.core.game.Sides;
+import com.beanshogi.core.pieces.Piece;
 
 public class GameSaveLoad extends Serialize {
 

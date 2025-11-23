@@ -7,7 +7,8 @@ import java.util.LinkedHashMap;
 
 import javax.swing.JOptionPane;
 
-import com.beanshogi.util.Sides;
+import com.beanshogi.core.game.Sides;
+
 
 /**
  * Utility class for displaying dialog popups to the user.

@@ -10,14 +10,14 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Comparator;
 
-import com.beanshogi.game.Game;
-import com.beanshogi.game.Player;
+import com.beanshogi.core.game.Game;
+import com.beanshogi.core.game.Player;
+import com.beanshogi.core.board.Board;
+import com.beanshogi.core.game.PlayerType;
+import com.beanshogi.core.game.Sides;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.SwingUtils;
 import com.beanshogi.io.GameSaveLoad;
-import com.beanshogi.model.Board;
-import com.beanshogi.util.PlayerType;
-import com.beanshogi.util.Sides;
 
 public class LoadGamePanel extends JPanel {
 

@@ -10,9 +10,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
-import com.beanshogi.gui.listeners.GameStatsListener;
+import com.beanshogi.core.game.Sides;
+import com.beanshogi.gui.listeners.event.GameStatsListener;
 import com.beanshogi.gui.util.FilledRectanglePanel;
-import com.beanshogi.util.Sides;
 
 public class StatsPanel extends JPanel implements GameStatsListener {
 

@@ -13,10 +13,10 @@ import com.beanshogi.gui.util.*;
 public class MainMenuPanel extends BackgroundPanel {
     
     public MainMenuPanel(ShogiWindow window) {
-        super("/sprites/shogi_bg.png");
+        super("/shogi_bg.png");
         
         add(Box.createVerticalStrut(40));
-        CustomLabel logoLabel = new CustomLabel("/sprites/logo.png");
+        CustomLabel logoLabel = new CustomLabel("/logo.png");
         logoLabel.setAlignmentX(CENTER_ALIGNMENT);
         add(logoLabel);
         
@@ -29,7 +29,10 @@ public class MainMenuPanel extends BackgroundPanel {
         menuButtons.add(SwingUtils.makeButton("Load Game", e -> window.openLoadMenu(() -> window.showCard("MAIN"))));
         menuButtons.add(SwingUtils.makeButton("Leaderboard", e -> window.showCard("LEADERBOARD")));
         menuButtons.add(SwingUtils.makeButton("Settings", e -> window.openSettings(() -> window.showCard("MAIN"))));
-        menuButtons.add(SwingUtils.makeButton("Exit", e -> System.exit(0)));
+        menuButtons.add(SwingUtils.makeButton("Exit", e -> {
+            SoundPlayer.stopBackgroundMusic();
+            System.exit(0);
+        }));
 
         // Top glue: pushes buttons down proportionally
         add(Box.createVerticalGlue());

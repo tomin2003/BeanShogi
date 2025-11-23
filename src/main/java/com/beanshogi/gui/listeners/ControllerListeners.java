@@ -2,15 +2,21 @@ package com.beanshogi.gui.listeners;
 
 import java.util.List;
 
-import com.beanshogi.engine.MoveManager;
-import com.beanshogi.game.Controller;
+import com.beanshogi.core.board.Move;
+import com.beanshogi.core.board.MoveManager;
+import com.beanshogi.core.game.CheckEvent;
+import com.beanshogi.core.game.Controller;
+import com.beanshogi.core.game.Sides;
+import com.beanshogi.core.pieces.Piece;
+import com.beanshogi.core.util.Position;
+import com.beanshogi.gui.listeners.event.GameEventListener;
+import com.beanshogi.gui.listeners.event.GameStatsListener;
+import com.beanshogi.gui.listeners.event.KingCheckListener;
+import com.beanshogi.gui.listeners.event.SoundEventListener;
+import com.beanshogi.gui.listeners.event.UndoRedoListener;
+import com.beanshogi.gui.listeners.ui.UIInteractionListener;
 import com.beanshogi.leaderboard.Entry;
 import com.beanshogi.leaderboard.ResultType;
-import com.beanshogi.model.CheckEvent;
-import com.beanshogi.model.Move;
-import com.beanshogi.model.Piece;
-import com.beanshogi.util.Position;
-import com.beanshogi.util.Sides;
 
 /**
  * Aggregator class for handling listeners used in the controller.

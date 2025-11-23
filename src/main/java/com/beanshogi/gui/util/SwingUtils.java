@@ -23,11 +23,11 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeListener;
 
-import com.beanshogi.game.Game;
-import com.beanshogi.game.Player;
+import com.beanshogi.core.game.Game;
+import com.beanshogi.core.game.Player;
+import com.beanshogi.core.game.Sides;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.io.GameSaveLoad;
-import com.beanshogi.util.Sides;
 
 /**
  * Helper class, defines useful helpers for Swing.
@@ -230,7 +230,10 @@ public class SwingUtils {
         fileMenu.add(menuItem("Save game", e -> Popups.showGameSaved(window, GameSaveLoad.save(game))));
         fileMenu.add(menuItem("Load game", e -> window.openLoadMenu(window::returnToGame)));
         fileMenu.addSeparator();
-        fileMenu.add(menuItem("Exit", e -> System.exit(0)));
+        fileMenu.add(menuItem("Exit", e -> {
+            SoundPlayer.stopBackgroundMusic();
+            System.exit(0);
+        }));
         return fileMenu;
     }
 

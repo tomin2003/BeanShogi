@@ -57,23 +57,19 @@ public class SettingsPanel extends JPanel {
         JSlider bgVolume = new JSlider(0, 100);
         bgVolume.setPreferredSize(new Dimension(200, 20));
         bgVolume.setMaximumSize(new Dimension(200, 20));
-        bgVolume.setValue((int)(SoundPlayer.getVolume() * 100)); // Set initial value
+        bgVolume.setValue((int)(SoundPlayer.getBgmVolume() * 100)); // Set initial value
         bgVolume.addChangeListener(e -> {
             float volume = bgVolume.getValue() / 100.0f;
-            SoundPlayer.setVolume(volume);
-            // Play sound when slider is released
-            if (!bgVolume.getValueIsAdjusting()) {
-                SoundPlayer.playPieceSfx();
-            }
+            SoundPlayer.setBgmVolume(volume);
         });
 
         JSlider seVolume = new JSlider(0, 100);
         seVolume.setPreferredSize(new Dimension(200, 20));
         seVolume.setMaximumSize(new Dimension(200, 20));
-        seVolume.setValue((int)(SoundPlayer.getVolume() * 100)); // Set initial value
+        seVolume.setValue((int)(SoundPlayer.getSfxVolume() * 100)); // Set initial value
         seVolume.addChangeListener(e -> {
             float volume = seVolume.getValue() / 100.0f;
-            SoundPlayer.setVolume(volume);
+            SoundPlayer.setSfxVolume(volume);
             // Play sound when slider is released
             if (!seVolume.getValueIsAdjusting()) {
                 SoundPlayer.playPieceSfx();

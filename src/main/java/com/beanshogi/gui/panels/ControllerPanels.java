@@ -1,8 +1,8 @@
 package com.beanshogi.gui.panels;
 
-import com.beanshogi.gui.panels.overlays.HighlightLayerPanel;
-import com.beanshogi.gui.panels.overlays.piece.PieceLayerPanel;
-import com.beanshogi.util.Sides;
+import com.beanshogi.core.game.Sides;
+import com.beanshogi.gui.render.HighlightLayerPanel;
+import com.beanshogi.gui.render.piece.PieceLayerPanel;
 
 /**
  * Aggregator class for handling panels used in the controller.

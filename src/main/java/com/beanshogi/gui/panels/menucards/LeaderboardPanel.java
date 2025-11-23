@@ -17,12 +17,12 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
+import com.beanshogi.core.game.PlayerType;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.*;
 import com.beanshogi.io.LeaderboardSaveLoad;
 import com.beanshogi.leaderboard.Entry;
 import com.beanshogi.leaderboard.Leaderboard;
-import com.beanshogi.util.PlayerType;
 
 public class LeaderboardPanel extends JPanel {
 

@@ -2,13 +2,16 @@ package com.beanshogi.gui;
 
 import javax.swing.*;
 
-import com.beanshogi.game.Game;
-import com.beanshogi.gui.panels.*;
+import com.beanshogi.core.game.Game;
+import com.beanshogi.gui.listeners.event.WindowCloseListener;
+import com.beanshogi.gui.panels.gameplay.GamePlayFullscreen;
+import com.beanshogi.gui.panels.gameplay.GamePlayWindowed;
 import com.beanshogi.gui.panels.menucards.LeaderboardPanel;
 import com.beanshogi.gui.panels.menucards.LoadGamePanel;
 import com.beanshogi.gui.panels.menucards.MainMenuPanel;
 import com.beanshogi.gui.panels.menucards.NewGamePanel;
 import com.beanshogi.gui.panels.menucards.SettingsPanel;
+import com.beanshogi.gui.util.SoundPlayer;
 import com.beanshogi.gui.util.SwingUtils;
 
 import java.awt.*;
@@ -27,9 +30,12 @@ public class ShogiWindow extends JFrame {
 
     public ShogiWindow() {
         setTitle("BeanShogi");
-        setIconImage(SwingUtils.loadImage("/sprites/icon.png"));
+        setIconImage(SwingUtils.loadImage("/icon.png"));
         setResizable(false);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+        // Add window listener to stop music on exit
+        addWindowListener(new WindowCloseListener());
         
         cardLayout = new CardLayout();
         mainPanel = new JPanel(cardLayout);
@@ -101,6 +107,7 @@ public class ShogiWindow extends JFrame {
 
     public void returnToMainMenu() {
         currentGameCard = null;
+        SoundPlayer.stopBackgroundMusic();
         showCard("MAIN");
     }
 

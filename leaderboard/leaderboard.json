@@ -1251,6 +1251,16 @@
         "finishedAt": "2025-11-23 11:03",
         "winnerType": "HUMAN",
         "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 0,
+        "resultType": "RESIGNATION",
+        "finishedAt": "2025-11-23 11:51",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
       }
     ]
   }

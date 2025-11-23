@@ -1,7 +1,7 @@
 package com.beanshogi.io;
 
+import com.beanshogi.core.pieces.Piece;
 import com.google.gson.*;
-import com.beanshogi.model.Piece;
 
 import java.lang.reflect.Type;
 
