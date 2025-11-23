@@ -15,6 +15,7 @@ import com.beanshogi.gui.util.SoundPlayer;
 import com.beanshogi.gui.util.SwingUtils;
 
 import java.awt.*;
+import java.awt.image.BufferStrategy;
 
 public class ShogiWindow extends JFrame {
     private JPanel mainPanel;
@@ -121,28 +122,54 @@ public class ShogiWindow extends JFrame {
     private void setWindowMode(boolean isFullscreen) {
         dispose();
         setUndecorated(isFullscreen);
+
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
         if (isFullscreen) {
             gd.setFullScreenWindow(this);
-            fullScreen = isFullscreen;
-            SwingUtilities.invokeLater(() -> {
-                setVisible(true);
-                validate();
-                mainPanel.revalidate();
-                mainPanel.repaint();
-            });
+            setIgnoreRepaint(true);
+            setVisible(true);
+            createBufferStrategy(2);
+            mainPanel.revalidate();
+            // Use buffer strategy for initial paint
+            renderWithBufferStrategy();
         } else {
             gd.setFullScreenWindow(null);
-            fullScreen = isFullscreen;
-            SwingUtilities.invokeLater(() -> {
-                mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-                setContentPane(mainPanel);
-                pack();
-                setLocationRelativeTo(null);
-                setVisible(true);
-                mainPanel.repaint();
-            });
+            setIgnoreRepaint(false);
+            mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+            setContentPane(mainPanel);
+            pack();
+            setLocationRelativeTo(null);
+            setVisible(true);
+            // Use normal repaint in windowed mode
+            super.repaint();
         }
+        fullScreen = isFullscreen;
+    }
+
+    /**
+     * Render the main panel using BufferStrategy (for fullscreen mode).
+     */
+    public void renderWithBufferStrategy() {
+        if (!fullScreen) return;
+        BufferStrategy bs = getBufferStrategy();
+        if (bs == null) return;
+        do {
+            do {
+                Graphics g = null;
+                try {
+                    g = bs.getDrawGraphics();
+                    // Clear background
+                    g.setColor(Color.BLACK);
+                    g.fillRect(0, 0, getWidth(), getHeight());
+                    // Paint the main panel
+                    mainPanel.paintAll(g);
+                } finally {
+                    if (g != null) g.dispose();
+                }
+            } while (bs.contentsRestored());
+            bs.show();
+        } while (bs.contentsLost());
     }
 
     public boolean isFullScreenMode() {
@@ -150,12 +177,27 @@ public class ShogiWindow extends JFrame {
     }
 
     public void showCard(String cardName) {
+        // Clear menu bar when not in game
+        if (!cardName.equals("GAME_FULLSCREEN") && !cardName.equals("GAME_WINDOWED")) {
+            setJMenuBar(null);
+            if (!fullScreen) {
+                // Let pack() resize based on content
+                pack();
+                setLocationRelativeTo(null);
+            }
+        }
         if ("LEADERBOARD".equals(cardName) && leaderboardMenu != null) {
             leaderboardMenu.refresh();
         }
         cardLayout.show(mainPanel, cardName);
-        // Force refresh to fix rendering issues after card switch
-        mainPanel.revalidate();
-        mainPanel.repaint();
+    }
+
+    @Override
+    public void repaint() {
+        if (fullScreen) {
+            renderWithBufferStrategy();
+        } else {
+            super.repaint();
+        }
     }
 }
