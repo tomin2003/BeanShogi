@@ -3,10 +3,6 @@ package com.beanshogi.game;
 import com.beanshogi.gui.listeners.*;
 import com.beanshogi.gui.panels.*;
 import com.beanshogi.gui.panels.overlays.HighlightLayerPanel;
-import com.beanshogi.gui.panels.overlays.piece.*;
-import com.beanshogi.gui.util.Popups;
-import com.beanshogi.gui.util.SoundPlayer;
-import com.beanshogi.io.LeaderboardSaveLoad;
 import com.beanshogi.leaderboard.Entry;
 import com.beanshogi.leaderboard.ResultType;
 import com.beanshogi.model.*;
@@ -14,8 +10,9 @@ import com.beanshogi.util.*;
 import com.beanshogi.engine.ShogiAI;
 
 import java.awt.Component;
-import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.swing.SwingUtilities;
 
 public class Controller {
@@ -23,30 +20,36 @@ public class Controller {
     private final Board board;
     private final ShogiAI ai;
     private final ControllerPanels panels;
-    private final PieceSprites sprites = new PieceSprites();
-    private final Component parentComponent;
+    private final BoardRenderer renderer;
+    private final SelectionState selection;
 
     private final ControllerListeners listeners;
-    private Runnable onGameEndCallback;
 
     private Sides sideOnTurn;
     private boolean gameOver = false;
+    private final ExecutorService aiExecutor = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "beanshogi-ai");
+        t.setDaemon(true);
+        return t;
+    });
+    private volatile boolean aiTurnInProgress = false;
 
-    // Separate selection state
-    private Piece selectedBoardPiece = null;
-    private Piece selectedHandPiece = null;
-    private Sides selectedHandSide = null;
-    private List<Position> selectedLegalMoves = null;
-
-    public Controller(Game game, Component parent, ControllerListeners listeners, ControllerPanels panels, Runnable onGameEndCallback) {
+    /**
+     * Constructs a new game controller.
+     * @param game the game instance to control
+     * @param parent the parent component for dialogs
+     * @param listeners the controller listeners for events
+     * @param panels the UI panels to manage
+     */
+    public Controller(Game game, Component parent, ControllerListeners listeners, ControllerPanels panels) {
 
         this.game = game;
         this.board = game.getBoard();
         this.ai = new ShogiAI(board);
-        this.parentComponent = parent;
         this.panels = panels;
+        this.renderer = new BoardRenderer(board, panels);
+        this.selection = new SelectionState();
         this.listeners = listeners;
-        this.onGameEndCallback = onGameEndCallback;
 
         Sides savedTurn = game.getNextTurn();
         this.sideOnTurn = savedTurn != null ? savedTurn : Sides.SENTE;
@@ -56,7 +59,7 @@ public class Controller {
 
         // Board click listener
         panels.getBoardHighlight().addMouseListener(new BoardMouseListener(
-            (pos) -> handleBoardClick(pos), 
+            this::handleBoardClick, 
             panels.getBoardPanel().getCellSize(), 
             panels.getBoardPanel().getGap()
         ));
@@ -78,15 +81,28 @@ public class Controller {
     }
 
     /**
+     * Cleanly shuts down the AI executor service.
+     * Should be called when the controller is no longer needed.
+     */
+    public void shutdown() {
+        aiExecutor.shutdownNow();
+    }
+
+    /**
      * Start the game (for AI vs AI auto-play)
      */
     public void startGame() {
-        renderBoard();
+        renderer.renderAll();
         notifyListeners();
+        listeners.notifyGameStart();
         tryAIMove();
     }
 
-    // ==================== TURN MANAGEMENT ====================
+    /* Turn management */
+
+    /**
+     * Advances the turn to the opposite side.
+     */
     private void advanceTurn() {
         if (gameOver) {
             return;
@@ -105,44 +121,13 @@ public class Controller {
         listeners.notifyKingCheck(board.evals.kingChecks());
     }
 
-    // ==================== BOARD RENDERING ====================
-    public void renderBoard() {
-        PieceLayerPanel boardPanel = panels.getBoardPanel();
-        boardPanel.removeAll();
-        for (Piece piece : board.getAllPieces()) {
-            BufferedImage image = sprites.get(piece.getClass());
-            PieceComponent comp = new PieceComponent(image, piece.getSide(), boardPanel.getCellSize());
-            boardPanel.addPiece(comp, piece.getBoardPosition());
-        }
-        boardPanel.repaint();
-        renderHands();
-    }
-
-    private void renderHands() {
-        PieceLayerPanel topPanel = panels.getHandTopPanel();
-        topPanel.removeAll();
-        renderHandToPanel(topPanel, board.getPlayer(Sides.GOTE).getHandGrid());
-        topPanel.repaint();
-
-        PieceLayerPanel bottomPanel = panels.getHandBottomPanel();
-        bottomPanel.removeAll();
-        renderHandToPanel(bottomPanel, board.getPlayer(Sides.SENTE).getHandGrid());
-        bottomPanel.repaint();
-    }
+    /* Board rendering */
 
     /**
-     * Render the current contents of a hand panel.
-     * @param panel
-     * @param handGrid
+     * Renders the current board state including all pieces on the board and in hands.
      */
-    private void renderHandToPanel(PieceLayerPanel handPanel, HandGrid handGrid) {
-        for (Piece piece : handGrid.getAllPieces()) {
-            if (piece != null) {
-                BufferedImage image = sprites.get(piece.getClass());
-                PieceComponent comp = new PieceComponent(image, piece.getSide(), handPanel.getCellSize());
-                handPanel.addPiece(comp, piece.getHandPosition());
-            }
-        }
+    public void renderBoard() {
+        renderer.renderAll();
     }
 
     /**
@@ -153,17 +138,17 @@ public class Controller {
     }
 
     /**
-     * Make all selection variables empty - represented with null.
+     * Clears all selection state variables.
      */
     private void nullifySelections() {
-        selectedBoardPiece = null;
-        selectedHandPiece = null;
-        selectedHandSide = null;
-        selectedLegalMoves = null;
+        selection.clear();
     }
 
+    /* Handling after move */
+
     /**
-     * Clear and reset all transient states of board, notify listeners, render, and handle game over state.
+     * Performs post-move cleanup: clears highlights and selections, notifies listeners,
+     * re-renders the board, and checks for checkmate.
      */
     private void afterMove() {
         if (gameOver) {
@@ -174,116 +159,188 @@ public class Controller {
         notifyListeners();
         renderBoard();
 
+        // Check for checkmate
         if (board.evals.isCheckMate(sideOnTurn)) {
             onGameEnd(sideOnTurn.getOpposite(), "Checkmate", ResultType.CHECKMATE);
+            return;
+        }
+        
+        // Check for Sennichite (fourfold repetition)
+        if (board.isSennichite()) {
+            onGameEnd(null, "Draw by Sennichite (repetition)", ResultType.DRAW);
         }
     }
 
+    /* End game handling */
+
+    /**
+     * Handles game end logic including saving results and showing game over dialog.
+     * @param winner the side that won
+     * @param reason the reason for game end
+     * @param resultType the type of result (checkmate, resignation, etc.)
+     */
     private void onGameEnd(Sides winner, String reason, ResultType resultType) {
         if (gameOver) {
             return;
         }
         gameOver = true;
-        String winnerName = board.getPlayer(winner).getName();
-        String loserName = board.getPlayer(winner.getOpposite()).getName();
-
-        Entry entry = new Entry(
-            winnerName,
-            loserName,
-            winner.getOpposite(),
-            board.moveManager.getNoOfMoves(),
-            resultType,
-            java.time.Instant.now(),
-            board.getPlayer(winner).getType(),
-            board.getPlayer(winner.getOpposite()).getType()
-        );
-        LeaderboardSaveLoad.appendEntry(entry);
-
-        Popups.showGameOver(parentComponent, winnerName, reason);
-        if (onGameEndCallback != null) {
-            onGameEndCallback.run();
+        aiTurnInProgress = false;
+        
+        Entry entry;
+        if (winner == null) {
+            // Draw - no winner
+            Player sente = board.getPlayer(Sides.SENTE);
+            Player gote = board.getPlayer(Sides.GOTE);
+            entry = new Entry(
+                "Draw",
+                "Draw",
+                null,
+                board.moveManager.getNoOfMoves(),
+                resultType,
+                java.time.Instant.now(),
+                sente.getType(),
+                gote.getType()
+            );
+        } else {
+            String winnerName = board.getPlayer(winner).getName();
+            String loserName = board.getPlayer(winner.getOpposite()).getName();
+            entry = new Entry(
+                winnerName,
+                loserName,
+                winner.getOpposite(),
+                board.moveManager.getNoOfMoves(),
+                resultType,
+                java.time.Instant.now(),
+                board.getPlayer(winner).getType(),
+                board.getPlayer(winner.getOpposite()).getType()
+            );
         }
+        
+        listeners.notifyGameEnd(winner, reason, resultType, entry);
     }
 
+    /**
+     * Handles a player resignation.
+     * @param resigningSide the side that is resigning
+     */
     public void resign(Sides resigningSide) {
         if (resigningSide == null || gameOver) {
             return;
         }
+        listeners.notifyResignation(resigningSide);
         Sides winner = resigningSide.getOpposite();
         String resigningName = board.getPlayer(resigningSide).getName();
         onGameEnd(winner, resigningName + " resigned.", ResultType.RESIGNATION);
     }
 
+    /* Move handling */
+
     /**
-     * Perform AI move operation
+     * Initiates an AI move if it's an AI player's turn.
+     * Executes on a background thread to keep UI responsive.
      */
     private void tryAIMove() {
-        if (gameOver) {
+        if (gameOver || aiTurnInProgress) {
             return;
         }
-        if (!board.getPlayer(sideOnTurn).isAI()) return;
 
-        // Use invokeLater to allow UI to update between moves
-        SwingUtilities.invokeLater(() -> {
-            if (gameOver) {
-                return;
-            }
-            Move aiMove = ai.getBestMove(sideOnTurn, board.getPlayer(sideOnTurn).getDifficulty());
-            if (aiMove != null) {
-                // Reconstruct the move with the real board's player and pieces
-                // The AI returns a move with references to simulated board objects
-                Piece realMovedPiece = null;
-                if (aiMove.isDrop()) {
-                    // For drops, find matching piece in real player's hand
-                    for (Piece p : board.getPlayer(sideOnTurn).getHandPieces()) {
-                        if (p.getClass() == aiMove.getMovedPiece().getClass() && 
-                            p.getSide() == sideOnTurn) {
-                            realMovedPiece = p;
-                            break;
-                        }
-                    }
-                } else {
-                    // For normal moves, get piece from real board
-                    realMovedPiece = board.getPiece(aiMove.getFrom());
-                }
-                
-                if (realMovedPiece == null) {
-                    throw new Exceptions.PieceNotFoundException("The piece for AI move is not found on board!");
-                }
-                
-                Move realMove = new Move(
-                    board.getPlayer(sideOnTurn),  // Real player
-                    aiMove.getFrom(),
-                    aiMove.getTo(),
-                    realMovedPiece,  // Real piece
-                    null,  // Will be determined by applyMove
-                    aiMove.isPromotion(),
-                    aiMove.isDrop()
-                );
-                
-                board.moveManager.applyMove(realMove);
-                advanceTurn();
-                afterMove();
-                tryAIMove(); // support AI vs AI
-                SoundPlayer.playPieceSfx();
+        Player currentPlayer = board.getPlayer(sideOnTurn);
+        if (!currentPlayer.isAI()) {
+            return;
+        }
+
+        aiTurnInProgress = true;
+        final Sides turnSnapshot = sideOnTurn;
+        final AIDifficulty difficulty = currentPlayer.getDifficulty();
+        
+        aiExecutor.execute(() -> {
+            try {
+                Move aiMove = ai.getBestMove(turnSnapshot, difficulty);
+                SwingUtilities.invokeLater(() -> handleAiMove(turnSnapshot, currentPlayer, aiMove));
+            } catch (Exception e) {
+                System.err.println("AI move calculation failed: " + e.getMessage());
+                e.printStackTrace();
+                SwingUtilities.invokeLater(() -> aiTurnInProgress = false);
             }
         });
     }
 
     /**
-     * Handle making the drop movement from the hand table to the board.
-     * @param boardPos The board position of drop target
+     * Handles applying an AI move to the board.
+     * @param expectedSide the side that was expected to move
+     * @param aiPlayer the AI player making the move
+     * @param aiMove the computed move
+     */
+    private void handleAiMove(Sides expectedSide, Player aiPlayer, Move aiMove) {
+        try {
+            if (gameOver || sideOnTurn != expectedSide) {
+                return;
+            }
+            if (aiMove == null) {
+                return;
+            }
+
+            Piece realMovedPiece = mapAiMovePiece(aiPlayer, aiMove, expectedSide);
+            Move realMove = new Move(
+                aiPlayer,
+                aiMove.getFrom(),
+                aiMove.getTo(),
+                realMovedPiece,
+                null,
+                aiMove.isPromotion(),
+                aiMove.isDrop()
+            );
+
+            board.moveManager.applyMove(realMove);
+            advanceTurn();
+            afterMove();
+            listeners.notifyMoveMade(realMove, expectedSide);
+        } finally {
+            aiTurnInProgress = false;
+            tryAIMove(); // Chain to next AI move if needed
+        }
+    }
+
+    /**
+     * Maps an AI move's piece reference to the actual piece on the board.
+     * @param aiPlayer the AI player
+     * @param aiMove the AI's calculated move
+     * @param expectedSide the expected side of the piece
+     * @return the actual piece instance on the board
+     * @throws Exceptions.PieceNotFoundException if the piece cannot be found
+     */
+    private Piece mapAiMovePiece(Player aiPlayer, Move aiMove, Sides expectedSide) {
+        Piece realMovedPiece;
+        if (aiMove.isDrop()) {
+            realMovedPiece = aiPlayer.getHandPieces().stream()
+                .filter(p -> p.getClass() == aiMove.getMovedPiece().getClass() && p.getSide() == expectedSide)
+                .findFirst()
+                .orElse(null);
+        } else {
+            realMovedPiece = board.getPiece(aiMove.getFrom());
+        }
+
+        if (realMovedPiece == null) {
+            throw new Exceptions.PieceNotFoundException("The piece for AI move is not found on board!");
+        }
+        return realMovedPiece;
+    }
+
+    /**
+     * Handles moving a selected board piece to a destination square.
+     * @param to the destination position on the board
      */
     private void handleBoardMove(Position to) {
-        Position from = selectedBoardPiece.getBoardPosition();
+        Piece piece = selection.getSelectedBoardPiece();
+        Position from = piece.getBoardPosition();
 
-        // Check if forcing promotion is necessary, otherwise, ask
+        // Determine if promotion is required or should be offered
         boolean promotion = false;
-        if (selectedBoardPiece.canPromote() && to.inPromotionZone(sideOnTurn)) {
-            if (selectedBoardPiece.shouldPromote(from, to)) {
+        if (piece.canPromote() && to.inPromotionZone(sideOnTurn)) {
+            if (piece.shouldPromote(from, to)) {
                 promotion = true;
             } else {
-                promotion = Popups.askPromotion(parentComponent);
+                promotion = listeners.requestPromotionDecision(piece, from, to);
             }
         }
 
@@ -292,7 +349,7 @@ public class Controller {
             board.getPlayer(sideOnTurn), 
             from, 
             to, 
-            selectedBoardPiece, 
+            piece, 
             null, 
             promotion, 
             false
@@ -301,27 +358,29 @@ public class Controller {
         advanceTurn();
         afterMove();
         tryAIMove();
-        SoundPlayer.playPieceSfx();
+        listeners.notifyMoveMade(null, sideOnTurn.getOpposite());
     }
 
     /**
-     * Handle making the drop movement from the hand table to the board.
-     * @param to The board position of drop target
+     * Handles dropping a selected hand piece onto the board.
+     * @param to the board position where the piece should be dropped
      */
     private void handleHandDrop(Position to) {
-        if (selectedHandPiece == null || selectedHandSide == null) {
-            return;
-        }
-        if (selectedLegalMoves == null || !selectedLegalMoves.contains(to)) {
+        if (!selection.hasHandPieceSelected() || 
+            selection.getSelectedLegalMoves() == null || 
+            !selection.getSelectedLegalMoves().contains(to)) {
             return;
         }
 
+        Piece piece = selection.getSelectedHandPiece();
+        Sides side = selection.getSelectedHandSide();
+
         // Use the move manager to apply drop move
         board.moveManager.applyMove(new Move(
-            board.getPlayer(selectedHandSide), 
-            selectedHandPiece.getHandPosition(), 
+            board.getPlayer(side), 
+            piece.getHandPosition(), 
             to, 
-            selectedHandPiece, 
+            piece, 
             null, 
             false, 
             true
@@ -330,14 +389,18 @@ public class Controller {
         advanceTurn();
         afterMove();
         tryAIMove();
-        SoundPlayer.playPieceSfx();
+        listeners.notifyMoveMade(null, side);
     }
 
+    /**
+     * Undoes the last move(s). If the current player is AI, undoes two moves
+     * to return to the human player's turn.
+     */
     public void undoMove() {
         if (board.moveManager.isUndoStackEmpty()) {
             return;
         }
-
+        
         board.moveManager.undoMove();
         advanceTurn();
         afterMove();
@@ -350,11 +413,15 @@ public class Controller {
         }
     }
 
+    /**
+     * Redoes the previously undone move(s). If the current player is AI, redoes two moves
+     * to advance to the human player's turn.
+     */
     public void redoMove() {
         if (board.moveManager.isRedoStackEmpty()) {
             return;
         }
-
+        
         board.moveManager.redoMove();
         advanceTurn();
         afterMove();
@@ -367,13 +434,20 @@ public class Controller {
         }
     }
 
+    /* Click event handling */
+
+    /**
+     * Handles mouse clicks on the board.
+     * @param clickPosition the position on the board that was clicked
+     */
     private void handleBoardClick(Position clickPosition) {
         if (gameOver) {
             return;
         }
         // Handle hand piece drop first
-        if (selectedHandPiece != null && selectedHandSide != null) {
-            if (selectedLegalMoves != null && selectedLegalMoves.contains(clickPosition)) {
+        if (selection.hasHandPieceSelected()) {
+            List<Position> legalMoves = selection.getSelectedLegalMoves();
+            if (legalMoves != null && legalMoves.contains(clickPosition)) {
                 handleHandDrop(clickPosition);
             } else {
                 afterMove(); // deselect
@@ -385,24 +459,28 @@ public class Controller {
 
         // Selecting a board piece
         if (piece != null && piece.getSide() == sideOnTurn) {
-            selectedBoardPiece = piece;
-            selectedLegalMoves = board.evals.getFilteredLegalMoves(piece);
+            List<Position> legalMoves = board.evals.getFilteredLegalMoves(piece);
+            selection.selectBoardPiece(piece, legalMoves);
             clearAllHighlights();
-            panels.getBoardHighlight().highlightSquares(selectedLegalMoves);
+            panels.getBoardHighlight().highlightSquares(legalMoves);
             panels.getBoardSelectionHighlight().highlightSquare(piece.getBoardPosition());
             return;
         }
 
         // Moving selected board piece
-        if (selectedBoardPiece != null && selectedLegalMoves != null && selectedLegalMoves.contains(clickPosition)) {
-            handleBoardMove(clickPosition);
+        if (selection.hasBoardPieceSelected()) {
+            List<Position> legalMoves = selection.getSelectedLegalMoves();
+            if (legalMoves != null && legalMoves.contains(clickPosition)) {
+                handleBoardMove(clickPosition);
+            }
         }
     }
 
-     /**
-     * Handle the mouse click events on specified hand table.
-     * @param clickPosition Clicked piece index within table
-     * @param handSide The side of click handled hand table.
+    /**
+     * Handles mouse click events on a hand panel.
+     * @param clickPosition the clicked piece position within the hand grid
+     * @param handSide the side of the hand panel that was clicked
+     * @return the selected piece, or null if no valid piece was selected
      */
     public Piece handleHandClick(Position clickPosition, Sides handSide) {
         if (gameOver) {
@@ -413,12 +491,11 @@ public class Controller {
         for (Piece piece : handGrid.getAllPieces()) {
             if (piece != null && piece.getHandPosition() != null && piece.getHandPosition().equals(clickPosition)) {
                 if (piece.getSide() == sideOnTurn) {
-                    selectedHandPiece = piece;
-                    selectedHandSide = handSide;
+                    List<Position> legalDrops = board.getPieceDropPoints(piece.getClass(), sideOnTurn);
+                    selection.selectHandPiece(piece, handSide, legalDrops);
                     
                     clearAllHighlights();
-                    selectedLegalMoves = board.getPieceDropPoints(piece.getClass(), sideOnTurn);
-                    panels.getBoardHighlight().highlightSquares(selectedLegalMoves);
+                    panels.getBoardHighlight().highlightSquares(legalDrops);
                     
                     // Highlight the selected hand piece
                     HighlightLayerPanel handHighlight = panels.getHandHighlight(handSide);

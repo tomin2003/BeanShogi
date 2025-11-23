@@ -1,10 +1,11 @@
 package com.beanshogi.model;
 
+import java.util.Objects;
 import com.beanshogi.game.*;
 import com.beanshogi.util.Position;
 
 /**
- * Represents an act of movement, immutable
+ * Represents an act of movement.
  * @param player the player who initiated the move
  * @param from the square from which the move was made
  * @param to the square to which the move is made
@@ -70,5 +71,22 @@ public class Move {
 
     public boolean isDrop() { 
         return isDrop; 
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Move)) return false;
+        Move other = (Move) obj;
+        return isDrop == other.isDrop &&
+               Objects.equals(from, other.from) &&
+               Objects.equals(to, other.to) &&
+               movedPiece.getClass() == other.movedPiece.getClass() &&
+               movedPiece.getSide() == other.movedPiece.getSide();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(from, to, isDrop);
     }
 }

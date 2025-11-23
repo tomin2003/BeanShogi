@@ -6,15 +6,17 @@ import com.beanshogi.game.Player;
 import com.beanshogi.model.Board;
 import com.beanshogi.model.Move;
 import com.beanshogi.model.Piece;
+import com.beanshogi.pieces.PromotedPiece;
 
 /**
  * Keep track of and manage moves
  * @param board the board on which the move is made
  * @param undoStack a stack using which a move can be undone
  * @param redoStack a stack using which an undone move can be redone
+ * @param archivedMovesMade starting point for tracking moves made after deserialization.
  */
 public class MoveManager {
-    private transient Board board;  // Mark as transient to prevent circular reference in JSON
+    private transient Board board;  // Marked as transient to prevent circular reference in JSON
     protected Stack<Move> undoStack = new Stack<>();
     protected Stack<Move> redoStack = new Stack<>();
     private int archivedMovesMade = 0;
@@ -55,6 +57,11 @@ public class MoveManager {
         return redoStack;
     }
 
+    /**
+     * Applies a move to the board, updating piece positions and handling captures, drops, and promotions.
+     * Pushes the move onto the undo stack and clears the redo stack.
+     * @param move the move to apply
+     */
     public void applyMove(Move move) {
         Player movePlayer = move.getPlayer();
         
@@ -102,6 +109,11 @@ public class MoveManager {
         redoStack.clear();
     }
 
+    /**
+     * Undoes the last move, restoring the board to its previous state.
+     * Moves the undone move from the undo stack to the redo stack.
+     * Handles both normal moves and drops, restoring captured pieces and promotion states.
+     */
     public void undoMove() {
         if (undoStack.empty()) {
             return;
@@ -146,6 +158,11 @@ public class MoveManager {
         }
     }
 
+    /**
+     * Redoes a previously undone move, reapplying it to the board.
+     * Moves the redone move from the redo stack back to the undo stack.
+     * Reapplies captures, drops, and promotions as they were originally.
+     */
     public void redoMove() {
         if (redoStack.empty()) {
             return;
@@ -189,20 +206,11 @@ public class MoveManager {
     }
 
     /**
-     * Helper to check promotion status via reflection so code compiles even if Piece
-     * doesn't declare isPromoted(); returns false if the method is absent or invocation fails.
+     * Checks if a piece is promoted.
+     * @param p the piece to check
+     * @return true if the piece is an instance of PromotedPiece
      */
     private boolean isPiecePromoted(Piece p) {
-        if (p == null) return false;
-        try {
-            java.lang.reflect.Method m = p.getClass().getMethod("isPromoted");
-            Object res = m.invoke(p);
-            if (res instanceof Boolean) {
-                return (Boolean) res;
-            }
-        } catch (Exception e) {
-            // No method or invocation failed, assume not promoted
-        }
-        return false;
+        return p instanceof PromotedPiece;
     }
 }

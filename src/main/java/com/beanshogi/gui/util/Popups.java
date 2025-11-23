@@ -9,6 +9,10 @@ import javax.swing.JOptionPane;
 
 import com.beanshogi.util.Sides;
 
+/**
+ * Utility class for displaying dialog popups to the user.
+ * Handles promotion decisions, game over notifications, and confirmation dialogs.
+ */
 public class Popups {
     public static boolean askPromotion(Component parent) {
         int choice = JOptionPane.showConfirmDialog(
@@ -21,9 +25,15 @@ public class Popups {
     }
 
     public static void showGameOver(Component parent, String winnerName, String reason) {
+        String message;
+        if ("Draw".equals(winnerName)) {
+            message = "Game ended in a draw!\n\n" + reason;
+        } else {
+            message = winnerName + " wins!\n\n" + reason;
+        }
         JOptionPane.showMessageDialog(
             parent,
-            winnerName + " wins!\n\n" + reason,
+            message,
             "Game Over",
             JOptionPane.INFORMATION_MESSAGE
         );

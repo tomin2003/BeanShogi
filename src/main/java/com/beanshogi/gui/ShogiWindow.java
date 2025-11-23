@@ -23,7 +23,7 @@ public class ShogiWindow extends JFrame {
     private SettingsPanel settingsMenu;
     private LoadGamePanel loadMenu;
     private LeaderboardPanel leaderboardMenu;
-    private String currentGameCard;
+    private String currentGameCard; // Tracks which game view is active (fullscreen/windowed)
 
     public ShogiWindow() {
         setTitle("BeanShogi");
@@ -56,7 +56,7 @@ public class ShogiWindow extends JFrame {
     }
 
     public void showGamePlay(Game game) {
-        // Remove old game panels to prevent resource leaks
+        // Remove old game panels to prevent memory leaks and resource conflicts
         Component[] components = mainPanel.getComponents();
         for (Component comp : components) {
             if (comp instanceof GamePlayFullscreen || comp instanceof GamePlayWindowed) {
@@ -105,38 +105,31 @@ public class ShogiWindow extends JFrame {
     }
 
     public void setSmallWindow() {
-        // Dispose current frame and restore decoration
-        dispose();
-        setUndecorated(false);
-
-        // Get the graphics device and release from full-screen
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-
-        gd.setFullScreenWindow(null);   
-        mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
-        setContentPane(mainPanel);
-
-        pack();
-        setLocationRelativeTo(null);
-        setVisible(true);
-        fullScreen = false;
+        setWindowMode(false);
     }
 
-     public void setFullscreenWindow() {
-        // Dispose current frame and remove decoration
-        dispose();
-        setUndecorated(true);
-        
-        // Get the device and enter into full screen mode
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gd = ge.getDefaultScreenDevice();
-   
-        gd.setFullScreenWindow(this);
+    public void setFullscreenWindow() {
+        setWindowMode(true);
+    }
 
-        // Make frame visible again
+    private void setWindowMode(boolean isFullscreen) {
+        dispose();
+        setUndecorated(isFullscreen);
+
+        GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+
+        if (isFullscreen) {
+            gd.setFullScreenWindow(this);
+        } else {
+            gd.setFullScreenWindow(null);
+            mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
+            setContentPane(mainPanel);
+            pack();
+            setLocationRelativeTo(null);
+        }
+
         setVisible(true);
-        fullScreen = true;
+        fullScreen = isFullscreen;
     }
 
     public boolean isFullScreenMode() {

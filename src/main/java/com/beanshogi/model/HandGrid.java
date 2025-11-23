@@ -3,6 +3,7 @@ package com.beanshogi.model;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.beanshogi.util.Exceptions;
 import com.beanshogi.util.Position;
 import com.beanshogi.util.Sides;
 
@@ -17,9 +18,9 @@ public class HandGrid {
     private final Piece[][] grid = new Piece[ROWS][COLS];
 
     /**
-     * Add a piece to the next available position in the grid
+     * Add a piece to the next available position in the grid.
+     * Sets the piece's hand position and clears its board position.
      * @param piece the piece to add
-     * @return true if piece was added, false if grid is full
      */
     public void addPiece(Piece piece) {
         for (int x = 0; x < ROWS; x++) {
@@ -32,6 +33,8 @@ public class HandGrid {
                 }
             }
         }
+        // Should never get called, as the hand can fit up to 20 pieces.
+        throw new Exceptions.HandFullException("No more pieces can be added to hand");
     }
 
     /**

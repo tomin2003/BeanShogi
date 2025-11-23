@@ -1,5 +1,9 @@
 package com.beanshogi.util;
 
+/**
+ * Defines AI difficulty levels with corresponding search depth and move ordering randomness.
+ * Higher difficulties have deeper search and less randomness for stronger play.
+ */
 public enum AIDifficulty {
     EASY("Easy", 1, 160),
     NORMAL("Normal", 2, 60),

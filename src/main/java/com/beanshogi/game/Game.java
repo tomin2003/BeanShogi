@@ -14,10 +14,18 @@ import com.beanshogi.pieces.normal.slider.Bishop;
 import com.beanshogi.pieces.normal.slider.Lance;
 import com.beanshogi.pieces.normal.slider.Rook;
 
+/**
+ * Game administrating class - represents a shogi game session.
+ * This class is serialized directly for saving states.
+ */
 public class Game {
     private Board board;
     private Sides nextTurn = Sides.SENTE;
     
+    /**
+     * Initializes a new game with the default shogi layout.
+     * @param players Players participating in game.
+     */
     public Game(List<Player> players) {
 
         // Clear hand before starting a new game (eg. on a loaded game)
@@ -71,9 +79,5 @@ public class Game {
 
     public void setNextTurn(Sides nextTurn) {
         this.nextTurn = nextTurn;
-    }
-
-    public static Game getInstance() {
-        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
     }
 } 

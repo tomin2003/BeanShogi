@@ -9,8 +9,6 @@ import com.beanshogi.pieces.normal.Pawn;
 import com.beanshogi.util.Position;
 import com.beanshogi.util.Sides;
 
-// TODO: possibly implement logic where a check has to be ended before making other moves
-
 /**
  * Class defining board evaluation methods
  * @param board the board on which evaluation is done
@@ -27,13 +25,13 @@ public class Evals {
      * @param side the side whose king we want to evaluate
      * @return the list of pieces checking that king
      */
-    public List<CheckEvent> kingChecks(Sides kingSide) {
+    public List<CheckEvent> kingChecks(Sides side) {
         List<CheckEvent> checks = new ArrayList<>();
-        King king = board.getKing(kingSide);
+        King king = board.getKing(side);
         if (king == null) {
             return checks;
         }
-        for (Piece piece : board.getPiecesOfSide(kingSide.getOpposite())) {
+        for (Piece piece : board.getPiecesOfSide(side.getOpposite())) {
             if (piece.getAttackMoves().contains(king.getBoardPosition())) {
                 checks.add(new CheckEvent(piece, king));
             }
@@ -54,7 +52,7 @@ public class Evals {
     }
 
     /**
-     * Checks wheteher any pieces check the king
+     * Checks whether any pieces check the king
      * @return king in check or not
      */
     public boolean isKingInCheck() {
@@ -70,19 +68,22 @@ public class Evals {
         return !kingChecks(side).isEmpty();
     }
 
-    // TODO: Review checkmate logic for correctness
-
     /**
      * Produce legal destination squares for a piece, excluding those that leave own king in check.
      * If the side is currently in check, only include moves that resolve the check.
+     * @param piece the piece to get legal moves for
+     * @return list of legal destination positions that don't leave the king in check
      */
     public List<Position> getFilteredLegalMoves(Piece piece) {
-        List<Position> filtered = new ArrayList<>();
-        if (piece == null || piece.getBoardPosition() == null) {
-            return filtered;
-        }
         Sides side = piece.getSide();
-        boolean mustResolveCheck = isKingInCheck(side);
+        boolean inCheck = isKingInCheck(side);
+        
+        // If the king is not in check, return all legal moves
+        if (!inCheck) {
+            return piece.getLegalMoves();
+        }
+        List<Position> filtered = new ArrayList<>();
+
         Position from = piece.getBoardPosition();
         for (Position to : piece.getLegalMoves()) {
             // Simulate without promotion
@@ -102,7 +103,7 @@ public class Evals {
                     resolves = true;
                 }
             }
-            if (resolves && (!mustResolveCheck || (mustResolveCheck && resolves))) {
+            if (resolves) {
                 filtered.add(to);
             }
         }
@@ -110,7 +111,13 @@ public class Evals {
     }
 
     /**
-     * Helper to test a move on a copied board so the real position is untouched.
+     * Helper to test a move on a simulated board to verify it doesn't leave the king in check.
+     * The real board position remains untouched.
+     * @param piece the piece to move
+     * @param from the starting position
+     * @param to the destination position
+     * @param promote whether the piece should be promoted during this move
+     * @return true if the move is legal (doesn't leave own king in check), false otherwise
      */
     public boolean isMoveLegal(Piece piece, Position from, Position to, boolean promote) {
         if (piece == null || from == null || to == null) {
@@ -137,6 +144,13 @@ public class Evals {
         return kingSafe;
     }
 
+    /**
+     * Simulates a piece drop to check if it would leave the side's king safe.
+     * @param pieceClass the class of the piece to drop
+     * @param side the side performing the drop
+     * @param dropPos the position where the piece would be dropped
+     * @return true if the drop would leave the king safe, false otherwise
+     */
     private boolean simulateDropCheck(Class<? extends Piece> pieceClass, Sides side, Position dropPos) {
         Player player = board.getPlayer(side);
         Piece handPiece = null;
@@ -170,6 +184,11 @@ public class Evals {
         return kingSafe;
     }
 
+    /**
+     * Determines if the specified side is in checkmate.
+     * @param side the side to check for checkmate
+     * @return true if the side is in checkmate, false otherwise
+     */
     public boolean isCheckMate(Sides side) {
         if (!isKingInCheck(side)) {
             return false; // not in check -> cannot be checkmate
@@ -250,12 +269,22 @@ public class Evals {
         return isMate;
     }
 
+    /**
+     * Creates a shallow copy of a move stack.
+     * @param original the stack to copy
+     * @return a new stack containing the same elements
+     */
     private Stack<Move> copyStack(Stack<Move> original) {
         Stack<Move> copy = new Stack<>();
         copy.addAll(original);
         return copy;
     }
 
+    /**
+     * Restores a stack to a previous state by clearing it and copying elements from a snapshot.
+     * @param target the stack to restore
+     * @param snapshot the snapshot to restore from
+     */
     private void restoreStack(Stack<Move> target, Stack<Move> snapshot) {
         target.clear();
         target.addAll(snapshot);

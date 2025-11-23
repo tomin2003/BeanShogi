@@ -65,12 +65,6 @@ public class ShogiAI {
             searchBoard.moveManager.undoMove();
             searchBoard.moveManager.getRedoStack().clear();
         }
-        
-        if (bestMove == null) {
-            System.out.println("No legal moves found. Likely stalemate or checkmate.");
-            return null;
-        }
-
         return bestMove;
     }
     

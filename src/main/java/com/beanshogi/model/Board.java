@@ -105,7 +105,7 @@ public class Board {
     }
 
     /**
-     * Get legal drop points from hand on this board.
+     * Get legal drop points from hand on the board.
      * @param pieceClass evaluated generic piece
      * @param pieceside side of evaluation
      * @return list of all legal drop points
@@ -187,6 +187,27 @@ public class Board {
      * Get a deep copy of a board
      * @return copy of current board
      */
+    /**
+     * Checks if the last moves form a repetition (Sennichite).
+     * Returns true if the last 8 moves repeat (4 move cycle done twice).
+     * @return true if repetition detected
+     */
+    public boolean isSennichite() {
+        Stack<Move> history = moveManager.getUndoStack();
+        if (history.size() < 8) {
+            return false;
+        }
+        
+        // Check if last 4 moves match the 4 moves before that
+        int size = history.size();
+        for (int i = 0; i < 4; i++) {
+            if (!history.get(size - 1 - i).equals(history.get(size - 5 - i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public Board copy() {
         // Create new player list and board so players/hands are not shared between copies
         List<Player> newPlayers = new ArrayList<>();

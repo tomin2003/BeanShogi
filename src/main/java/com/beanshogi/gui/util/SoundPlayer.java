@@ -6,8 +6,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-// TODO: introduce BGM
-
+/**
+ * Manages sound effects playback for the game.
+ * Handles volume control and audio clip management.
+ */
 public class SoundPlayer {
     private static float volume = 0.5f; // Default volume (0.0 to 1.0)
     private static byte[] pieceAudioData;
@@ -29,6 +31,10 @@ public class SoundPlayer {
         return volume;
     }
     
+    /**
+     * Plays the piece movement sound effect.
+     * Creates a new clip each time to allow overlapping sounds.
+     */
     public static void playPieceSfx() {
         try {
             AudioInputStream audioStream = createPieceStream();

@@ -9,10 +9,19 @@ import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JRadioButton;
+import javax.swing.JSlider;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.event.ChangeListener;
 
 import com.beanshogi.game.Game;
 import com.beanshogi.game.Player;
@@ -20,6 +29,9 @@ import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.io.GameSaveLoad;
 import com.beanshogi.util.Sides;
 
+/**
+ * Helper class, defines useful helpers for Swing.
+ */
 public class SwingUtils {
 
     private static final Color MENU_BAR_BG = new Color(255,255,255,120);
@@ -48,6 +60,143 @@ public class SwingUtils {
         JMenuItem item = new JMenuItem(text);
         item.addActionListener(action);
         return item;
+    }
+
+    /**
+     * Creates a JLabel with the specified text.
+     * @param text The label text
+     * @return the constructed JLabel
+     */
+    public static JLabel makeLabel(String text) {
+        return new JLabel(text);
+    }
+
+    /**
+     * Creates a center-aligned JLabel with the specified text.
+     * @param text The label text
+     * @return the constructed JLabel
+     */
+    public static JLabel makeCenteredLabel(String text) {
+        JLabel label = new JLabel(text, SwingConstants.CENTER);
+        label.setAlignmentX(JLabel.CENTER_ALIGNMENT);
+        return label;
+    }
+
+    /**
+     * Creates a JTextField with initial text and column width.
+     * @param text Initial text
+     * @param columns Number of columns
+     * @return the constructed JTextField
+     */
+    public static JTextField makeTextField(String text, int columns) {
+        return new JTextField(text, columns);
+    }
+
+    /**
+     * Creates a JRadioButton with the specified text.
+     * @param text The button text
+     * @return the constructed JRadioButton
+     */
+    public static JRadioButton makeRadioButton(String text) {
+        return new JRadioButton(text);
+    }
+
+    /**
+     * Creates a JRadioButton with the specified text and selection state.
+     * @param text The button text
+     * @param selected Whether the button is initially selected
+     * @return the constructed JRadioButton
+     */
+    public static JRadioButton makeRadioButton(String text, boolean selected) {
+        return new JRadioButton(text, selected);
+    }
+
+    /**
+     * Creates a ButtonGroup containing the specified radio buttons.
+     * @param buttons The radio buttons to add to the group
+     * @return the constructed ButtonGroup
+     */
+    public static ButtonGroup makeButtonGroup(JRadioButton... buttons) {
+        ButtonGroup group = new ButtonGroup();
+        for (JRadioButton btn : buttons) {
+            group.add(btn);
+        }
+        return group;
+    }
+
+    /**
+     * Creates a JCheckBox with the specified text.
+     * @param text The checkbox text
+     * @return the constructed JCheckBox
+     */
+    public static JCheckBox makeCheckBox(String text) {
+        return new JCheckBox(text);
+    }
+
+    /**
+     * Creates a JCheckBox with the specified text and selection state.
+     * @param text The checkbox text
+     * @param selected Whether the checkbox is initially selected
+     * @return the constructed JCheckBox
+     */
+    public static JCheckBox makeCheckBox(String text, boolean selected) {
+        return new JCheckBox(text, selected);
+    }
+
+    /**
+     * Creates a JComboBox with the specified items.
+     * @param <T> The type of items in the combo box
+     * @param items The items to populate the combo box
+     * @return the constructed JComboBox
+     */
+    @SafeVarargs
+    public static <T> JComboBox<T> makeComboBox(T... items) {
+        return new JComboBox<>(items);
+    }
+
+    /**
+     * Creates a JSlider with the specified range.
+     * @param min Minimum value
+     * @param max Maximum value
+     * @param initial Initial value
+     * @return the constructed JSlider
+     */
+    public static JSlider makeSlider(int min, int max, int initial) {
+        return new JSlider(min, max, initial);
+    }
+
+    /**
+     * Creates a JSlider with the specified range and change listener.
+     * @param min Minimum value
+     * @param max Maximum value
+     * @param initial Initial value
+     * @param listener Change listener to attach
+     * @return the constructed JSlider
+     */
+    public static JSlider makeSlider(int min, int max, int initial, ChangeListener listener) {
+        JSlider slider = new JSlider(min, max, initial);
+        slider.addChangeListener(listener);
+        return slider;
+    }
+
+    /**
+     * Creates a fully configured JSlider with the specified range, tick spacing, and change listener.
+     * @param min Minimum value
+     * @param max Maximum value
+     * @param initial Initial value
+     * @param majorTick Major tick spacing
+     * @param minorTick Minor tick spacing
+     * @param listener Change listener to attach
+     * @return the constructed JSlider
+     */
+    public static JSlider makeSlider(int min, int max, int initial, int majorTick, int minorTick, ChangeListener listener) {
+        JSlider slider = new JSlider(min, max, initial);
+        slider.setMajorTickSpacing(majorTick);
+        slider.setMinorTickSpacing(minorTick);
+        slider.setPaintTicks(true);
+        slider.setPaintLabels(true);
+        slider.addChangeListener(listener);
+        return slider;
     }
 
     /**

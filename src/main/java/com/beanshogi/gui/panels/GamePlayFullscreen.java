@@ -9,6 +9,12 @@ import com.beanshogi.game.Controller;
 import com.beanshogi.game.Game;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.listeners.ControllerListeners;
+import com.beanshogi.gui.listeners.DefaultGameEventListener;
+import com.beanshogi.gui.listeners.DefaultSoundEventListener;
+import com.beanshogi.gui.listeners.GameEventListener;
+import com.beanshogi.gui.listeners.GameOverUIListener;
+import com.beanshogi.gui.listeners.SoundEventListener;
+import com.beanshogi.gui.listeners.UIInteractionListener;
 import com.beanshogi.gui.panels.overlays.AttackLinePanel;
 import com.beanshogi.gui.panels.overlays.HighlightLayerPanel;
 import com.beanshogi.gui.panels.overlays.StatsPanel;
@@ -80,10 +86,16 @@ public class GamePlayFullscreen extends BackgroundPanel {
         add(alp);
         
         ControllerPanels panels = new ControllerPanels(boardHighlight, boardSelectionHighlight, handTopHighlight, handBottomHighlight, boardPanel, handTop, handBottom);
-        ControllerListeners listeners = new ControllerListeners(sp, urp, alp);
+        
+        // Create listener implementations
+        GameEventListener gameEventListener = new DefaultGameEventListener();
+        UIInteractionListener uiInteractionListener = new GameOverUIListener(this, window::returnToMainMenu);
+        SoundEventListener soundEventListener = new DefaultSoundEventListener();
+
+        ControllerListeners listeners = new ControllerListeners(sp, urp, alp, gameEventListener, uiInteractionListener, soundEventListener);
 
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(game, this, listeners, panels, window::returnToMainMenu);
+        Controller controller = new Controller(game, this, listeners, panels);
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();

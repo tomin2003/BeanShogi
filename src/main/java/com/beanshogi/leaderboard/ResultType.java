@@ -5,5 +5,6 @@ package com.beanshogi.leaderboard;
  */
 public enum ResultType {
     RESIGNATION,
-    CHECKMATE
+    CHECKMATE,
+    DRAW
 }

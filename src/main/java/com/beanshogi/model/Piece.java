@@ -7,20 +7,20 @@ import com.beanshogi.util.*;
 /**
  * Represents a Piece base class, holds the properties that are shared between every piece.
  * @param side determines which player owns the piece and where the piece is aligned (mutable for captures)
- * @param position the position of the piece on the board currently
+ * @param boardPosition the position of the piece on the board (null if piece in hand).
+ * @param handPosition the position of the piece in the hand (null if piece on board).
  * @param board the board the piece belongs to
  */
 public abstract class Piece {
     protected Sides side;
     protected Position boardPosition;
     protected Position handPosition;
-    protected transient Board board;  // Mark as transient to prevent circular reference in JSON
+    protected transient Board board;  // Marked as transient to prevent circular reference in JSON
 
-    // Non promotable pieces handle promotions like so
+    // Non promotable pieces fall back to returning themselves.
     public Piece promote() { return this; }
     public Piece demote() { return this; }
 
-    // --Constructors-- //
     public Piece(Sides side, Position boardPosition, Position handPosition, Board board) {
         this.side = side;
         this.boardPosition = boardPosition;         
@@ -28,7 +28,6 @@ public abstract class Piece {
         this.board = board;
     }                   
 
-    // --Methods-- // 
     public Sides getSide() {
         return side;
     }
@@ -39,12 +38,6 @@ public abstract class Piece {
 
     public void changeSide() {
         side = side.getOpposite();
-    }
-
-    public Piece oppositePiece() {
-        Piece o = clone();
-        o.changeSide();
-        return o;
     }
 
     public Position getBoardPosition() {
@@ -80,16 +73,32 @@ public abstract class Piece {
         return Objects.hash(getClass(), side);
     }
 
+    /**
+     * Checks if piece may collide with a piece of same side.
+     * @param piece the piece that the caller piece get's checked against.
+     * @return true if collision occurs, false otherwise.
+     */
     private boolean selfCollide(Piece piece) {
         // If the board isn't empty, check if the side of the piece at a given position matches -> collision
         return piece != null && (piece.getSide() == this.getSide());
     }
 
+    /**
+     * Checks if piece may collide with an opponent piece.
+     * @param piece the piece that the caller piece get's checked against.
+     * @return true if collision occurs, false otherwise.
+     */
     private boolean opponentCollide(Piece piece) {
         // If the board isn't empty, check if the side of the piece at a given position differs -> collision
         return piece != null && (piece.getSide() != this.getSide());
     }
 
+    /**
+     * Calculate all pseudo-legal moves for sliding pieces.
+     * @param dirs Transformation matrix for defining move directionality.
+     * @param isKingInclude Flag for including king - used for defining attack lines
+     * @return List of pseudo-legal moves
+     */
     protected List<Position> getLegalMovesSlider(int[][] dirs, boolean isKingInclude) {
         List<Position> legalMoves = new ArrayList<>();
         for (int[] dir : dirs) {
@@ -128,6 +137,12 @@ public abstract class Piece {
         return legalMoves;
     }
 
+    /**
+     * Calculate all pseudo-legal moves for normal, non sliding pieces.
+     * @param offsets Transformation matrix for defining move offset radius.
+     * @param isKingInclude Flag for including king - used for defining attack lines
+     * @return List of pseudo-legal moves
+     */
     protected List<Position> getLegalMovesNormal(int[][] offsets, boolean isKingInclude) {
         int x = boardPosition.x;
         int y = boardPosition.y;
@@ -183,15 +198,16 @@ public abstract class Piece {
         return cloneForBoard(board);
     }
 
+    /* Abstract functions */
 
     /**
-     * Public legal move interface, does not include king in evaluation
+     * Public legal move interface, does not include king in evaluation.
      * @return list of legal moves
      */
     public abstract List<Position> getLegalMoves();
 
     /**
-     * Public attack move interface, may only contain moves that attack the king
+     * Public attack move interface, may only contain move lines that attack the king (due to early return).
      * @return list of attack moves
      */
     public abstract List<Position> getAttackMoves();
