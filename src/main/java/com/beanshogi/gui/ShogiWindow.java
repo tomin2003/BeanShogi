@@ -191,12 +191,18 @@ public class ShogiWindow extends JFrame {
     public void showCard(String cardName) {
         // Clear menu bar when not in game
         if (!cardName.equals("GAME_FULLSCREEN") && !cardName.equals("GAME_WINDOWED")) {
-            setJMenuBar(null);
-            if (!fullScreen) {
-                // Let pack() resize based on content
-                pack();
-                setLocationRelativeTo(null);
-            }
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                setJMenuBar(null);
+                if (getJMenuBar() != null) {
+                    getJMenuBar().revalidate();
+                    getJMenuBar().repaint();
+                }
+                if (!fullScreen) {
+                    // Let pack() resize based on content
+                    pack();
+                    setLocationRelativeTo(null);
+                }
+            });
         }
         if ("LEADERBOARD".equals(cardName) && leaderboardMenu != null) {
             leaderboardMenu.refresh();
