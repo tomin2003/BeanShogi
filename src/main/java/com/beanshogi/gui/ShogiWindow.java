@@ -121,22 +121,19 @@ public class ShogiWindow extends JFrame {
     private void setWindowMode(boolean isFullscreen) {
         dispose();
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
-        Rectangle screenBounds = gd.getDefaultConfiguration().getBounds();
 
         if (isFullscreen) {
-            // Borderless fullscreen
+            // Proper borderless fullscreen
             setUndecorated(true);
-            setExtendedState(JFrame.MAXIMIZED_BOTH);
             setResizable(false);
-            gd.setFullScreenWindow(null); // not exclusive full screen
-            setBounds(screenBounds);
-            setVisible(true);
+            setVisible(true); // must be visible before setFullScreenWindow
+            gd.setFullScreenWindow(this);
             requestFocus();
         } else {
             // Windowed mode
+            gd.setFullScreenWindow(null);
             setUndecorated(false);
             setResizable(false);
-            gd.setFullScreenWindow(null);
             mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
             setContentPane(mainPanel);
             pack();
