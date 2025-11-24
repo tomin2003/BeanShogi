@@ -11,6 +11,9 @@ import javax.swing.JPanel;
 
 import com.beanshogi.core.game.Sides;
 
+/**
+ * Component for rendering a Shogi piece image, handling scaling and orientation based on side.
+ */
 public class PieceComponent extends JPanel {
 
     private final BufferedImage image;

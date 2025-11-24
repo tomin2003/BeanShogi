@@ -7,6 +7,9 @@ import java.awt.Graphics2D;
 
 import javax.swing.JPanel;
 
+/**
+ * JPanel that draws a filled rectangle with specified color and rounded corners.
+ */
 public class FilledRectanglePanel extends JPanel {
 
     private Color color;

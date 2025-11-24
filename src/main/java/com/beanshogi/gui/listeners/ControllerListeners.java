@@ -44,7 +44,6 @@ public class ControllerListeners {
 		this.soundEventListener = soundEventListener;
 	}
 
-	// ==================== Getters ====================
 	public GameStatsListener getStatsListener() {
 		return statsListener;
 	}
@@ -69,7 +68,8 @@ public class ControllerListeners {
 		return soundEventListener;
 	}
 
-	// ==================== Notification Methods ====================
+	// Notification methods
+
 	public void notifySideOnTurnChanged(Sides sideOnTurn) {
 		statsListener.onSideOnTurnChanged(sideOnTurn);
 	}

@@ -8,6 +8,9 @@ import com.beanshogi.core.game.Player;
 import com.beanshogi.core.game.Sides;
 import com.beanshogi.core.pieces.Piece;
 
+/**
+ * Utility class for saving and loading game states.
+ */
 public class GameSaveLoad extends Serialize {
 
     /**

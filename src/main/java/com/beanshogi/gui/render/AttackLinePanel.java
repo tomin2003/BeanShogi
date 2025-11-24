@@ -9,6 +9,10 @@ import com.beanshogi.core.game.CheckEvent;
 import com.beanshogi.core.pieces.Piece;
 import com.beanshogi.gui.listeners.event.KingCheckListener;
 
+/**
+ * Panel for rendering attack lines when a king is in check.
+ * Listens for king check events and draws lines from attackers to the king.
+ */
 public class AttackLinePanel extends JPanel implements KingCheckListener {
     private final List<CheckEvent> checkEvents = new ArrayList<>();
     private int cellSize;

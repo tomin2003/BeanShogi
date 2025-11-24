@@ -14,6 +14,9 @@ import com.beanshogi.core.game.Sides;
 import com.beanshogi.gui.listeners.event.GameStatsListener;
 import com.beanshogi.gui.util.FilledRectanglePanel;
 
+/**
+ * Panel displaying game statistics such as turn and move count.
+ */
 public class StatsPanel extends JPanel implements GameStatsListener {
 
     private JLabel turnLabel = new JLabel("Turn:");

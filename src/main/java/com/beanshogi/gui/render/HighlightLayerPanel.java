@@ -11,6 +11,9 @@ import javax.swing.JPanel;
 
 import com.beanshogi.core.util.Position;
 
+/**
+ * Panel for highlighting squares on the shogi board or hand table.
+ */
 public class HighlightLayerPanel extends JPanel {
 
     private int cellSize;

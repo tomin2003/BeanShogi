@@ -11,6 +11,10 @@ import com.beanshogi.core.util.Position;
 import com.beanshogi.gui.listeners.event.UndoRedoListener;
 import com.beanshogi.gui.util.SwingUtils;
 
+/**
+ * Panel providing grouped undo and redo buttons for move management.
+ * Listens for undo and redo stack changes to enable/disable buttons accordingly.
+ */
 public class UndoRedoPanel extends JPanel implements UndoRedoListener {
 
     private JButton undoButton;

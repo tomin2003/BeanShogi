@@ -15,6 +15,9 @@ import com.beanshogi.core.game.Sides;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.SwingUtils;
 
+/**
+ * New Game menu panel for setting up a new game.
+ */
 public class NewGamePanel extends JPanel {
 
     public NewGamePanel(ShogiWindow window) {
@@ -60,11 +63,14 @@ public class NewGamePanel extends JPanel {
         goteDifficultyCombo.setSelectedItem(AIDifficulty.NORMAL);
         goteDifficultyCombo.setEnabled(false);
 
+        // Enable/disable difficulty combo boxes based on selected player type
         senteHuman.addActionListener(e -> senteDifficultyCombo.setEnabled(false));
         senteAI.addActionListener(e -> senteDifficultyCombo.setEnabled(true));
+        
         goteHuman.addActionListener(e -> goteDifficultyCombo.setEnabled(false));
         goteAI.addActionListener(e -> goteDifficultyCombo.setEnabled(true));
 
+        // Add player type selection rows
         JPanel senteTypePanel = new JPanel();
         senteTypePanel.add(senteHuman);
         senteTypePanel.add(senteAI);
@@ -82,16 +88,20 @@ public class NewGamePanel extends JPanel {
         JButton playButton = SwingUtils.makeButton("Play", e -> {
             String senteName = senteNameField.getText().trim();
             String goteName = goteNameField.getText().trim();
-            if (senteName.isEmpty()) senteName = "Player 1";
-            if (goteName.isEmpty()) goteName = "Player 2";
+            if (senteName.isEmpty()) {
+                senteName = "Player 1";
+            }
+
+            if (goteName.isEmpty()) {
+                goteName = "Player 2"; 
+            }
+
             PlayerType senteType = senteHuman.isSelected() ? PlayerType.HUMAN : PlayerType.AI;
             PlayerType goteType = goteAI.isSelected() ? PlayerType.AI : PlayerType.HUMAN;
-            AIDifficulty senteDifficulty = senteType == PlayerType.AI
-                ? (AIDifficulty) senteDifficultyCombo.getSelectedItem()
-                : AIDifficulty.NORMAL;
-            AIDifficulty goteDifficulty = goteType == PlayerType.AI
-                ? (AIDifficulty) goteDifficultyCombo.getSelectedItem()
-                : AIDifficulty.NORMAL;
+
+            AIDifficulty senteDifficulty = senteType == PlayerType.AI ? (AIDifficulty) senteDifficultyCombo.getSelectedItem() : AIDifficulty.NORMAL;
+            AIDifficulty goteDifficulty = goteType == PlayerType.AI ? (AIDifficulty) goteDifficultyCombo.getSelectedItem() : AIDifficulty.NORMAL;
+            
             Game game = new Game(List.of(
                 new Player(Sides.SENTE, senteName, senteType, senteDifficulty),
                 new Player(Sides.GOTE, goteName, goteType, goteDifficulty)
@@ -108,6 +118,9 @@ public class NewGamePanel extends JPanel {
         add(backButton, gbc);
     }
 
+    /**
+     * Helper function to add a label and component in a row with repeating parameters.
+     */
     private void addRow(GridBagConstraints gbc, JLabel label, JComponent comp) {
         add(label, gbc);
         gbc.gridx = 1;

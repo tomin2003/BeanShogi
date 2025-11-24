@@ -30,6 +30,10 @@ public class LoadGamePanel extends JPanel {
     private final JButton deleteButton;
     private Runnable backAction;
 
+    /**
+     * Load Game menu panel for selecting and loading saved games.
+     * @param window main Shogi window for navigation
+     */
     public LoadGamePanel(ShogiWindow window) {
         this.window = window;
         setLayout(new BorderLayout(15, 15));
@@ -37,6 +41,7 @@ public class LoadGamePanel extends JPanel {
 
         backAction = () -> window.showCard("MAIN");
 
+        // Top center aligned title
         JLabel title = new JLabel("Load Saved Game", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(18f));
         add(title, BorderLayout.NORTH);
@@ -44,10 +49,12 @@ public class LoadGamePanel extends JPanel {
         configureList();
         configurePreview();
 
+        // Split pane for list and preview
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, buildListPane(), buildPreviewPane());
         splitPane.setResizeWeight(0.5);
         add(splitPane, BorderLayout.CENTER);
 
+        // Bottom button row
         loadButton = SwingUtils.makeButton("Load", e -> loadSelectedGame());
         loadButton.setEnabled(false);
         deleteButton = SwingUtils.makeButton("Delete", e -> deleteSelectedSave());
@@ -62,6 +69,10 @@ public class LoadGamePanel extends JPanel {
         add(actions, BorderLayout.SOUTH);
     }
 
+    /**
+     * Set the action to perform when back button is pressed.
+     * @param backAction action to perform on back
+     */
     public void setBackAction(Runnable backAction) {
         this.backAction = backAction != null ? backAction : () -> window.showCard("MAIN");
     }

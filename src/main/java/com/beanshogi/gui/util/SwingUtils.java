@@ -232,8 +232,10 @@ public class SwingUtils {
         fileMenu.add(menuItem("Load game", e -> window.openLoadMenu(window::returnToGame)));
         fileMenu.addSeparator();
         fileMenu.add(menuItem("Exit", e -> {
-            SoundPlayer.stopBackgroundMusic();
-            System.exit(0);
+            if (Popups.confirmExitGame(window)) {
+                SoundPlayer.stopBackgroundMusic();
+                System.exit(0);
+            }
         }));
         return fileMenu;
     }

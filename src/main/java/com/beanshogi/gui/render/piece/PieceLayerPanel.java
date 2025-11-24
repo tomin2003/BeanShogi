@@ -4,15 +4,18 @@ import javax.swing.JPanel;
 
 import com.beanshogi.core.util.Position;
 
+/**
+ * Panel layer for rendering Shogi pieces on the board.
+ */
 public class PieceLayerPanel extends JPanel {
 
     private int cellSize;
     private Position gap;
 
     public PieceLayerPanel(int cellSize, Position gap) {
-        setLayout(null); // free positioning
-        setOpaque(false); // board visible behind
-        setFocusable(true); // Allow mouse events
+        setLayout(null);
+        setOpaque(false);
+        setFocusable(true);
         this.cellSize = cellSize;
         this.gap = gap;
     }

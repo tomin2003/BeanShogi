@@ -11,6 +11,9 @@ import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Class for managing piece sprite images.
+ */
 public class PieceSprites {
     private final Map<Class<? extends Piece>, BufferedImage> sprites = new HashMap<>();
 

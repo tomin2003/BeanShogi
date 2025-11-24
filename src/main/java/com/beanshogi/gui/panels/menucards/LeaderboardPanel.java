@@ -29,16 +29,19 @@ public class LeaderboardPanel extends JPanel {
     private final DefaultTableModel tableModel;
     private final JTable table;
 
+    /**
+     * Leaderboard menu panel using a JTable to display past game records.
+     * @param window main Shogi window for navigation
+     */
     public LeaderboardPanel(ShogiWindow window) {
         setLayout(new BorderLayout(15, 15));
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // --- Title ---
         JLabel title = new JLabel("Leaderboard", SwingConstants.CENTER);
         title.setFont(title.getFont().deriveFont(18f));
         add(title, BorderLayout.NORTH);
 
-        // --- Table ---
+        // Table setup
         String[] columnNames = {
             "Winner", "Loser", "Losing Side", "Result", "Moves", "Finished At"
         };
@@ -53,6 +56,7 @@ public class LeaderboardPanel extends JPanel {
         table.setFillsViewportHeight(true);
         table.setRowHeight(24);
 
+        // Render cells centered
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
         for (int i = 0; i < table.getColumnModel().getColumnCount(); i++) {
@@ -62,7 +66,7 @@ public class LeaderboardPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
-        // --- Buttons ---
+        // Buttom row on the bottom
         JPanel buttons = new JPanel();
         JButton clearButton = SwingUtils.makeButton("Clear Leaderboard", e -> handleClear());
         JButton backButton = SwingUtils.makeButton("Back", e -> window.showCard("MAIN"));
@@ -73,6 +77,9 @@ public class LeaderboardPanel extends JPanel {
         refresh();
     }
 
+    /**
+     * Refresh leaderboard contents from saved data.
+     */
     public void refresh() {
         Leaderboard leaderboard = LeaderboardSaveLoad.loadLeaderboard();
         tableModel.setRowCount(0);
@@ -94,6 +101,12 @@ public class LeaderboardPanel extends JPanel {
         }
     }
 
+    /**
+     * Format player name and type for display in leaderboard.
+     * @param name player's name
+     * @param type player's type
+     * @return formatted string for display.
+     */
     private String formatPlayer(String name, PlayerType type) {
         String displayName = name != null ? name : "";
         String typeLabel = formatPlayerType(type);
@@ -106,6 +119,11 @@ public class LeaderboardPanel extends JPanel {
         return displayName + " (" + typeLabel + ")";
     }
 
+    /**
+     * Format player type for display.
+     * @param type player type
+     * @return formatted string for display.
+     */
     private String formatPlayerType(PlayerType type) {
         if (type == null) {
             return "";
@@ -120,6 +138,9 @@ public class LeaderboardPanel extends JPanel {
         }
     }
 
+    /**
+     * Handle clearing the leaderboard data - ask for confirmation through popup
+     */
     private void handleClear() {
         int choice = JOptionPane.showConfirmDialog(
             this,

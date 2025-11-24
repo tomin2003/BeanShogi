@@ -114,5 +114,16 @@ public class Popups {
         );
         return choice == JOptionPane.YES_OPTION;
     }
+
+    public static boolean confirmExitGame(Component parent) {
+        int choice = JOptionPane.showConfirmDialog(
+            parent,
+            "Exit game? Current game progress will be lost.",
+            "Exit Game",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.WARNING_MESSAGE
+        );
+        return choice == JOptionPane.YES_OPTION;
+    }
 }
 

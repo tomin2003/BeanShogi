@@ -31,8 +31,6 @@ public class GamePlayFullscreen extends BackgroundPanel {
     private static final int BOARD_GRID_GAP = 2;
     private static final int HAND_VERT_GAP = 15;
 
-    // TODO: make full screen game panel
-
     public GamePlayFullscreen(ShogiWindow window, Game game) {
         super("/gamebg16_9.png");
         // Allow for pixel precision alignment of components

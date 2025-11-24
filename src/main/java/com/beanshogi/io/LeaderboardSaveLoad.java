@@ -6,7 +6,7 @@ import com.beanshogi.leaderboard.Entry;
 import com.beanshogi.leaderboard.Leaderboard;
 
 /**
- * Helper for loading and saving leaderboard data.
+ * Utility class for loading and saving leaderboard data.
  */
 public class LeaderboardSaveLoad extends Serialize {
     public static Leaderboard loadLeaderboard() {

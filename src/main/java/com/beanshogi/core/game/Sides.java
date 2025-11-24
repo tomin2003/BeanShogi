@@ -6,6 +6,7 @@ package com.beanshogi.core.game;
  * Gote - lit. "Second hand" - the side that moves second. Perspective: the pieces facing downward.
  */
 public enum Sides {
+    // The Sente pieces decrease their indices on the y axis when moving
     SENTE(-1),
     GOTE(1);
 

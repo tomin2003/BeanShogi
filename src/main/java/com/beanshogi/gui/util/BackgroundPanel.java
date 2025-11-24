@@ -4,11 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 
+/**
+ * JPanel subclass that paints a background image scaled to fit the panel size.
+ */
 public class BackgroundPanel extends JPanel {
 
     private BufferedImage backgroundImage;
 
-    // Constructor loads image from classpath
     public BackgroundPanel(String resourcePath) {
         backgroundImage = SwingUtils.loadImage(resourcePath);
     }

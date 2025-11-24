@@ -14,6 +14,9 @@ import java.awt.Dimension;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.*;
 
+/**
+ * Settings menu panel for adjusting display mode and volume settings.
+ */
 public class SettingsPanel extends JPanel {
     private final ShogiWindow window;
     private Runnable backAction;
@@ -70,7 +73,7 @@ public class SettingsPanel extends JPanel {
         seVolume.addChangeListener(e -> {
             float volume = seVolume.getValue() / 100.0f;
             SoundPlayer.setSfxVolume(volume);
-            // Play sound when slider is released
+            // Play sound when slider is released for active feedback on volume level
             if (!seVolume.getValueIsAdjusting()) {
                 SoundPlayer.playPieceSfx();
             }

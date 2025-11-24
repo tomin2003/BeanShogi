@@ -10,8 +10,10 @@ import javax.swing.JButton;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.gui.util.*;
 
+/**
+ * Main Menu panel with buttons for navigation. Contains background image and logo.
+ */
 public class MainMenuPanel extends BackgroundPanel {
-    
     public MainMenuPanel(ShogiWindow window) {
         super("/shogi_bg.png");
         

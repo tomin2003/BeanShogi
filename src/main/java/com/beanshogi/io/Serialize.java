@@ -6,6 +6,9 @@ import com.google.gson.GsonBuilder;
 
 import java.io.*;
 
+/**
+ * Base class providing serialization and deserialization methods for saving and loading data of generic classes.
+ */
 public class Serialize {
     
     /**

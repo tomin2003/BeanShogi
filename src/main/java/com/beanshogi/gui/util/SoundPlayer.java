@@ -53,26 +53,6 @@ public class SoundPlayer {
     }
     
     /**
-     * Sets the volume for sound playback (legacy method for SFX).
-     * @param vol Volume level from 0.0 (mute) to 1.0 (max)
-     * @deprecated Use {@link #setSfxVolume(float)} instead
-     */
-    @Deprecated
-    public static void setVolume(float vol) {
-        setSfxVolume(vol);
-    }
-    
-    /**
-     * Gets the current volume level (legacy method for SFX).
-     * @return Volume level from 0.0 to 1.0
-     * @deprecated Use {@link #getSfxVolume()} instead
-     */
-    @Deprecated
-    public static float getVolume() {
-        return getSfxVolume();
-    }
-    
-    /**
      * Plays the piece movement sound effect.
      * Creates a new clip each time to allow overlapping sounds.
      */
@@ -127,7 +107,6 @@ public class SoundPlayer {
     /**
      * Starts playing background music in a loop.
      * The music will continue playing until stopped.
-     * Plays the music file defined in BACKGROUND_MUSIC_FILE constant.
      */
     public static void playBackgroundMusic() {
         try {
@@ -169,6 +148,14 @@ public class SoundPlayer {
         }
     }
 
+    /**
+     * Creates an AudioInputStream from a resource path.
+     * @param resourcePath Path to the audio resource in classpath
+     * @param isSfx Whether the audio is a sound effect
+     * @return The created AudioInputStream, or null if an error occurred
+     * @throws IOException If an I/O error occurs
+     * @throws UnsupportedAudioFileException If the audio file format is not supported
+     */
     private static AudioInputStream createAudioStream(String resourcePath, boolean isSfx) throws IOException, UnsupportedAudioFileException {
         byte[] audioData = loadAudioBytes(resourcePath);
         if (audioData == null) return null;
@@ -178,6 +165,13 @@ public class SoundPlayer {
         return audioIn;
     }
 
+    /**
+     * Loads audio data from a resource path into a byte array.
+     * @param resourcePath Path to the audio resource in classpath
+     * @return Byte array of audio data, or null if an error occurred
+     * @throws IOException If an I/O error occurs
+     * @throws UnsupportedAudioFileException If the audio file format is not supported
+     */
     private static byte[] loadAudioBytes(String resourcePath) throws IOException, UnsupportedAudioFileException {
         try (InputStream resourceStream = SoundPlayer.class.getResourceAsStream(resourcePath)) {
             if (resourceStream == null) {
