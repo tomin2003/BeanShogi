@@ -5,6 +5,7 @@ import com.beanshogi.core.game.*;
 import com.beanshogi.core.pieces.*;
 import com.beanshogi.core.pieces.normal.*;
 import com.beanshogi.core.pieces.normal.slider.Rook;
+import com.beanshogi.core.pieces.promoted.slider.PromotedRook;
 import com.beanshogi.core.pieces.normal.slider.Bishop;
 import com.beanshogi.core.util.*;
 import org.junit.jupiter.api.Test;
@@ -136,5 +137,87 @@ public class GameLogicTest {
         assertTrue(hand.getAllPieces().contains(pawn));
         hand.removePiece(pawn);
         assertFalse(hand.getAllPieces().contains(pawn));
+    }
+
+    @Test
+    void testKingInCheck() {
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        // Place Sente King
+        Position kingPos = new Position(4, 4);
+        King king = new King(Sides.SENTE, kingPos, null, board);
+        board.setPiece(kingPos, king);
+        // Place Gote Rook attacking the king
+        Position rookPos = new Position(4, 0);
+        Rook rook = new Rook(Sides.GOTE, rookPos, null, board);
+        board.setPiece(rookPos, rook);
+        // King should be in check
+        assertTrue(board.evals.isKingInCheck(Sides.SENTE));
+    }
+
+    @Test
+    void testSimpleCheckmate() {
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        // Place Sente King in the corner
+        Position kingPos = new Position(4, 0);
+        King king = new King(Sides.GOTE, kingPos, null, board);
+        board.setPiece(kingPos, king);
+        // Place two sente rooks and misc. non pawn piece to deliver checkmate
+        Position promotedRookPos1 = new Position(2, 1);
+        PromotedRook promotedRook1 = new PromotedRook(Sides.SENTE, promotedRookPos1, null, board);
+        board.setPiece(promotedRookPos1, promotedRook1);
+
+        Position promotedRookPos2 = new Position(5, 2);
+        PromotedRook promotedRook2 = new PromotedRook(Sides.SENTE, promotedRookPos2, null, board);
+        board.setPiece(promotedRookPos2, promotedRook2);
+
+        Position silverPos = new Position(4, 1);
+        SilverGeneral silver = new SilverGeneral(Sides.SENTE, silverPos, null, board);
+        board.setPiece(silverPos, silver);
+
+        assertTrue(board.evals.isCheckMate(Sides.GOTE));
+    }
+
+    @Test
+    void testPieceCapture() {
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        Position gotePos = new Position(4,4);
+        Pawn gotePawn = new Pawn(Sides.GOTE, null, null, board);
+        board.setPiece(gotePos, gotePawn);
+        Position sentePos = new Position(4,5);
+        Pawn sentePawn = new Pawn(Sides.SENTE, null, null, board);
+        board.setPiece(sentePos, sentePawn);
+
+        board.moveManager.applyMove(new Move(sente, sentePos, gotePos, sentePawn, null, false, false));
+        // Capture
+        assertTrue(sente.getHandPieces().contains(gotePawn));
+        assertNull((gotePawn).getBoardPosition());
+    }
+
+    @Test
+    void testUchifuzume() { // No pawn drop mate
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        // Place Sente King in the corner
+        Position kingPos = new Position(4, 0);
+        King king = new King(Sides.GOTE, kingPos, null, board);
+        board.setPiece(kingPos, king);
+        // Place two sente rooks to almost deliver checkmate
+        Position promotedRookPos1 = new Position(2, 1);
+        PromotedRook promotedRook1 = new PromotedRook(Sides.SENTE, promotedRookPos1, null, board);
+        board.setPiece(promotedRookPos1, promotedRook1);
+
+        Position promotedRookPos2 = new Position(5, 2);
+        PromotedRook promotedRook2 = new PromotedRook(Sides.SENTE, promotedRookPos2, null, board);
+        board.setPiece(promotedRookPos2, promotedRook2);
+
+        Position pawnPos = new Position(4, 1);
+        assertTrue(board.evals.violatesUchifuzume(Sides.SENTE, pawnPos)); // Create a pawn within evaluation
     }
 }
