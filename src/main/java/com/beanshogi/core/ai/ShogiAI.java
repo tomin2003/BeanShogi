@@ -38,6 +38,9 @@ public class ShogiAI {
 
     /**
      * Returns the best move (normal or drop) for the given side.
+     * @param sideToMove the side to move
+     * @param difficulty the AI difficulty level
+     * @return the best move found
      */
     public Move getBestMove(Sides sideToMove, AIDifficulty difficulty) {
         AIDifficulty activeDifficulty = difficulty != null ? difficulty : AIDifficulty.NORMAL;
@@ -79,6 +82,11 @@ public class ShogiAI {
     
     /**
      * Generate pseudo-legal moves for the given board/side, ordered by simple heuristics.
+     * @param targetBoard the board to generate moves for
+     * @param sideToMove the side to move
+     * @param difficulty the AI difficulty level
+     * @param applyNoise whether to apply ordering noise
+     * @return list of moves with ordering scores
      */
     private List<MoveScore> generateAllMoves(Board targetBoard, Sides sideToMove, AIDifficulty difficulty, boolean applyNoise) {
         List<MoveScore> moves = new ArrayList<>();
