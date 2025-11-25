@@ -72,17 +72,12 @@ public class Evals {
     /**
      * Produce legal destination squares for a piece, excluding those that leave own king in check.
      * If the side is currently in check, only include moves that resolve the check.
+     * This filtering makes it so that the king can't check itself.
      * @param piece the piece to get legal moves for
      * @return list of legal destination positions that don't leave the king in check
      */
     public List<Position> getFilteredLegalMoves(Piece piece) {
         Sides side = piece.getSide();
-        boolean inCheck = isKingInCheck(side);
-        
-        // If the king is not in check, return all legal moves
-        if (!inCheck) {
-            return piece.getLegalMoves();
-        }
         List<Position> filtered = new ArrayList<>();
 
         Position from = piece.getBoardPosition();

@@ -1,0 +1,68 @@
+{
+  "appName": "BeanShogi",
+  "version": "1.0",
+  "data": {
+    "entries": [
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 0,
+        "resultType": "RESIGNATION",
+        "finishedAt": "2025-11-24 23:43",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 0,
+        "resultType": "RESIGNATION",
+        "finishedAt": "2025-11-24 23:43",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 0,
+        "resultType": "RESIGNATION",
+        "finishedAt": "2025-11-24 23:44",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 0,
+        "resultType": "RESIGNATION",
+        "finishedAt": "2025-11-24 23:47",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 110,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-25 07:03",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 49,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-25 07:04",
+        "winnerType": "AI",
+        "loserType": "AI"
+      }
+    ]
+  }
+}
