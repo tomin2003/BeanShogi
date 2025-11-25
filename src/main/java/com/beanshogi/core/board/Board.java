@@ -116,7 +116,9 @@ public class Board {
         Player player = getPlayer(pieceside);
         Piece handTemplate = null;
         for (Piece hp : player.getHandPieces()) {
-            if (pieceClass.isInstance(hp)) { handTemplate = hp; break; }
+            if (pieceClass.isInstance(hp)) { 
+                handTemplate = hp; break; 
+            }
         }
         // If no piece of that class in hand, no drop points
         if (handTemplate == null) {

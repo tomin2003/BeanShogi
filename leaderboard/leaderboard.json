@@ -62,6 +62,45 @@
         "finishedAt": "2025-11-25 07:04",
         "winnerType": "AI",
         "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 160,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-25 07:22",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 31,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-25 08:08",
+        "winnerType": "HUMAN",
+        "loserType": "HUMAN"
+      },
+      {
+        "winnerName": "Draw",
+        "loserName": "Draw",
+        "movesPlayed": 92,
+        "resultType": "DRAW",
+        "finishedAt": "2025-11-25 08:13",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 68,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-25 08:15",
+        "winnerType": "AI",
+        "loserType": "AI"
       }
     ]
   }
