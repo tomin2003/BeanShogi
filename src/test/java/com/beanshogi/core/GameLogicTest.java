@@ -26,22 +26,6 @@ public class GameLogicTest {
     }
 
     @Test
-    void testKingCannotMoveIntoCheck() {
-        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
-        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
-        Board board = new Board(Arrays.asList(sente, gote));
-        Position kingPos = new Position(4,4);
-        King king = new King(Sides.SENTE, kingPos, null, board);
-        board.setPiece(kingPos, king);
-        Position enemyPos = new Position(4,5);
-        Pawn enemyPawn = new Pawn(Sides.GOTE, enemyPos, null, board);
-        board.setPiece(enemyPos, enemyPawn);
-        List<Position> moves = king.getLegalMoves();
-        // Note: getLegalMoves doesn't filter for check, so king can move into attacked square
-        assertTrue(moves.contains(new Position(4,5)));
-    }
-
-    @Test
     void testEndGameCheckmate() {
         Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
         Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
@@ -157,7 +141,97 @@ public class GameLogicTest {
     }
 
     @Test
-    void testSimpleCheckmate() {
+    void testKingCannotMoveIntoCheck() {
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        // Place Sente King
+        Position kingPos = new Position(4, 4);
+        King king = new King(Sides.SENTE, kingPos, null, board);
+        board.setPiece(kingPos, king);
+        // Place Gote Rook attacking the king
+        Position rookPos = new Position(3, 0);
+        Rook rook = new Rook(Sides.GOTE, rookPos, null, board);
+        board.setPiece(rookPos, rook);
+        // King should not yet be in check
+        assertFalse(board.evals.isKingInCheck(Sides.SENTE));
+        assertFalse(board.evals.getFilteredLegalMoves(king).contains(new Position (3,4))); // Moving into check not allowed
+    }
+
+    @Test
+    void testCheckAvoid() {
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        // Place gote King
+        Position kingPos = new Position(4, 0);
+        King king = new King(Sides.GOTE, kingPos, null, board);
+        board.setPiece(kingPos, king);
+
+        // Place sente Rook attacking the king head on
+        Position headOn = new Position(4, 4);
+        Rook headOnRook = new Rook(Sides.SENTE, headOn, null, board);
+        board.setPiece(headOn, headOnRook);
+
+        // Place sente Rook diagonal to the square in front of king
+        Position diagonal = new Position(0, 1);
+        Rook diagonalRook = new Rook(Sides.SENTE, diagonal, null, board);
+        board.setPiece(diagonal, diagonalRook);
+
+        // King can avoid check by moving
+        assertTrue(board.evals.isKingInCheck(Sides.GOTE));
+        assertTrue(board.evals.getFilteredLegalMoves(king).contains(new Position (3,0))); // Avoid left
+        assertTrue(board.evals.getFilteredLegalMoves(king).contains(new Position (5,0))); // Avoid right
+        assertTrue(board.evals.getFilteredLegalMoves(king).size() == 2); // Only two moves available
+    }
+
+    @Test
+    void testCheckBlock() {
+        Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
+        Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
+        Board board = new Board(Arrays.asList(sente, gote));
+        // Place gote King
+        Position kingPos = new Position(4, 0);
+        King king = new King(Sides.GOTE, kingPos, null, board);
+        board.setPiece(kingPos, king);
+
+        // Place sente Rook attacking the king head on
+        Position headOn = new Position(4, 4);
+        Rook headOnRook = new Rook(Sides.SENTE, headOn, null, board);
+        board.setPiece(headOn, headOnRook);
+
+        assertTrue(board.evals.isKingInCheck(Sides.GOTE));
+
+        // Place gote rook to block the check
+        Position blockRookPos = new Position(1, 1);
+        Rook blockRook = new Rook(Sides.GOTE, blockRookPos, null, board);
+        board.setPiece(blockRookPos, blockRook);
+        
+        assertTrue(board.evals.getFilteredLegalMoves(blockRook).contains(new Position(4,1))); // Blocking the check
+        assertFalse(board.evals.getFilteredLegalMoves(blockRook).contains(new Position(0,1))); // Cannot move to other positions now
+        board.moveManager.applyMove(new Move(gote, blockRookPos, new Position(4,1), blockRook, null, false, false));
+
+        // King should no longer be in check
+        assertFalse(board.evals.isKingInCheck(Sides.GOTE));
+
+        board.moveManager.undoMove();
+
+        // King should be back in check
+        assertTrue(board.evals.isKingInCheck(Sides.GOTE));
+
+        // Try to block check with drop
+        Piece pawn = new Pawn(Sides.GOTE, null, null, board);
+        sente.addToHand(pawn);
+        Position dropPos = new Position(4,2);
+        assertFalse(board.getPieceDropPoints(Pawn.class, Sides.GOTE).contains(new Position(3,2))); // Cannot drop elsewhere (other column)
+        board.moveManager.applyMove(new Move(sente, pawn.getHandPosition(), dropPos, pawn, null, false, true));
+
+        // King should no longer be in check
+        assertFalse(board.evals.isKingInCheck(Sides.GOTE));
+    }
+
+    @Test
+    void testCheckmate() {
         Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
         Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
         Board board = new Board(Arrays.asList(sente, gote));
@@ -197,6 +271,7 @@ public class GameLogicTest {
         // Capture
         assertTrue(sente.getHandPieces().contains(gotePawn));
         assertNull((gotePawn).getBoardPosition());
+        assertEquals(Sides.SENTE, gotePawn.getSide());
     }
 
     @Test
@@ -204,10 +279,12 @@ public class GameLogicTest {
         Player sente = new Player(Sides.SENTE, "Sente", PlayerType.HUMAN);
         Player gote = new Player(Sides.GOTE, "Gote", PlayerType.HUMAN);
         Board board = new Board(Arrays.asList(sente, gote));
-        // Place Sente King in the corner
+
+        // Place gote King in the default position
         Position kingPos = new Position(4, 0);
         King king = new King(Sides.GOTE, kingPos, null, board);
         board.setPiece(kingPos, king);
+
         // Place two sente rooks to almost deliver checkmate
         Position promotedRookPos1 = new Position(2, 1);
         PromotedRook promotedRook1 = new PromotedRook(Sides.SENTE, promotedRookPos1, null, board);
@@ -217,7 +294,16 @@ public class GameLogicTest {
         PromotedRook promotedRook2 = new PromotedRook(Sides.SENTE, promotedRookPos2, null, board);
         board.setPiece(promotedRookPos2, promotedRook2);
 
-        Position pawnPos = new Position(4, 1);
-        assertTrue(board.evals.violatesUchifuzume(Sides.SENTE, pawnPos)); // Create a pawn within evaluation
+        // Create a new capturable gote pawn
+        Pawn pawn = new Pawn(Sides.GOTE, null, null, board);
+        // Add to sente's hand (changes side to SENTE)
+        sente.addToHand(pawn);
+        // Try dropping pawn to deliver checkmate in front of king
+        Position pawnDropTarget = new Position(4, 1);
+
+        // The uchifuzume violation should be detected
+        assertTrue(board.evals.violatesUchifuzume(Sides.SENTE, pawnDropTarget));
+        // Legal drop positions should not include the illegal pawn drop
+        assertFalse(board.getPieceDropPoints(Pawn.class, Sides.SENTE).contains(pawnDropTarget));
     }
 }

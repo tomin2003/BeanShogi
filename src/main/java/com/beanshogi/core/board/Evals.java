@@ -225,6 +225,11 @@ public class Evals {
                 break;
             }
         }
+
+        if (dropPiece == null) {
+            return false; // No pawn in hand to drop
+        }
+        
         Move dropMove = new Move(dropPlayer, dropPiece.getHandPosition(), dropPos, dropPiece, null, false, true);
 
         boolean applied = false;
