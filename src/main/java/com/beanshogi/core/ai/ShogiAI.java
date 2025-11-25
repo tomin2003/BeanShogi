@@ -11,9 +11,15 @@ import com.beanshogi.core.game.Sides;
 import com.beanshogi.core.pieces.Piece;
 import com.beanshogi.core.util.Position;
 
-
+/**
+ * Class implementing a basic Shogi AI using minimax with alpha-beta pruning
+ * and simple move ordering heuristics.
+ */
 public class ShogiAI {
 
+    /**
+     * Helper class to hold a move along with its ordering score
+     */
     private static class MoveScore {
         final com.beanshogi.core.board.Move move;
         final int orderingScore;
@@ -56,6 +62,7 @@ public class ShogiAI {
                 continue;
             }
 
+            // Get the score with the minimax algorithm
             int score = minimax(searchBoard, maxDepth - 1, sideToMove.getOpposite(),
                                 sideToMove, Integer.MIN_VALUE, Integer.MAX_VALUE, activeDifficulty);
 
@@ -107,6 +114,7 @@ public class ShogiAI {
             }
         }
 
+        // Do the same for drops
         for (Piece handPiece : player.getHandPieces()) {
             List<Position> dropPoints = targetBoard.getPieceDropPoints(handPiece.getClass(), sideToMove);
             for (Position dropPos : dropPoints) {
@@ -123,10 +131,18 @@ public class ShogiAI {
             }
         }
 
+        // Sort moves by their ordering score
         moves.sort((a, b) -> Integer.compare(b.orderingScore, a.orderingScore));
         return moves;
     }
 
+    /**
+     * Adds random noise to the base score for move ordering to introduce variability.
+     * @param baseScore the base score of the move
+     * @param difficulty the AI difficulty level
+     * @param applyNoise whether to apply noise or not
+     * @return the modified score with noise
+     */
     private int addOrderingNoise(int baseScore, AIDifficulty difficulty, boolean applyNoise) {
         if (!applyNoise) {
             return Math.max(0, baseScore);
@@ -141,25 +157,28 @@ public class ShogiAI {
 
     /**
      * Minimax with alpha-beta pruning
-     * @param currentBoard
-     * @param depth
-     * @param sideToMove
-     * @param alpha
-     * @param beta
+     * @param currentBoard the current board state
+     * @param depth the search depth
+     * @param sideToMove the side to move
+     * @param alpha the alpha value for pruning
+     * @param beta the beta value for pruning
      * @return evaluation score
      */
     private int minimax(Board currentBoard, int depth, Sides sideToMove, Sides maximizingSide,
                         int alpha, int beta, AIDifficulty difficulty) {
 
+        // Base case: maximum depth reached
         if (depth == 0) {
             return evaluate(currentBoard, maximizingSide);
         }
 
+        // Generate all possible moves
         List<MoveScore> moves = generateAllMoves(currentBoard, sideToMove, difficulty, false);
         boolean maximizing = sideToMove == maximizingSide;
         int best = maximizing ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         boolean exploredLegalMove = false;
 
+        // If no moves available, check for checkmate or stalemate
         if (moves.isEmpty()) {
             return currentBoard.evals.isKingInCheck(sideToMove) ? (maximizing ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth) : 0;
         }
@@ -172,13 +191,15 @@ public class ShogiAI {
                 currentBoard.moveManager.getRedoStack().clear();
                 continue;
             }
-
             exploredLegalMove = true;
+
+            // recurse
             int score = minimax(currentBoard, depth - 1, sideToMove.getOpposite(), maximizingSide, alpha, beta, difficulty);
 
             currentBoard.moveManager.undoMove();
             currentBoard.moveManager.getRedoStack().clear();
 
+            // Alpha-beta pruning
             if (maximizing) {
                 best = Math.max(best, score);
                 alpha = Math.max(alpha, best);
@@ -192,10 +213,9 @@ public class ShogiAI {
             }
         }
 
+        // No legal moves explored (all left king in check)
         if (!exploredLegalMove) {
-            return currentBoard.evals.isKingInCheck(sideToMove)
-                    ? (maximizing ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth)
-                    : 0;
+            return currentBoard.evals.isKingInCheck(sideToMove) ? (maximizing ? Integer.MIN_VALUE + depth : Integer.MAX_VALUE - depth) : 0;
         }
 
         return best;
@@ -203,8 +223,8 @@ public class ShogiAI {
 
     /**
      * Evaluate score
-     * @param board
-     * @param maximizingSide
+     * @param board the board to evaluate
+     * @param maximizingSide the side to maximize
      * @return evaluation score
      */
     private int evaluate(Board board, Sides maximizingSide) {
@@ -247,16 +267,25 @@ public class ShogiAI {
         return score;
     }
 
+    /**
+     * Evaluate piece position for bonus points
+     * @param piece the piece to evaluate
+     * @param maximizingSide the side to maximize
+     * @return the evaluation score
+     */
     private int evaluatePiecePosition(Piece piece, Sides maximizingSide) {
         int score = 0;
         int x = piece.getBoardPosition().x;
         int y = piece.getBoardPosition().y;
 
+        // Central control bonus
         if (x >= 3 && x <= 5 && y >= 3 && y <= 5) {
-            score += 20;
-        }
-        if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide)) {
             score += 30;
+        }
+
+        // Advancement bonus
+        if (piece.canPromote() && piece.getBoardPosition().inPromotionZone(maximizingSide)) {
+            score += 50;
         }
 
         return score;
