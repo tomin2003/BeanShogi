@@ -32,6 +32,8 @@ public class GamePlayWindowed extends BackgroundPanel {
     private static final int BOARD_GRID_GAP = 2;
     private static final int HAND_VERT_GAP = 10;
 
+    private Controller controller;
+
     public GamePlayWindowed(ShogiWindow window, Game game) {
         super("/gamebg4_3.png");
         
@@ -98,13 +100,16 @@ public class GamePlayWindowed extends BackgroundPanel {
         ControllerListeners listeners = new ControllerListeners(sp, urp, alp, gameEventListener, uiInteractionListener, soundEventListener);
 
         // Create controller
-        Controller controller = new Controller(game, this, listeners, panels);
+        controller = new Controller(game, this, listeners, panels);
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();
-
         // Add menubar with the resign option
         JMenuBar mb = SwingUtils.makeMenuBar(window, game, controller::resign);
         add(mb);
+    }
+
+    public Controller getController() {
+        return controller;
     }
 }

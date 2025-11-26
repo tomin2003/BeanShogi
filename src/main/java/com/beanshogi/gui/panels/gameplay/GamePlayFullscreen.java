@@ -31,6 +31,8 @@ public class GamePlayFullscreen extends BackgroundPanel {
     private static final int BOARD_GRID_GAP = 2;
     private static final int HAND_VERT_GAP = 15;
 
+    private Controller controller;
+
     public GamePlayFullscreen(ShogiWindow window, Game game) {
         super("/gamebg16_9.png");
         // Allow for pixel precision alignment of components
@@ -98,13 +100,16 @@ public class GamePlayFullscreen extends BackgroundPanel {
         ControllerListeners listeners = new ControllerListeners(sp, urp, alp, gameEventListener, uiInteractionListener, soundEventListener);
 
         // Create controller (which creates the Game internally)
-        Controller controller = new Controller(game, this, listeners, panels);
+        controller = new Controller(game, this, listeners, panels);
 
         // Start the game (renders board and kickstarts AI if needed)
         controller.startGame();
-
         // Add menubar with the resign option
         JMenuBar mb = SwingUtils.makeMenuBar(window, game, controller::resign);
         add(mb);
+    }
+
+    public Controller getController() {
+        return controller;
     }
 }

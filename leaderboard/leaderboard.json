@@ -1,0 +1,66 @@
+{
+  "appName": "BeanShogi",
+  "version": "1.0",
+  "data": {
+    "entries": [
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 41,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-26 11:42",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Draw",
+        "loserName": "Draw",
+        "movesPlayed": 117,
+        "resultType": "DRAW",
+        "finishedAt": "2025-11-26 11:44",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 232,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-26 11:45",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Draw",
+        "loserName": "Draw",
+        "movesPlayed": 198,
+        "resultType": "DRAW",
+        "finishedAt": "2025-11-26 11:45",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 2",
+        "loserName": "Player 1",
+        "losingSide": "SENTE",
+        "movesPlayed": 238,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-26 11:45",
+        "winnerType": "AI",
+        "loserType": "AI"
+      },
+      {
+        "winnerName": "Player 1",
+        "loserName": "Player 2",
+        "losingSide": "GOTE",
+        "movesPlayed": 269,
+        "resultType": "CHECKMATE",
+        "finishedAt": "2025-11-26 11:51",
+        "winnerType": "AI",
+        "loserType": "AI"
+      }
+    ]
+  }
+}

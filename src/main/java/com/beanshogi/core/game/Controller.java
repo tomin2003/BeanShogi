@@ -251,7 +251,7 @@ public class Controller {
      * Executes on a background thread to keep UI responsive.
      */
     private void tryAIMove() {
-        if (gameOver || aiTurnInProgress) {
+        if (gameOver || aiTurnInProgress || aiExecutor.isShutdown()) {
             return;
         }
 
@@ -263,7 +263,7 @@ public class Controller {
         aiTurnInProgress = true;
         final Sides turnSnapshot = sideOnTurn;
         final AIDifficulty difficulty = currentPlayer.getDifficulty();
-        
+
         aiExecutor.execute(() -> {
             try {
                 Move aiMove = ai.getBestMove(turnSnapshot, difficulty);

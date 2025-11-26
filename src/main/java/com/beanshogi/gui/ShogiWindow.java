@@ -26,6 +26,8 @@ public class ShogiWindow extends JFrame {
     private LoadGamePanel loadMenu;
     private LeaderboardPanel leaderboardMenu;
     private String currentGameCard; // Tracks which game view is active (fullscreen/windowed)
+    // Track the current Controller for shutdown
+    private com.beanshogi.core.game.Controller currentController = null;
 
     public ShogiWindow() {
         setTitle("BeanShogi");
@@ -61,6 +63,11 @@ public class ShogiWindow extends JFrame {
     }
 
     public void showGamePlay(Game game) {
+        // Shutdown previous controller if present
+        if (currentController != null) {
+            currentController.shutdown();
+            currentController = null;
+        }
         // Remove old game panels to prevent memory leaks and resource conflicts
         Component[] components = mainPanel.getComponents();
         for (Component comp : components) {
@@ -70,11 +77,15 @@ public class ShogiWindow extends JFrame {
         }
         if (fullScreen) {
             GamePlayFullscreen fsPanel = new GamePlayFullscreen(this, game);
+            // Store controller reference
+            currentController = fsPanel.getController();
             mainPanel.add(fsPanel, "GAME_FULLSCREEN");
             currentGameCard = "GAME_FULLSCREEN";
             showCard(currentGameCard);
         } else {
             GamePlayWindowed wPanel = new GamePlayWindowed(this, game);
+            // Store controller reference
+            currentController = wPanel.getController();
             mainPanel.add(wPanel, "GAME_WINDOWED");
             currentGameCard = "GAME_WINDOWED";
             showCard(currentGameCard);
@@ -105,6 +116,11 @@ public class ShogiWindow extends JFrame {
     }
 
     public void returnToMainMenu() {
+        // Shutdown controller if returning to main menu from a game
+        if (currentController != null) {
+            currentController.shutdown();
+            currentController = null;
+        }
         currentGameCard = null;
         SoundPlayer.stopBackgroundMusic();
         showCard("MAIN");
