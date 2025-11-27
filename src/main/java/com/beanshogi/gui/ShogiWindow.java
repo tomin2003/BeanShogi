@@ -2,6 +2,7 @@ package com.beanshogi.gui;
 
 import javax.swing.*;
 
+import com.beanshogi.core.game.Controller;
 import com.beanshogi.core.game.Game;
 import com.beanshogi.gui.listeners.event.WindowCloseListener;
 import com.beanshogi.gui.panels.gameplay.GamePlayFullscreen;
@@ -16,6 +17,9 @@ import com.beanshogi.gui.util.SwingUtils;
 
 import java.awt.*;
 
+/**
+ * The main JFrame for BeanShogi.
+ */
 public class ShogiWindow extends JFrame {
     private JPanel mainPanel;
     private CardLayout cardLayout;
@@ -26,8 +30,7 @@ public class ShogiWindow extends JFrame {
     private LoadGamePanel loadMenu;
     private LeaderboardPanel leaderboardMenu;
     private String currentGameCard; // Tracks which game view is active (fullscreen/windowed)
-    // Track the current Controller for shutdown
-    private com.beanshogi.core.game.Controller currentController = null;
+    private Controller currentController = null; // Track the current Controller for shutdown
 
     public ShogiWindow() {
         setTitle("BeanShogi");
@@ -62,6 +65,10 @@ public class ShogiWindow extends JFrame {
         setVisible(true);
     }
 
+    /**
+     * Show either full screen or windowed gameplay panels.
+     * @param game the current game
+     */
     public void showGamePlay(Game game) {
         // Shutdown previous controller if present
         if (currentController != null) {
@@ -92,21 +99,37 @@ public class ShogiWindow extends JFrame {
         }
     }
 
+    /**
+     * Lambda friendly version of openSettings(), allows display mode changes.
+     * @param backAction the action to be performed for the back button press
+     */
     public void openSettings(Runnable backAction) {
         openSettings(backAction, true);
     }
 
+    /**
+     * Navigates to the settings menucard.
+     * @param backAction the action to be performed for the back button press
+     * @param allowDisplayModeChanges allow the display mode change radio buttons or not
+     */
     public void openSettings(Runnable backAction, boolean allowDisplayModeChanges) {
         settingsMenu.setBackAction(backAction);
         settingsMenu.setDisplayModeControlsEnabled(allowDisplayModeChanges);
         showCard("SETTINGS");
     }
 
+    /**
+     * Navigates to the load menucard.
+     * @param backAction The action to be performed for the back button press
+     */
     public void openLoadMenu(Runnable backAction) {
         loadMenu.setBackAction(backAction);
         showCard("LOAD");
     }
 
+    /**
+     * The default action for returning from menus.
+     */
     public void returnToGame() {
         if (currentGameCard != null) {
             showCard(currentGameCard);
@@ -115,6 +138,9 @@ public class ShogiWindow extends JFrame {
         }
     }
 
+    /**
+     * Returning to main menu from game, shuts down running game processes.
+     */
     public void returnToMainMenu() {
         // Shutdown controller if returning to main menu from a game
         if (currentController != null) {
@@ -126,26 +152,36 @@ public class ShogiWindow extends JFrame {
         showCard("MAIN");
     }
 
+    /**
+     * Sets fullscreen mode explicitly to false
+     */
     public void setSmallWindow() {
         setWindowMode(false);
     }
 
+    /**
+     * Sets fullscreen mode explicitly to true
+     */
     public void setFullscreenWindow() {
         setWindowMode(true);
     }
 
+    /**
+     * Change the display mode of the frame.
+     * @param isFullscreen true - fullscreen, false - windowed
+     */
     private void setWindowMode(boolean isFullscreen) {
         dispose();
         setUndecorated(isFullscreen);
 
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
 
-        if (isFullscreen) {
+        if (isFullscreen) { // Perform entering full screen mode
             gd.setFullScreenWindow(this);
             setVisible(true);
             mainPanel.revalidate();
             repaint();
-        } else {
+        } else { // Perform going back to windowed mode from full screen
             gd.setFullScreenWindow(null);
             mainPanel.setPreferredSize(new Dimension(WINDOW_WIDTH, WINDOW_HEIGHT));
             setContentPane(mainPanel);
@@ -157,10 +193,18 @@ public class ShogiWindow extends JFrame {
         fullScreen = isFullscreen;
     }
 
+    /**
+     * Public getter of full screen mode state.
+     * @return fullscreen mode state
+     */
     public boolean isFullScreenMode() {
         return fullScreen;
     }
 
+    /**
+     * Show menucard
+     * @param cardName name of card to be shown
+     */
     public void showCard(String cardName) {
         // Clear menu bar when not in game
         if (!cardName.equals("GAME_FULLSCREEN") && !cardName.equals("GAME_WINDOWED")) {
@@ -168,10 +212,9 @@ public class ShogiWindow extends JFrame {
             if (!fullScreen) {
                 // Let pack() resize based on content
                 pack();
-                setLocationRelativeTo(null);
             }
         }
-        if ("LEADERBOARD".equals(cardName) && leaderboardMenu != null) {
+        if (cardName.equals("LEADERBOARD") && leaderboardMenu != null) {
             leaderboardMenu.refresh();
         }
         cardLayout.show(mainPanel, cardName);

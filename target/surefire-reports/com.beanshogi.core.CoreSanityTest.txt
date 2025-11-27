@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.beanshogi.core.CoreSanityTest
 -------------------------------------------------------------------------------
-Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.144 s - in com.beanshogi.core.CoreSanityTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.137 s - in com.beanshogi.core.CoreSanityTest
