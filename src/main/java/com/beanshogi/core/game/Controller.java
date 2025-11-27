@@ -35,6 +35,7 @@ public class Controller {
     private final ControllerListeners listeners;
 
     private Sides sideOnTurn;
+    private Player playerOnTurn;
     private boolean gameOver = false;
     private final ExecutorService aiExecutor = Executors.newSingleThreadExecutor(r -> {
         Thread t = new Thread(r, "beanshogi-ai");
@@ -62,6 +63,7 @@ public class Controller {
 
         Sides savedTurn = game.getNextTurn();
         this.sideOnTurn = savedTurn != null ? savedTurn : Sides.SENTE;
+        this.playerOnTurn = board.getPlayer(sideOnTurn);
 
         listeners.notifySideOnTurnChanged(sideOnTurn);
         game.setNextTurn(sideOnTurn);
@@ -118,6 +120,7 @@ public class Controller {
             return;
         }
         sideOnTurn = sideOnTurn.getOpposite();
+        playerOnTurn = board.getPlayer(sideOnTurn);
         listeners.notifySideOnTurnChanged(sideOnTurn);
         game.setNextTurn(sideOnTurn);
     }
@@ -126,7 +129,7 @@ public class Controller {
      * Notify listeners about the changed board state
      */
     private void notifyListeners() {
-        listeners.updateUndoRedoState(this, board.moveManager);
+        listeners.updateUndoRedoState(this, board.moveManager, playerOnTurn);
         listeners.notifyMoveCount(board.moveManager.getNoOfMoves());
         listeners.notifyKingCheck(board.evals.kingChecks());
     }
@@ -417,7 +420,7 @@ public class Controller {
         afterMove();
 
         // Undo once more on AI moves, because the player can't change that
-        if (board.getPlayer(sideOnTurn).isAI() && !board.moveManager.isUndoStackEmpty()) {
+        if (playerOnTurn.isAI() && !board.moveManager.isUndoStackEmpty()) {
             board.moveManager.undoMove();
             advanceTurn();
             afterMove();
@@ -438,7 +441,7 @@ public class Controller {
         afterMove();
 
         // Redo once more on AI moves, because the player can't change that
-        if (board.getPlayer(sideOnTurn).isAI() && !board.moveManager.isRedoStackEmpty()) {
+        if (playerOnTurn.isAI() && !board.moveManager.isRedoStackEmpty()) {
             board.moveManager.redoMove();
             advanceTurn();
             afterMove();
@@ -452,7 +455,7 @@ public class Controller {
      * @param clickPosition the position on the board that was clicked
      */
     private void handleBoardClick(Position clickPosition) {
-        if (gameOver) {
+        if (gameOver || playerOnTurn.isAI()) {
             return;
         }
         // Handle hand piece drop first
@@ -494,7 +497,7 @@ public class Controller {
      * @return the selected piece, or null if no valid piece was selected
      */
     public Piece handleHandClick(Position clickPosition, Sides handSide) {
-        if (gameOver) {
+        if (gameOver || playerOnTurn.isAI()) {
             return null;
         }
         HandGrid handGrid = board.getPlayer(handSide).getHandGrid();

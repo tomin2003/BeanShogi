@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import com.beanshogi.core.game.Controller;
+import com.beanshogi.core.game.Player;
 import com.beanshogi.core.util.Position;
 import com.beanshogi.gui.listeners.event.UndoRedoListener;
 import com.beanshogi.gui.util.SwingUtils;
@@ -20,7 +21,12 @@ public class UndoRedoPanel extends JPanel implements UndoRedoListener {
     private JButton undoButton;
     private JButton redoButton;
     private Controller controller;
-    
+
+    // Track state
+    private boolean isAITurn = false;
+    private boolean undoStackEmpty = true;
+    private boolean redoStackEmpty = true;
+
     public UndoRedoPanel(Position pos) {
         setLayout(new FlowLayout(FlowLayout.CENTER));
         setBounds(pos.x, pos.y, 120, 80);
@@ -47,11 +53,27 @@ public class UndoRedoPanel extends JPanel implements UndoRedoListener {
 
     @Override
     public void onUndoStackEmpty(boolean isEmpty) {
-        SwingUtilities.invokeLater(() -> undoButton.setEnabled(!isEmpty));
+        this.undoStackEmpty = isEmpty;
+        updateButtonStates();
     }
 
     @Override
     public void onRedoStackEmpty(boolean isEmpty) {
-        SwingUtilities.invokeLater(() -> redoButton.setEnabled(!isEmpty));
+        this.redoStackEmpty = isEmpty;
+        updateButtonStates();
     }
+
+    @Override
+    public void onTurnAdvance(Player playerOnTurn) {
+        this.isAITurn = (playerOnTurn.isAI());
+        updateButtonStates();
+    }
+
+    private void updateButtonStates() {
+        SwingUtilities.invokeLater(() -> {
+            undoButton.setEnabled(!isAITurn && !undoStackEmpty);
+            redoButton.setEnabled(!isAITurn && !redoStackEmpty);
+        });
+    }
+
 }

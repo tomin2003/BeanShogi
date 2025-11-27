@@ -6,6 +6,7 @@ import com.beanshogi.core.board.Move;
 import com.beanshogi.core.board.MoveManager;
 import com.beanshogi.core.game.CheckEvent;
 import com.beanshogi.core.game.Controller;
+import com.beanshogi.core.game.Player;
 import com.beanshogi.core.game.Sides;
 import com.beanshogi.core.pieces.Piece;
 import com.beanshogi.core.util.Position;
@@ -82,10 +83,11 @@ public class ControllerListeners {
 		kingCheckListener.onKingInCheck(checkEvents);
 	}
 
-	public void updateUndoRedoState(Controller controller, MoveManager moveManager) {
+	public void updateUndoRedoState(Controller controller, MoveManager moveManager, Player playerOnTurn) {
 		undoRedoListener.gainController(controller);
 		undoRedoListener.onUndoStackEmpty(moveManager.isUndoStackEmpty());
 		undoRedoListener.onRedoStackEmpty(moveManager.isRedoStackEmpty());
+		undoRedoListener.onTurnAdvance(playerOnTurn);
 	}
 
 	public void notifyMoveMade(Move move, Sides side) {
