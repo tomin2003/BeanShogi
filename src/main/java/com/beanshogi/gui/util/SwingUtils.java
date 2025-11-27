@@ -6,6 +6,8 @@ import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.function.Consumer;
 
@@ -26,6 +28,7 @@ import javax.swing.event.ChangeListener;
 
 import com.beanshogi.core.game.Game;
 import com.beanshogi.core.game.Player;
+import com.beanshogi.core.game.PlayerType;
 import com.beanshogi.core.game.Sides;
 import com.beanshogi.gui.ShogiWindow;
 import com.beanshogi.io.GameSaveLoad;
@@ -227,7 +230,18 @@ public class SwingUtils {
      */
     private static JMenu buildFileMenu(ShogiWindow window, Game game) {
         JMenu fileMenu = new JMenu("File");
-        fileMenu.add(menuItem("New Game", e -> window.showGamePlay(new Game(game.getBoard().getPlayers()))));
+        fileMenu.add(menuItem("New Game", e -> {
+            // Create new Player objects for a fresh game
+            List<Player> newPlayers = new ArrayList<>();
+            for (Player p : game.getBoard().getPlayers()) {
+                if (p.getType() == PlayerType.AI) {
+                    newPlayers.add(new Player(p.getSide(), p.getName(), p.getType(), p.getDifficulty()));
+                } else {
+                    newPlayers.add(new Player(p.getSide(), p.getName(), p.getType()));
+                }
+            }
+            window.showGamePlay(new Game(newPlayers));
+        }));
         fileMenu.add(menuItem("Save game", e -> Popups.showGameSaved(window, GameSaveLoad.save(game))));
         fileMenu.add(menuItem("Load game", e -> window.openLoadMenu(window::returnToGame)));
         fileMenu.addSeparator();
